@@ -1,0 +1,63 @@
+{
+  "name": "singularity-portfolio",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Portfólio pessoal de Victor Hugo — um buraco negro procedural em WebGL como personagem do site, com scroll dilatado pela gravidade, redshift progressivo e uma coreografia de reload que devolve a página ao topo.",
+  "author": "Victor Hugo <vhzzlk@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/eovitu/portfolio-vitu#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eovitu/portfolio-vitu.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eovitu/portfolio-vitu/issues"
+  },
+  "keywords": [
+    "portfolio",
+    "webgl",
+    "threejs",
+    "react",
+    "typescript",
+    "gsap",
+    "lenis",
+    "scrollytelling",
+    "creative-development",
+    "black-hole"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@react-three/fiber": "^8.17.10",
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "styled-components": "^6.1.13",
+    "three": "^0.160.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.160.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "globals": "^15.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.0.0",
+    "vite": "^5.4.11"
+  }
+}
