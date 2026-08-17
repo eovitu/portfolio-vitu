@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Singularity — 3D object</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#050506;}
+  three-d-stage:not(:defined){visibility:hidden}
+  three-d-stage{display:block;width:100vw;height:100vh}
+</style>
+</head>
+<body>
+<three-d-stage name="singularity" background="#050506"></three-d-stage>
+<script src="three-d-stage.js"></script>
+<script type="module">
+import * as THREE from 'three';
+
+const stage = document.querySelector('three-d-stage');
+await stage.ready;
+stage._renderer.toneMapping = THREE.ACESFilmicToneMapping;
+stage._renderer.toneMappingExposure = 1.42;
+
+const model = new THREE.Group();
+model.name = 'BlackHole';
+
+/* ---------- materials (5 named) ---------- */
+const mVoid   = new THREE.MeshBasicMaterial({ name:'event_horizon', color:0x000000 });
+const mMatter = new THREE.MeshBasicMaterial({ name:'accreting_matter', color:0xffffff, vertexColors:true,
+  transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+const mLight  = new THREE.MeshBasicMaterial({ name:'lensed_light', color:0xffffff,
+  transparent:true, opacity:1, blending:THREE.AdditiveBlending, depthWrite:false });
+const mStrand = new THREE.MeshBasicMaterial({ name:'energy_strand', color:0xb2b7c2, vertexColors:true,
+  transparent:true, opacity:.20, blending:THREE.AdditiveBlending, depthWrite:false });
+const mViolet = new THREE.MeshBasicMaterial({ name:'accent_violet', color:0x8a72e0,
+  vertexColors:true, transparent:true, opacity:.85, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+
+/* nothing may add light inside the horizon's screen-space disc — mask these
+   materials against the core in view space so no fragment lands on the void */
+const coreMaskU = { uCoreView: { value: new THREE.Vector3() }, uCoreR: { value: 0.88 } };
+function maskCore(mat){
+  mat.onBeforeCompile = (s) => {
+    Object.assign(s.uniforms, coreMaskU);
+    s.vertexShader = 'varying vec3 vViewP;\n' + s.vertexShader.replace(
+      '#include <fog_vertex>', '#include <fog_vertex>\n vViewP = mvPosition.xyz;');
+    s.fragmentShader = 'uniform vec3 uCoreView;\nuniform float uCoreR;\nvarying vec3 vViewP;\n' +
+      s.fragmentShader.replace('#include <dithering_fragment>',
+        ' float d = length(cross(uCoreView, normalize(vViewP)));\n' +
+        ' gl_FragColor.a *= smoothstep(uCoreR, uCoreR * 1.28, d);\n' +
+        ' if (gl_FragColor.a <= 0.001) discard;\n#include <dithering_fragment>');
+  };
+  mat.needsUpdate = true;
+  return mat;
+}
+maskCore(mStrand); maskCore(mViolet);
+
+let seed = 1337;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const noise = (a, r, k) =>
+  0.55 * Math.sin(a * 3.13 + r * k) +
+  0.28 * Math.sin(a * 7.71 - r * k * 1.7 + 1.3) +
+  0.17 * Math.sin(a * 13.37 + r * k * 2.6 + 2.1);
+
+/* fractal turbulence — filaments and density cells, no straight bands */
+function fbm(a, r, k){
+  let v = 0, amp = 0.5, fa = 1;
+  for (let o = 0; o < 5; o++){
+    v += amp * Math.sin(a * 5.3 * fa + r * k * 1.9 * fa + o * 2.17)
+            * Math.cos(r * k * 2.7 * fa - a * 2.1 * fa + o * 1.31);
+    amp *= 0.52; fa *= 2.03;
+  }
+  return v;                                   // ~[-1,1]
+}
+function turb(a, r, k){
+  const f = fbm(a, r, k);
+  const filament = Math.pow(Math.abs(Math.sin(a * 17 + 6.5 * fbm(a * .4, r, k * .7) + r * 3.1)), 0.55);
+  return Math.max(0, Math.min(1, 0.30 + 0.55 * (0.5 + 0.5 * f) + 0.45 * filament - 0.30));
+}
+
+/* ---------- event horizon: an absorbing void, no texture ---------- */
+const coreGeo = new THREE.SphereGeometry(0.88, 256, 160);
+coreGeo.computeVertexNormals();
+const core = new THREE.Mesh(coreGeo, mVoid);
+core.name = 'core_event_horizon';
+core.castShadow = false; core.receiveShadow = false;
+model.add(core);
+
+/* ---------- accreting matter: three continuous sheets, not rings ----------
+   one welded annulus per shell so the disc reads as matter; the shells exist
+   only so the interior can orbit faster than the exterior.               */
+function sheet(r0, r1, rings, segs, opts){
+  const g = new THREE.BufferGeometry();
+  const pos = [], col = [], idx = [];
+  for (let i = 0; i <= rings; i++){
+    const t = i / rings;
+    const r = r0 + (r1 - r0) * Math.pow(t, 1.35);
+    const gt = (r - 1.02) / 2.4;                        // global falloff coordinate
+    for (let j = 0; j <= segs; j++){
+      const a = (j / segs) * Math.PI * 2;
+      const n = noise(a, r, opts.k);
+      // gravitational warp — the plane is bent, never flat, never tilted much
+      const y = (0.055 * Math.sin(2 * a + opts.phase) + 0.02 * n) * Math.pow(gt + .1, 1.6)
+              + opts.lift;
+      const squeeze = 1 + 0.03 * Math.sin(2 * a + opts.phase * .6);
+      pos.push(Math.cos(a) * r * squeeze, y, Math.sin(a) * r * squeeze);
+
+      // luminance: hot near the horizon, dissolving outward, streaked, asymmetric
+      const fall = Math.pow(1 - Math.min(gt, 1), 1.35);
+      const ss = (e0, e1, x) => { const u = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return u * u * (3 - 2 * u); };
+      const edge = ss(0, 0.05, t) * (1 - ss(0.55, 1, t));
+      const asym = 0.86 + 0.18 * Math.cos(a - 0.7);      // one flank slightly denser
+      const cell = turb(a, r, opts.k * 2.2);
+      const streak = 0.14 + 1.15 * Math.pow(cell, 1.5);
+      const gap = Math.max(0, 0.10 + 0.90 * (0.5 + 0.5 * fbm(a * 1.6, r, opts.k * 3.1)));
+      let L = fall * asym * streak * (0.20 + 0.80 * Math.pow(gap, 1.6)) * edge * opts.gain;
+      L = Math.max(0, Math.min(1, L));
+      // temperature: yellow-white plasma at the horizon, blue-white as it cools
+      const hot = Math.pow(1 - Math.min(gt, 1), 1.9);
+      const cold = Math.pow(Math.min(gt, 1), 1.1);
+      const violet = Math.max(0, gt - 0.34) * 1.5 * (0.35 + 0.65 * gap);
+      const rC = 1 + 0.42 * hot - 0.12 * cold - 0.30 * violet;
+      const gC = 1 + 0.14 * hot - 0.02 * cold - 0.55 * violet;
+      const bC = 1 - 0.52 * hot + 0.22 * cold + 0.50 * violet;
+      col.push(L * rC, L * gC, L * bC, Math.min(1, L * 1.5));
+    }
+  }
+  for (let i = 0; i < rings; i++)
+    for (let j = 0; j < segs; j++){
+      const a0 = i * (segs + 1) + j, b0 = a0 + segs + 1;
+      idx.push(a0, b0, a0 + 1, a0 + 1, b0, b0 + 1);
+    }
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 4));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return new THREE.Mesh(g, mMatter);
+}
+
+const shells = [];
+const shellSpec = [
+  ['disc_inner_matter', 1.02, 1.85, 26, 220, { k: 2.4, phase: 0.0, lift: 0.000, gain: 4.2 }, 0.085],
+  ['disc_mid_matter',   1.55, 2.60, 26, 200, { k: 1.7, phase: 1.4, lift: 0.010, gain: 2.9 }, 0.050],
+  ['disc_outer_matter', 2.20, 3.05, 22, 180, { k: 1.1, phase: 2.9, lift:-0.014, gain: 1.9 }, 0.028],
+];
+for (const [name, r0, r1, ri, se, o, spin] of shellSpec){
+  const m = sheet(r0, r1, ri, se, o);
+  m.name = name;
+  m.userData.spin = spin;                                 // differential rotation
+  shells.push(m);
+  model.add(m);
+}
+
+/* ---------- lensing, billboarded to the viewer ----------
+   The photon ring and the lensed far side always frame the silhouette from the
+   observer's side, the way bent light actually behaves — this is what keeps the
+   object reading as a black hole and not a sphere with rings.               */
+const lens = new THREE.Group();
+lens.name = 'gravitational_lensing';
+
+function ribbon(R, thick, a0, a1, gainEnds, name, mat){
+  const g = new THREE.BufferGeometry();
+  const N = 140, rows = [-1, -0.32, 0.32, 1], rowL = [0, 1, 1, 0];
+  const pos = [], col = [], idx = [];
+  for (let i = 0; i <= N; i++){
+    const u = i / N;
+    const ang = a0 + (a1 - a0) * u;
+    const fade = Math.pow(Math.sin(Math.PI * u), 1.35);
+    const w = thick * (0.4 + 0.6 * fade);
+    const cx = Math.cos(ang), cy = Math.sin(ang);
+    for (let k = 0; k < rows.length; k++){
+      const rr = R + rows[k] * w;
+      pos.push(cx * rr, cy * rr, 0);
+      const L = gainEnds * (0.06 + 0.94 * fade) * rowL[k];
+      col.push(L, L, L * 1.03, Math.pow(fade, 1.5) * (0.05 + 0.95 * rowL[k]));
+    }
+    if (i < N)
+      for (let k = 0; k < rows.length - 1; k++){
+        const o = i * rows.length + k, p = o + rows.length;
+        idx.push(o, p, o + 1, o + 1, p, p + 1);
+      }
+  }
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 4));
+  g.setIndex(idx);
+  const m = new THREE.Mesh(g, mat || mMatter);
+  m.name = name;
+  return m;
+}
+
+/* photon ring — a hairline of light, unevenly bright, fading under the void */
+const photon = (() => {
+  const g = new THREE.BufferGeometry();
+  const N = 320, r0 = 0.8815, r1 = 0.8925, pos = [], col = [], idx = [];
+  for (let i = 0; i <= N; i++){
+    const ang = (i / N) * Math.PI * 2;
+    for (const r of [r0, r1]) pos.push(Math.cos(ang) * r, Math.sin(ang) * r, 0);
+    const up = 0.5 + 0.5 * Math.sin(ang + 0.35);          // brightest above, dying below
+    const L = 0.22 + 2.5 * Math.pow(up, 1.9);
+    const A = 0.10 + 0.90 * Math.pow(up, 1.5);
+    for (let k = 0; k < 2; k++) col.push(L * 1.02, L * 0.97, L * 0.90, A);
+    if (i < N){ const o = i * 2; idx.push(o, o + 1, o + 2, o + 1, o + 3, o + 2); }
+  }
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 4));
+  g.setIndex(idx);
+  const m = new THREE.Mesh(g, mMatter);
+  m.name = 'photon_ring';
+  return m;
+})();
+lens.add(photon);
+
+/* the far side of the disc, bent OVER the pole, and its counterpart bent UNDER:
+   together they close the halo around the silhouette */
+lens.add(ribbon(1.015, 0.052, 0.16, Math.PI - 0.16, 3.10, 'lensed_far_side_over'));
+lens.add(ribbon(1.010, 0.042, Math.PI + 0.16, Math.PI * 2 - 0.16, 2.10, 'lensed_far_side_under'));
+lens.add(ribbon(1.075, 0.045, 0.55, Math.PI - 0.55, 1.60, 'lensed_secondary_over'));
+lens.add(ribbon(1.068, 0.038, Math.PI + 0.6, Math.PI * 2 - 0.6, 1.10, 'lensed_secondary_under'));
+
+/* soft bloom — additive gradient sprites, no hard outline */
+function glowTex(stops){
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+  for (const [p, col] of stops) g.addColorStop(p, col);
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const mBloom = new THREE.MeshBasicMaterial({ name:'bloom_halo', transparent:true,
+  blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide,
+  map: glowTex([[0,'rgba(255,246,228,0.00)'],[0.34,'rgba(255,240,214,0.00)'],
+    [0.44,'rgba(255,238,206,0.55)'],[0.52,'rgba(226,232,255,0.22)'],[0.72,'rgba(180,168,235,0.06)'],[1,'rgba(0,0,0,0)']]) });
+const ringBloom = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 4.6), mBloom);
+ringBloom.name = 'photon_ring_bloom';
+lens.add(ringBloom);
+model.add(lens);
+
+/* Doppler beaming — fixed in space, not carried around by the orbit: the flank
+   turning toward the camera blows out warm-white, the receding flank stays dim */
+const doppler = new THREE.Group();
+doppler.name = 'doppler_beaming';
+const mBeam = new THREE.MeshBasicMaterial({ name:'doppler_beam', color:0xffcf92,
+  vertexColors:true, transparent:true, opacity:.9, blending:THREE.AdditiveBlending,
+  depthWrite:false, side:THREE.DoubleSide });
+[[1.16,0.15,1.35],[1.52,0.19,1.00],[1.98,0.21,0.62],[2.46,0.19,0.32]].forEach(([R,w,g],i) =>
+  doppler.add(ribbon(R, w, -1.15, 1.15, g, 'beam_' + i, mBeam)));
+doppler.rotation.x = -Math.PI / 2;
+model.add(doppler);
+
+/* ---------- three strands of matter spiralling inward, tapered to nothing ---------- */
+const strands = new THREE.Group();
+strands.name = 'energy_strands';
+for (let i = 0; i < 3; i++){
+  const a0 = rnd() * Math.PI * 2;
+  const rA = 2.45 + rnd() * 0.5, rB = 1.22 + rnd() * 0.22;   // strong radial travel
+  const pts = [];
+  for (let s = 0; s <= 16; s++){
+    const u = s / 16;
+    const r = rA + (rB - rA) * Math.pow(u, 0.85);
+    const ang = a0 + u * 2.4;
+    pts.push(new THREE.Vector3(Math.cos(ang) * r, (0.5 - u) * 0.10, Math.sin(ang) * r));
+  }
+  const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 80, 0.007, 6, false);
+  const p = geo.attributes.position, n = 80 + 1, ring = 7;
+  const cols = [];
+  for (let s = 0; s < n; s++){
+    const taper = Math.pow(Math.sin(Math.PI * (s / (n - 1))), 1.4);
+    for (let k = 0; k < ring; k++){
+      const id = s * ring + k;
+      const x = p.getX(id), y = p.getY(id), z = p.getZ(id);
+      const r = Math.hypot(x, z), f = (r ? (r - (1 - taper) * 0.0) / r : 1);
+      p.setXYZ(id, x * f, y, z * f);
+      cols.push(1, 1, 1.04, taper);                    // dissolve to nothing at both tips
+    }
+  }
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 4));
+  const t = new THREE.Mesh(geo, mStrand);
+  t.name = 'strand_' + i;
+  strands.add(t);
+}
+model.add(strands);
+
+const accents = new THREE.Group();
+accents.name = 'violet_accents';
+for (let i = 0; i < 3; i++)
+  accents.add(ribbon(2.34 + i * 0.36, 0.034, 0.5 + i * 2.1, 0.5 + i * 2.1 + 2.35,
+    1.0, 'violet_accent_' + i, mViolet));
+accents.rotation.x = -Math.PI / 2;
+model.add(accents);
+
+model.rotation.z = THREE.MathUtils.degToRad(3.5);
+model.position.set(0.55, -0.10, 0);
+
+/* ---------- motion: differential orbit, breathing, damped pointer ---------- */
+const target = { x: 0, y: 0 };
+const cur = { x: 0, y: 0 };
+addEventListener('pointermove', (e) => {
+  target.x = (e.clientX / innerWidth - 0.5) * 0.5;
+  target.y = (e.clientY / innerHeight - 0.5) * 0.28;
+}, { passive: true });
+
+let last = performance.now();
+(function tick(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  for (const s of shells) s.rotation.y += s.userData.spin * dt * 6;
+  core.rotation.y += 0.06 * dt;
+  model.rotation.y = cur.x + now / 46000;
+  strands.rotation.y += 0.04 * dt * 6;
+  accents.rotation.y += 0.028 * dt * 6;
+  coreMaskU.uCoreView.value.setFromMatrixPosition(core.matrixWorld).applyMatrix4(stage._camera.matrixWorldInverse);
+  lens.quaternion.copy(stage._camera.quaternion);
+  lens.quaternion.premultiply(model.getWorldQuaternion(new THREE.Quaternion()).invert());
+  cur.x += (target.x - cur.x) * 0.035;
+  cur.y += (target.y - cur.y) * 0.035;
+  const breathe = 0.85 + 0.15 * Math.sin(now / 2300) + 0.06 * Math.sin(now / 970);
+  mLight.opacity = 0.78 * breathe + 0.2;
+  mBloom.opacity = 0.62 + 0.16 * Math.sin(now / 2700);
+  mBeam.opacity = 0.80 + 0.12 * Math.sin(now / 1900);
+  mMatter.opacity = 0.9 + 0.1 * Math.sin(now / 3100);
+  model.rotation.x = cur.y * 0.6 + Math.sin(now / 5200) * 0.012;
+  requestAnimationFrame(tick);
+})(last);
+stage.setObject(model);
+/* no ground contact for a black hole: the shadow smudge and the plane's
+   intersection with the disc are what read as a hard cut under the sphere */
+stage._ground.visible = false;
+stage._key.castShadow = false;
+stage._renderer.shadowMap.enabled = false;
+model.traverse((o) => { if (o.isMesh){ o.castShadow = false; o.receiveShadow = false; } });
+</script>
+</body>
+</html>
