@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      FIRST, inline, synchronous, before any module is even requested.
+
+      `scrollRestoration` used to be set inside main.tsx. A module script is
+      deferred AND network-fetched — in dev that is dozens of requests — so the
+      browser could reach its own restore step before our code ran, and restore
+      the previous offset behind our back. Chrome also re-applies a pending
+      restore when the document grows, which is exactly what the WORK pin
+      spacer does after React mounts: a reload from the bottom of the page then
+      landed inside WORK on PROJECT 03. Setting it here closes the whole window.
+    -->
+    <script>
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+    </script>
+
+    <!--
+      Critical, inline, before any script or stylesheet: the browser must never
+      have a moment where it can paint the default white canvas. The reload
+      choreography depends on the first frame already being the void.
+    -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+      }
+      /*
+        While the ghost layer stands in for the previous screen, the real
+        composition is held back — otherwise the hero would be showing through
+        the content it is impersonating. Released the instant the core starts
+        expelling (see hooks/useSingularityIntro).
+      */
+      html.warp-staging main,
+      html.warp-staging [data-nav] {
+        opacity: 0;
+      }
+    </style>
+
+    <title>Victor Hugo — Creative Developer / Singularity</title>
+    <meta
+      name="description"
+      content="Victor Hugo — creative developer em São Paulo. Eu transformo ideias em experiências digitais através de código e design."
+    />
+    <meta name="theme-color" content="#08080A" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Victor Hugo — Creative Developer / Singularity" />
+    <meta
+      property="og:description"
+      content="Eu transformo ideias em experiências digitais através de código e design."
+    />
+    <meta property="og:image" content="/og.svg" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
