@@ -1,0 +1,21 @@
+# Normalise line endings in the repository regardless of the platform the
+# commit was made on. Without this the tree ends up with CRLF from Windows and
+# LF from CI, which turns every cross-platform edit into a whole-file diff.
+* text=auto eol=lf
+
+# Binary: never touched.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.glb binary
+
+# Generated — collapse it in diffs and exclude it from language stats.
+package-lock.json linguist-generated=true -diff
+
+# The scene reference prototype is documentation, not shipped source.
+docs/reference/** linguist-documentation=true
