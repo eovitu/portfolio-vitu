@@ -7,6 +7,7 @@ import {
   timeDilation,
   updateHorizon,
 } from '../../lib/horizon';
+import { noteScrollPosition } from '../../lib/refreshGate';
 import { dilationDisabled, recordTick, sampleHeight } from '../../lib/scrollDebug';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
@@ -55,6 +56,14 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
        * so this is a property write rather than a re-instantiation.
        */
       updateHorizon();
+      /**
+       * The one place that knows whether the page is moving.
+       *
+       * `lib/refreshGate` holds re-measurements until the reader is at rest,
+       * and rest is a per-frame fact, not an event — so it is reported from
+       * the tick that already exists rather than from a scroll listener.
+       */
+      noteScrollPosition(window.scrollY);
       // Diagnostics only, and a single boolean test when the flag is off.
       sampleHeight();
       recordTick(horizonProgress(), horizonRs(), horizonExtent());
