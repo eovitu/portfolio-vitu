@@ -1,6 +1,7 @@
 import { useLayoutEffect, type RefObject } from 'react';
 import { gsap, ScrollTrigger } from '../lib/gsap';
 import { EASE, EASE_SOFT, PANEL } from '../lib/motion';
+import { detectTier } from '../three/renderQuality';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 import { requestRefresh, setRefreshGuard } from '../lib/refreshGate';
 import { setTrackProgress } from '../lib/veil';
@@ -127,6 +128,19 @@ export function useHorizontalScroll({
       /** Last quantised motion-blur step, so the DOM is written only on change. */
       let lastBlur = -1;
 
+      /**
+       * The smear is the first thing to go on a weak device.
+       *
+       * `filter: blur()` is not a compositor property: it forces the track —
+       * three full-viewport panels — onto its own layer and repaints it at
+       * every quantised step of the fall. On the tier that already drops pixel
+       * ratio and MSAA, that is the wrong place to spend the frame, and the
+       * compression along the axis of travel carries the sense of speed on its
+       * own. Reusing `detectTier` rather than inventing a second heuristic, so
+       * a device is never "weak" for the renderer and "strong" for the DOM.
+       */
+      const smear = detectTier() === 'high';
+
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
@@ -164,7 +178,8 @@ export function useHorizontalScroll({
               // set directly. The compression is handed to GSAP instead: the
               // track's `transform` already belongs to the travel tween, and
               // appending to it by hand is how transform collisions start.
-              track.style.filter = step > 0.04 ? `blur(${(step * 3.4).toFixed(2)}px)` : '';
+              track.style.filter =
+                smear && step > 0.04 ? `blur(${(step * 3.4).toFixed(2)}px)` : '';
               gsap.set(track, { scaleX: step > 0.04 ? 1 + step * 0.012 : 1 });
             }
             // The object's recession through the three orbits rides this same
