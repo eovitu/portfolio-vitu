@@ -35,11 +35,19 @@ interface RefreshEntry {
 interface FrameEntry {
   kind: 'frame';
   t: number;
+  /** Raw `window.scrollY`, unrounded — the numerator, exactly as read. */
   scrollY: number;
+  /** `document.documentElement.scrollHeight` on this same frame. */
+  sh: number;
+  /** The extent `lib/horizon` is dividing by right now — the denominator. */
+  extent: number;
+  /** What the HUD is showing: progress, and the distance in Rs. */
   progress: number;
+  rs: number;
+  /** WORK pin geometry, or -1 when the reader is not inside the chapter. */
+  pinProgress: number;
   distance: number;
   velocity: number;
-  sh: number;
   pinEnd: number;
 }
 
@@ -66,6 +74,24 @@ function wanted(): boolean {
 }
 
 export const scrollDebugEnabled = wanted();
+
+/**
+ * Kill switch for the scroll's time dilation, as a URL parameter.
+ *
+ * The isolation test — "does the oscillation survive with `d` pinned to 1?" —
+ * has to be run on the machine where the defect reproduces, which is not the
+ * machine that can edit the source. So it is a query parameter rather than an
+ * edit: load with `?dilation=off` and the provider leaves Lenis's `duration`
+ * and multipliers exactly as configured, changing nothing per frame.
+ */
+export const dilationDisabled = (() => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return new URLSearchParams(window.location.search).get('dilation') === 'off';
+  } catch {
+    return false;
+  }
+})();
 
 /**
  * Ring buffer rather than an unbounded array. A slow scroll through the
@@ -131,20 +157,49 @@ export function recordRefresh<T>(by: string, guarded: boolean, run: () => T): T 
   }
 }
 
+/**
+ * Last sample handed over by the WORK scrub, or null outside the chapter.
+ *
+ * The scrub only runs while the pin is engaged, so a log written from it goes
+ * silent at precisely the frame the reported defect appears — the crossing out
+ * of the third project. The pin's numbers are therefore *collected* here and
+ * *written* by the global tick below, which runs on every frame of the
+ * session regardless of where the reader is.
+ */
+let pinSample: { progress: number; velocity: number } | null = null;
+
 /** Called from the WORK scrub, once per update. */
 export function recordFrame(progress: number, velocity: number): void {
+  if (!scrollDebugEnabled) return;
+  pinSample = { progress, velocity };
+}
+
+/**
+ * Called once per frame from the application's single tick.
+ *
+ * Everything the failure could be made of, on one row: the raw numerator, the
+ * live document height, the denominator actually in force, and what the HUD
+ * derived from them. A reversal in `rs` can then be attributed to the
+ * numerator or to the denominator by reading across the row, instead of by
+ * reasoning about which of them *ought* to have moved.
+ */
+export function recordTick(progress: number, rs: number, extent: number): void {
   if (!scrollDebugEnabled) return;
   const pin = readPin();
   push({
     kind: 'frame',
     t: performance.now(),
     scrollY: window.scrollY,
-    progress,
-    distance: pin.distance,
-    velocity,
     sh: sh(),
+    extent,
+    progress,
+    rs,
+    pinProgress: pin.progress,
+    distance: pin.distance,
+    velocity: pinSample?.velocity ?? 0,
     pinEnd: pin.end,
   });
+  pinSample = null;
 }
 
 /**
@@ -234,6 +289,10 @@ interface Summary {
   silentHeightChanges: number;
   progressReversals: number;
   scrollReversals: number;
+  /** Frames where the denominator moved. The other half of the alibi. */
+  extentChanges: number;
+  /** The reader's own criterion: Rs rose while the page scrolled down. */
+  rsReversalsWhileScrollingDown: number;
 }
 
 function summarise(entries: Entry[]): Summary {
@@ -243,6 +302,8 @@ function summarise(entries: Entry[]): Summary {
     silentHeightChanges: 0,
     progressReversals: 0,
     scrollReversals: 0,
+    extentChanges: 0,
+    rsReversalsWhileScrollingDown: 0,
   };
   let prev: FrameEntry | null = null;
   for (const e of entries) {
@@ -257,6 +318,10 @@ function summarise(entries: Entry[]): Summary {
       if (prev) {
         if (e.progress - prev.progress < -0.004) s.progressReversals++;
         if (e.scrollY - prev.scrollY < -2) s.scrollReversals++;
+        if (e.extent !== prev.extent) s.extentChanges++;
+        if (e.scrollY > prev.scrollY && e.rs > prev.rs) {
+          s.rsReversalsWhileScrollingDown++;
+        }
       }
       prev = e;
     }
@@ -266,7 +331,9 @@ function summarise(entries: Entry[]): Summary {
 
 /** Entries in chronological order, oldest first. */
 function ordered(): Entry[] {
-  return log.length < CAPACITY ? log.slice() : log.slice(cursor).concat(log.slice(0, cursor));
+  return log.length < CAPACITY
+    ? log.slice()
+    : log.slice(cursor).concat(log.slice(0, cursor));
 }
 
 export interface ScrollDebugApi {

@@ -1,6 +1,13 @@
 import Lenis from 'lenis';
-import { measureHorizon, timeDilation, updateHorizon } from '../../lib/horizon';
-import { sampleHeight } from '../../lib/scrollDebug';
+import {
+  horizonExtent,
+  horizonProgress,
+  horizonRs,
+  measureHorizon,
+  timeDilation,
+  updateHorizon,
+} from '../../lib/horizon';
+import { dilationDisabled, recordTick, sampleHeight } from '../../lib/scrollDebug';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   SmoothScrollContext,
@@ -50,8 +57,9 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       updateHorizon();
       // Diagnostics only, and a single boolean test when the flag is off.
       sampleHeight();
+      recordTick(horizonProgress(), horizonRs(), horizonExtent());
       const lenis = lenisRef.current;
-      if (lenis) {
+      if (lenis && !dilationDisabled) {
         const d = timeDilation();
 
         /**

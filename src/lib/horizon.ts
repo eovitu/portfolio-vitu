@@ -59,6 +59,11 @@ export function updateHorizon(): void {
   state.dilation = 1 + ease(Math.max(0, (p - 0.35) / 0.65)) * (DILATION_MAX - 1);
 }
 
+/** The extent currently in force. Read by diagnostics, not by the page. */
+export function horizonExtent(): number {
+  return extent;
+}
+
 export function horizonProgress(): number {
   return state.progress;
 }
