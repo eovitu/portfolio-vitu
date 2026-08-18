@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import styled from 'styled-components';
-import { useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../../hooks/useSmoothScroll';
 import { horizonProgress } from '../../lib/horizon';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 

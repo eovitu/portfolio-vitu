@@ -11,6 +11,11 @@
  * Muted by default and never started without a user gesture: the AudioContext
  * is not even constructed until the reader turns it on, so autoplay policy is
  * satisfied by construction rather than by catching an exception.
+ *
+ * `enabled` is deliberately not readable from outside. Every entry point here
+ * already refuses to make a sound when it is false, so a caller has nothing to
+ * decide with the answer — an exported getter only invites a second copy of
+ * the same state somewhere else.
  */
 
 const KEY = 'singularity:sound';
@@ -26,10 +31,6 @@ interface Engine {
 
 let engine: Engine | null = null;
 let enabled = false;
-
-export function soundEnabled(): boolean {
-  return enabled;
-}
 
 export function readStoredPreference(): boolean {
   try {

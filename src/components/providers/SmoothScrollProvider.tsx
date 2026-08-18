@@ -1,15 +1,12 @@
 import Lenis from 'lenis';
 import { measureHorizon, timeDilation, updateHorizon } from '../../lib/horizon';
+import { sampleHeight } from '../../lib/scrollDebug';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+  SmoothScrollContext,
+  type FrameCallback,
+  type SmoothScrollApi,
+} from './smoothScrollContext';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { prefersReducedMotion } from '../../lib/prefersReducedMotion';
 import { LENIS_OPTIONS } from '../../lib/motion';
@@ -23,46 +20,6 @@ import { LENIS_OPTIONS } from '../../lib/motion';
  * ticker), exactly one scroll listener. Anything that needs a per-frame
  * callback subscribes here instead of starting its own loop.
  */
-
-type FrameCallback = (time: number, deltaMs: number) => void;
-
-interface SmoothScrollApi {
-  /** Scroll to an element or offset, respecting Lenis (never window.scrollTo). */
-  scrollTo: (target: string | HTMLElement | number, duration?: number) => void;
-  /** Lock the page scroll (used by the chat panel) without layout shift. */
-  stop: () => void;
-  start: () => void;
-  /** Subscribe to the single shared frame loop. Returns an unsubscribe fn. */
-  onFrame: (cb: FrameCallback) => () => void;
-  /** True once Lenis is running (false under reduced motion). */
-  smooth: boolean;
-}
-
-const noop = () => {};
-
-const SmoothScrollContext = createContext<SmoothScrollApi>({
-  scrollTo: noop,
-  stop: noop,
-  start: noop,
-  onFrame: () => noop,
-  smooth: false,
-});
-
-export function useSmoothScroll(): SmoothScrollApi {
-  return useContext(SmoothScrollContext);
-}
-
-/** Subscribe a callback to the shared frame loop for the component's lifetime. */
-export function useAnimationFrame(cb: FrameCallback, enabled = true): void {
-  const { onFrame } = useSmoothScroll();
-  const ref = useRef(cb);
-  ref.current = cb;
-
-  useEffect(() => {
-    if (!enabled) return;
-    return onFrame((t, dt) => ref.current(t, dt));
-  }, [onFrame, enabled]);
-}
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
@@ -91,6 +48,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
        * so this is a property write rather than a re-instantiation.
        */
       updateHorizon();
+      // Diagnostics only, and a single boolean test when the flag is off.
+      sampleHeight();
       const lenis = lenisRef.current;
       if (lenis) {
         const d = timeDilation();

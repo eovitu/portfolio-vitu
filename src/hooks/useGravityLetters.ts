@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../hooks/useSmoothScroll';
 import { useReducedMotion } from './useReducedMotion';
 import { DAMPING, damp, gain, getPointer, isActive, sample } from '../lib/gravityField';
 

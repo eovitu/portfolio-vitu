@@ -98,7 +98,7 @@ export function useCollapse(
     }, section);
 
     // Deferred while the WORK pin is engaged — see lib/refreshGate.
-    requestRefresh();
+    requestRefresh('contact:collapse');
     return () => ctx.revert();
   }, [sectionRef, surviveSelector]);
 }

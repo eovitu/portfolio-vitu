@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../../hooks/useSmoothScroll';
 import { horizonProgress } from '../../lib/horizon';
-import { readStoredPreference, setHorizon, setSound } from '../../lib/audio';
+import { disposeAudio, readStoredPreference, setHorizon, setSound } from '../../lib/audio';
 
 /**
  * Sound, off by default.
@@ -96,6 +96,11 @@ export function SoundToggle() {
     // ever created from a real gesture, so a stored "on" shows the control in
     // its on state and waits for the reader to confirm by clicking.
     if (readStoredPreference()) setOn(false);
+    // This control owns the engine's whole lifetime — it is the only thing
+    // that can build one — so it is also what releases it. Without this the
+    // AudioContext outlives the tree on unmount and on every hot reload,
+    // and browsers cap how many a page may hold open.
+    return () => disposeAudio();
   }, []);
 
   useAnimationFrame(() => {
@@ -106,7 +111,7 @@ export function SoundToggle() {
     <Button
       type="button"
       aria-pressed={on}
-      aria-label={on ? 'Desligar som' : 'Ligar som'}
+      aria-label={on ? 'Turn sound off' : 'Turn sound on'}
       onClick={() => {
         const next = !on;
         setOn(next);
@@ -118,7 +123,7 @@ export function SoundToggle() {
         <i />
         <i />
       </Bars>
-      {on ? 'SOM' : 'MUDO'}
+      {on ? 'SOUND' : 'MUTED'}
     </Button>
   );
 }

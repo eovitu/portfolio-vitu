@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../../hooks/useSmoothScroll';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { marquee } from '../../lib/content';
 

@@ -96,8 +96,8 @@ const Title = styled.h2`
   line-height: 1.06;
   letter-spacing: -0.04em;
   font-weight: 300;
-  /* Narrowed with the scale: at 18ch the third line broke after "está" and
-     left "lá." alone on a line of its own. */
+  /* Narrowed with the scale: at 18ch the third line broke before the last
+     word and left it alone on a line of its own. */
   max-width: 15ch;
 `;
 

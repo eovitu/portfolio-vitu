@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from '../lib/gsap';
 import { SKEW } from '../lib/motion';
-import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../hooks/useSmoothScroll';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const SELECTOR = '[data-skew]';

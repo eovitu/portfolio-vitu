@@ -1,9 +1,14 @@
 /**
- * All copy, transcribed verbatim from the approved handoff.
+ * All copy for the site, in one place.
  *
- * Strings wrapped in [ ... ] are the designer's placeholders and are marked
- * `placeholder: true` so they render with the placeholder treatment and are
- * trivial to find later. TODO(content): replace before launch.
+ * The site is written in English throughout. It used to mix Portuguese body
+ * copy with English headings, which reads as an oversight rather than as a
+ * choice — the voice is the same either way, so the language is the thing that
+ * had to stop wavering.
+ *
+ * Strings wrapped in [ ... ] are placeholders, marked `descIsPlaceholder` so
+ * they render with the placeholder treatment and are trivial to find later.
+ * TODO(content): replace before launch.
  */
 
 export interface Project {
@@ -23,47 +28,47 @@ export const projects: Project[] = [
   {
     n: '01',
     name: 'EMPREGA.CO',
-    desc: 'Marketplace de serviços domésticos — busca, agendamento e pagamento em um fluxo só. Do modelo de dados à interface.',
+    desc: 'A marketplace for home services — search, booking and payment in a single flow. From the data model through to the interface.',
     role: 'DESIGN · PRODUCT · FRONT-END',
     tech: 'JAVA · SPRING · REACT',
     year: '2025',
-    slot: 'PLACA 01 · PRÓXIMA DO HORIZONTE',
+    slot: 'PLATE 01 · CLOSE TO THE HORIZON',
   },
   {
     n: '02',
-    name: 'PROJETO DOIS',
-    desc: '[ Uma frase sobre o problema, uma sobre a solução, uma sobre o resultado. Números ajudam. ]',
+    name: 'PROJECT TWO',
+    desc: '[ One sentence on the problem, one on the solution, one on the result. Numbers help. ]',
     descIsPlaceholder: true,
     role: 'FULL-STACK',
     tech: 'NEXT · TS · POSTGRES',
     year: '2024',
-    slot: 'PLACA 02 · ÓRBITA ESTÁVEL',
+    slot: 'PLATE 02 · STABLE ORBIT',
   },
   {
     n: '03',
-    name: 'PROJETO TRÊS',
-    desc: '[ Substituir pelo case real. Prefira um projeto com resultado mensurável ou desafio técnico claro. ]',
+    name: 'PROJECT THREE',
+    desc: '[ Replace with the real case. Prefer a project with a measurable result or a clear technical challenge. ]',
     descIsPlaceholder: true,
     role: 'MOBILE',
     tech: 'FLUTTER · FIREBASE',
     year: '2023',
-    slot: 'PLACA 03 · CAMPO DISTANTE',
+    slot: 'PLATE 03 · DISTANT FIELD',
   },
 ];
 
 export const hero = {
   metaLeft: 'SINGULARITY / 01',
-  metaRight: 'DESIGN × CÓDIGO × MATÉRIA',
+  metaRight: 'DESIGN × CODE × MATTER',
   /** Split per line so each line gets its own overflow mask. */
   nameLines: [
     ['V', 'I', 'C', 'T', 'O', 'R'],
     ['H', 'U', 'G', 'O'],
   ],
   role: 'CREATIVE DEVELOPER',
-  description: 'Eu transformo ideias em experiências digitais através de código e design.',
+  description: 'I turn ideas into digital experiences through code and design.',
   location: 'SÃO PAULO · BRAZIL',
-  scroll: '↓ CAIR',
-  cta: 'CHEGUE MAIS PERTO →',
+  scroll: '↓ FALL',
+  cta: 'COME CLOSER →',
 } as const;
 
 /**
@@ -75,23 +80,23 @@ export const hero = {
  * do the arguing.
  */
 export const about = {
-  label: 'ABOUT / DILATAÇÃO',
+  label: 'ABOUT / DILATION',
   titleLines: [
-    'Perto de massa suficiente',
-    'o tempo anda mais devagar.',
-    'Esse menino ainda está lá.',
+    'Close to enough mass',
+    'time runs slower.',
+    'That boy is still there.',
   ],
-  body: 'Victor Hugo, desenvolvedor e designer em São Paulo. Trabalho onde produto, interface e engenharia param de ser departamentos — do backend em Java e Spring Boot à interface em React e Three.js.',
+  body: 'Victor Hugo, developer and designer in São Paulo. I work where product, interface and engineering stop being departments — from a Java and Spring Boot backend through to an interface in React and Three.js.',
   bodySecond:
-    'A distância entre aquele campo de areia e esta tela é de vinte e poucos anos. Vista daqui, ela parece bem menor do que foi para atravessar.',
-  photoCaption: 'ARQUIVO · OBSERVADOR EM QUEDA · REGISTRO ÚNICO',
+    'The distance between that sandlot and this screen is twenty-odd years. Seen from here, it looks a good deal shorter than it was to cross.',
+  photoCaption: 'ARCHIVE · OBSERVER IN FREE FALL · SINGLE RECORD',
   photoAlt:
-    'Victor Hugo criança, de camisa amarela, segurando um gira-gira num parquinho com um campo de areia vazio ao fundo.',
-  meta: ['SÃO PAULO', 'DESENVOLVEDOR', 'DESIGNER', 'TECNOLOGIA CRIATIVA'],
+    'Victor Hugo as a child, in a yellow shirt, holding onto a roundabout in a playground with an empty sandlot behind him.',
+  meta: ['SÃO PAULO', 'DEVELOPER', 'DESIGNER', 'CREATIVE TECHNOLOGY'],
 } as const;
 
 export const work = {
-  label: 'MATÉRIA EM ÓRBITA',
+  label: 'MATTER IN ORBIT',
 } as const;
 
 /**
@@ -114,109 +119,109 @@ export interface SpectralLine {
 }
 
 export const skills = {
-  label: 'O QUE SOBREVIVE À PRESSÃO',
-  labelRight: 'LEITURA ESPECTRAL',
+  label: 'WHAT SURVIVES THE PRESSURE',
+  labelRight: 'SPECTRAL READING',
   intro:
-    'Cada linha é uma emissão. A posição diz o domínio, o brilho diz o quanto ela carrega do trabalho.',
-  hint: 'PASSE SOBRE UMA LINHA',
+    'Every line is an emission. Position gives the domain, brightness gives how much of the work it carries.',
+  hint: 'HOVER A LINE',
   lines: [
     {
       name: 'Java',
       domain: 'BACKEND',
       at: 0.05,
       weight: 0.95,
-      detail: 'Serviços de longa duração, domínio modelado antes de qualquer tela.',
+      detail: 'Long-running services, with the domain modelled before any screen exists.',
     },
     {
       name: 'Spring Boot',
       domain: 'BACKEND',
       at: 0.12,
       weight: 0.9,
-      detail: 'APIs, autenticação e a camada chata que precisa não falhar.',
+      detail: 'APIs, authentication, and the dull layer that simply must not fail.',
     },
     {
       name: 'PostgreSQL',
       domain: 'BACKEND',
       at: 0.19,
       weight: 0.75,
-      detail: 'Modelagem relacional. O esquema é a parte que sobrevive ao produto.',
+      detail: 'Relational modelling. The schema is the part that outlives the product.',
     },
     {
       name: 'REST / APIs',
       domain: 'BACKEND',
       at: 0.26,
       weight: 0.7,
-      detail: 'Contratos entre sistemas — onde a maioria dos bugs de produto nasce.',
+      detail: 'Contracts between systems — where most product bugs are actually born.',
     },
     {
       name: 'TypeScript',
       domain: 'FRONTEND',
       at: 0.38,
       weight: 1,
-      detail: 'O tipo como documentação executável. Nada de produção sem ele.',
+      detail: 'Types as executable documentation. Nothing ships without them.',
     },
     {
       name: 'React',
       domain: 'FRONTEND',
       at: 0.45,
       weight: 0.95,
-      detail: 'Composição de interface e o custo real de cada re-render.',
+      detail: 'Interface composition, and the real cost of every re-render.',
     },
     {
       name: 'Next.js',
       domain: 'FRONTEND',
       at: 0.52,
       weight: 0.7,
-      detail: 'Renderização no servidor quando a primeira pintura importa.',
+      detail: 'Server rendering for when the first paint is what matters.',
     },
     {
       name: 'Flutter',
       domain: 'FRONTEND',
       at: 0.58,
       weight: 0.55,
-      detail: 'Mobile quando uma base de código só é a decisão certa.',
+      detail: 'Mobile for when a single codebase is the right call.',
     },
     {
       name: 'Three.js',
       domain: 'TRIDIMENSIONAL',
       at: 0.68,
       weight: 0.85,
-      detail: 'Geometria, materiais e orçamento de frame. Este site é a evidência.',
+      detail: 'Geometry, materials and a frame budget. This site is the evidence.',
     },
     {
       name: 'GLSL',
       domain: 'TRIDIMENSIONAL',
       at: 0.74,
       weight: 0.6,
-      detail: 'Shaders quando o efeito não cabe no que o DOM sabe fazer.',
+      detail: 'Shaders for when the effect will not fit inside what the DOM can do.',
     },
     {
       name: 'GSAP',
       domain: 'TRIDIMENSIONAL',
       at: 0.79,
       weight: 0.8,
-      detail: 'Timelines scrubadas. Movimento que o leitor controla, não assiste.',
+      detail: 'Scrubbed timelines. Motion the reader drives rather than watches.',
     },
     {
       name: 'Figma',
       domain: 'DESIGN',
       at: 0.87,
       weight: 0.85,
-      detail: 'Onde a decisão acontece antes de custar tempo de implementação.',
+      detail: 'Where the decision happens before it costs implementation time.',
     },
     {
       name: 'Design Systems',
       domain: 'DESIGN',
       at: 0.93,
       weight: 0.8,
-      detail: 'Token único, uma fonte de verdade. Consistência é infraestrutura.',
+      detail: 'One token, one source of truth. Consistency is infrastructure.',
     },
     {
       name: 'Motion',
       domain: 'DESIGN',
       at: 0.98,
       weight: 0.65,
-      detail: 'Peso, atrito e antecipação — física, não duração.',
+      detail: 'Weight, friction and anticipation — physics, not duration.',
     },
   ] satisfies SpectralLine[] as SpectralLine[],
 } as const;
@@ -227,13 +232,13 @@ export const skills = {
  */
 export const marquee = {
   items: [
-    { text: 'MATÉRIA EM ÓRBITA' },
+    { text: 'MATTER IN ORBIT' },
     { text: '•', accent: true },
-    { text: 'A LUZ CHEGA CURVADA' },
+    { text: 'LIGHT ARRIVES BENT' },
     { text: '•', accent: true },
-    { text: 'O TEMPO ANDA MAIS DEVAGAR AQUI' },
+    { text: 'TIME RUNS SLOWER HERE' },
     { text: '•', accent: true },
-    { text: 'NADA QUE ENTRA VOLTA IGUAL' },
+    { text: 'NOTHING COMES BACK THE SAME' },
     { text: '•', accent: true },
   ] as { text: string; accent?: boolean }[],
 } as const;
@@ -251,30 +256,29 @@ export const marquee = {
 export const interludes = {
   matter: {
     id: 'interlude-matter',
-    lines: ['A MATÉRIA CHEGA', 'INTEIRA.'],
-    lead: 'SAI OUTRA COISA.',
+    lines: ['MATTER ARRIVES', 'WHOLE.'],
+    lead: 'SOMETHING ELSE LEAVES.',
     metrics: [
-      ['MASSA ABSORVIDA', '3 PROJETOS'],
-      ['TEMPO PRÓPRIO', '2023 — 2026'],
-      ['ESTADO', 'EM ÓRBITA'],
+      ['MASS ABSORBED', '3 PROJECTS'],
+      ['PROPER TIME', '2023 — 2026'],
+      ['STATE', 'IN ORBIT'],
     ] as [string, string][],
   },
   fall: {
     id: 'interlude-fall',
-    lines: ['DAQUI EM DIANTE,', 'SÓ QUEDA.'],
+    lines: ['FROM HERE ON,', 'ONLY THE FALL.'],
   },
 } as const;
 
 export const contact = {
-  label: 'ÚLTIMA ÓRBITA',
+  label: 'FINAL ORBIT',
   titleLines: ["LET'S BUILD", 'SOMETHING THAT', 'HAS GRAVITY.'],
   /** Named in the section as the one thing the collapse does not take. */
-  survivorNote: 'O ÚNICO SINAL QUE ESCAPA',
+  survivorNote: 'THE ONE SIGNAL THAT ESCAPES',
   links: [
-    // TODO(content): real GITHUB / LINKEDIN URLs — placeholders in the handoff.
-    { label: 'EMAIL', href: 'mailto:hello@example.com', external: false },
-    { label: 'GITHUB', href: '#contact', external: false },
-    { label: 'LINKEDIN', href: '#contact', external: false },
+    { label: 'EMAIL', href: 'mailto:eovitu7@gmail.com', external: false },
+    { label: 'GITHUB', href: 'https://github.com/eovitu', external: true },
+    { label: 'LINKEDIN', href: 'https://www.linkedin.com/in/eovitu/', external: true },
   ],
 } as const;
 
@@ -282,7 +286,7 @@ export const footer = {
   items: [
     '© 2026 — VICTOR HUGO',
     'SÃO PAULO — 23.5505° S / 46.6333° W',
-    'SINGULARITY / FIM DA TRANSMISSÃO',
+    'SINGULARITY / END OF TRANSMISSION',
   ],
 } as const;
 
@@ -293,20 +297,20 @@ export const nav = {
     { label: 'ABOUT', href: '#about' },
     { label: 'CONTACT', href: '#contact' },
   ],
-  cta: 'CHEGUE MAIS PERTO',
+  cta: 'COME CLOSER',
 } as const;
 
 export const chat = {
-  title: 'CHEGUE MAIS PERTO',
-  close: 'AFASTAR ✕',
+  title: 'COME CLOSER',
+  close: 'PULL AWAY ✕',
   intro:
-    'Pergunte qualquer coisa sobre o meu trabalho, minha stack ou como eu penso um projeto.',
+    'Ask anything about my work, my stack, or how I think a project through.',
   prompts: [
-    'COMO VOCÊ TRABALHA?',
-    'QUAL SUA STACK PRINCIPAL?',
-    'ME CONTE SOBRE O EMPREGA.CO',
-    'ESTÁ DISPONÍVEL PARA PROJETOS?',
+    'HOW DO YOU WORK?',
+    'WHAT IS YOUR MAIN STACK?',
+    'TELL ME ABOUT EMPREGA.CO',
+    'ARE YOU AVAILABLE FOR PROJECTS?',
   ],
-  note: '[ MOCKUP — na implementação, respostas geradas a partir de um contexto curado sobre você. Sem bolhas coloridas, sem avatar: só tipografia. ]',
-  inputPlaceholder: 'DIGITE SUA PERGUNTA',
+  note: '[ MOCKUP — in the real implementation, answers are generated from a curated context about you. No coloured bubbles, no avatar: typography only. ]',
+  inputPlaceholder: 'TYPE YOUR QUESTION',
 } as const;

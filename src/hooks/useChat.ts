@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSmoothScroll } from '../components/providers/SmoothScrollProvider';
+import { useSmoothScroll } from '../hooks/useSmoothScroll';
 
 /**
  * Owns the open/closed state of the GET TO KNOW ME panel and the scroll lock.
