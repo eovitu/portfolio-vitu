@@ -1,5 +1,5 @@
 /**
- * Generative matter for the project plates.
+ * Generative matter for the project plates and the full-bleed screens.
  *
  * The real captures do not exist yet, and an empty rectangle waiting for one
  * is the single biggest reason the dark sections read as unfinished rather
@@ -7,11 +7,15 @@
  * with temperature, structure and slow motion — graded per orbit so the three
  * panels do not look like each other.
  *
- * Cost is controlled by resolution rather than by throttling alone: the field
- * is computed into a ~15k-pixel backing store and scaled up by the compositor,
- * so a frame costs the same whether the plate is 300px or 900px wide. The
- * upscale is the point rather than a compromise — bilinear smoothing is what
- * turns three octaves of lattice noise into plasma.
+ * The field is computed into a small backing store and scaled up by the
+ * compositor, so cost is a function of the budget rather than of the surface's
+ * size on screen. The upscale is the point rather than a compromise —
+ * bilinear smoothing is what turns three octaves of lattice noise into plasma.
+ *
+ * It is drawn exactly once per surface. `draw(t)` remains a pure function of
+ * time so an animated variant is still possible, but the measured cost of
+ * animating it (7.9ms median while scrolling, against a 5.6ms baseline) is why
+ * the component that owns it buys motion from the compositor instead.
  *
  * When the real captures arrive these become the ground the photograph sits
  * on: keep the canvas, drop an <img> above it, and the plate keeps its body in
@@ -176,6 +180,7 @@ export function createField(
   canvas: HTMLCanvasElement,
   kind: FieldKind,
   budget: number = BUDGET,
+  seedOffset = 0,
 ): Field | null {
   const ctx = canvas.getContext('2d', { alpha: false });
   if (!ctx) return null;
@@ -184,7 +189,7 @@ export function createField(
   let h = 0;
   let image: ImageData | null = null;
   const rgb = [0, 0, 0];
-  const seed = 1337 + kind * 911;
+  const seed = 1337 + kind * 911 + seedOffset * 617;
 
   /**
    * Fixed star lattice for orbit 2 — positions never move, only brightness.

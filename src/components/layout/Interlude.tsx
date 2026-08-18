@@ -84,9 +84,9 @@ const Statement = styled.h2<{ $tall: boolean }>`
   letter-spacing: -0.05em;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.text};
-  text-shadow:
-    0 0 18px rgba(4, 4, 6, 0.7),
-    0 0 60px rgba(4, 4, 6, 0.45);
+  /* No text-shadow. On a 192px face spanning the viewport a two-stop shadow is
+     a large blur repainted on every scrubbed frame; the Weight layer behind
+     already buys the contrast, and it is one flat gradient. */
 
   ${({ theme }) => theme.media.mobile} {
     margin-left: -20px;
@@ -161,7 +161,7 @@ export function Interlude({ id, kind, lines, lead, metrics: rows }: Props) {
       {/* The field drifts against the page at a different rate from the type
           in front of it, which is what gives a flat surface depth. */}
       <Surface data-parallax="0.88" aria-hidden="true">
-        <MatterField kind={kind} budget={92000} />
+        <MatterField kind={kind} budget={92000} layered />
       </Surface>
       <Weight $tall={saturated} aria-hidden="true" />
 
