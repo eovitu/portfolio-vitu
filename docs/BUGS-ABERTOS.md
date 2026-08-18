@@ -90,3 +90,38 @@ em que houver um caminho legítimo (por exemplo, um replay da intro disparado
 por um gesto do leitor, que teria o gesto exigido pela política).
 
 Ver `src/lib/audio.ts` e `src/hooks/useSingularityIntro.ts`.
+
+---
+
+## 4. Distância do HUD sobe durante scroll contínuo para baixo
+
+**Sintoma, medido.** Extraindo o valor de Rs quadro a quadro (8 fps) de uma
+gravação real na travessia do Projeto 3 para o Marquee, com scroll contínuo e
+só para baixo, aparecem três reversões claras em ~8 s: `7.12 → 8.28`,
+`5.29 → 5.79` e outra menor antes. A amplitude da primeira é ~1,16 Rs, quase
+10% do documento — grande demais para jitter de trackpad.
+
+**Causa diagnosticada.** `Rs = 12 · (1 − scrollY/extent)`, então uma subida só
+é possível se o numerador voltar ou o denominador crescer. O denominador
+crescia: o gate de refresh soltava a re-medição represada dentro do `onLeave`
+do pin do WORK — no meio do gesto, exatamente na travessia relatada. Esse
+refresh recalcula o `end` do pin (`invalidateOnRefresh`), reescreve o spacer,
+muda a altura do documento, e `measureHorizon` re-mede o extent no mesmo
+evento. O gate reintroduzia o salto que existia para evitar, deslocado alguns
+pixels adiante.
+
+**O que mudou.** A liberação passou a ser uma condição em vez de um evento:
+`lib/refreshGate` só solta a re-medição depois de uma janela de silêncio sem
+movimento (`QUIET_MS`), com a posição reportada uma vez por quadro pelo tick
+único da aplicação.
+
+**Como validar na máquina onde reproduz.** Abrir com `?debug=scroll`, rodar
+`__scroll.clear()`, fazer a travessia num gesto contínuo para baixo e então
+`copy(__scroll.dump())`. O critério é `summary.rsReversalsWhileScrollingDown`
+igual a 0; `extentChanges` e `silentHeightChanges` separam denominador de
+numerador caso ainda haja reversão. Cada quadro traz `scrollY` cru, `sh` e
+`extent` lado a lado com `progress` e `rs`.
+
+**Teste de isolamento do Lenis.** `?dilation=off` desliga a dilatação temporal
+sem recompilar: se a oscilação sobreviver com `d = 1` fixo, a causa não está
+na interação com o easing do Lenis.
