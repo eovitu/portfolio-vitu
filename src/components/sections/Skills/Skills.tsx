@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { skills, type SpectralLine } from '../../../lib/content';
 import { useReveal } from '../../../hooks/useReveal';
@@ -100,7 +100,13 @@ const DOMAIN_HUE: Record<SpectralLine['domain'], string> = {
   DESIGN: '245, 220, 205',
 };
 
-const Line = styled.button<{ $at: number; $weight: number; $rgb: string; $on: boolean }>`
+const Line = styled.button<{
+  $at: number;
+  $weight: number;
+  $rgb: string;
+  $on: boolean;
+  $drawn: boolean;
+}>`
   position: absolute;
   top: 8%;
   bottom: 8%;
@@ -115,7 +121,22 @@ const Line = styled.button<{ $at: number; $weight: number; $rgb: string; $on: bo
     $on
       ? '0 0 26px 3px rgba(214,159,81,.55)'
       : `0 0 ${Math.round(6 + $weight * 16)}px rgba(${$rgb}, ${0.16 + $weight * 0.3})`};
+  /**
+   * The band builds itself in front of the reader.
+   *
+   * A section that is already finished when it arrives is scenery; one that
+   * assembles is an event. Each line grows from zero height, ordered outward
+   * from the centre of the spectrum, so the band reads as being measured
+   * rather than as being switched on.
+   *
+   * transform-origin at the centre makes them grow in both directions at once,
+   * which is what a spectrograph trace actually looks like.
+   */
+  transform-origin: 50% 50%;
+  transform: scaleY(${({ $drawn }) => ($drawn ? 1 : 0)});
   transition:
+    transform 0.62s cubic-bezier(0.16, 1, 0.3, 1)
+      ${({ $at }) => (Math.abs($at - 0.5) * 1.15).toFixed(2)}s,
     background-color 0.28s ease,
     box-shadow 0.28s ease,
     width 0.28s ease;
@@ -125,6 +146,9 @@ const Line = styled.button<{ $at: number; $weight: number; $rgb: string; $on: bo
      whole set permanently out of sync. */
   animation: emission ${({ $weight }) => 3.4 + $weight * 2.6}s ease-in-out infinite;
   animation-delay: ${({ $at }) => (-$at * 6).toFixed(2)}s;
+  /* The flicker only starts once every line has settled — a band that
+     shimmers while it is still being drawn reads as two effects fighting. */
+  animation-play-state: ${({ $drawn }) => ($drawn ? 'running' : 'paused')};
 
   @keyframes emission {
     0%,
@@ -143,6 +167,8 @@ const Line = styled.button<{ $at: number; $weight: number; $rgb: string; $on: bo
 
   ${({ theme }) => theme.media.reduce} {
     animation: none;
+    transform: none;
+    transition: none;
   }
 `;
 
@@ -234,8 +260,28 @@ const DOMAINS: SpectralLine['domain'][] = [
 export function Skills() {
   const ref = useRef<HTMLElement>(null);
   const [active, setActive] = useState<SpectralLine | null>(null);
+  const [drawn, setDrawn] = useState(false);
   const reduced = useReducedMotion();
   useReveal(ref);
+
+  /**
+   * Replays on every entry, not once. Leaving and coming back to a section is
+   * a deliberate act, and getting the same construction again rewards it —
+   * `once: true` would make the second visit feel like a different, duller
+   * page.
+   */
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced) {
+      setDrawn(true);
+      return;
+    }
+    const io = new IntersectionObserver(([entry]) => setDrawn(entry.isIntersecting), {
+      threshold: 0.18,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
 
   const shown =
     active ?? skills.lines.find((l) => l.name === 'TypeScript') ?? skills.lines[0];
@@ -261,6 +307,7 @@ export function Skills() {
               $weight={line.weight}
               $rgb={DOMAIN_HUE[line.domain]}
               $on={shown.name === line.name}
+              $drawn={drawn}
               aria-label={`${line.name} — ${line.domain}`}
               aria-pressed={shown.name === line.name}
               onMouseEnter={() => !reduced && setActive(line)}
