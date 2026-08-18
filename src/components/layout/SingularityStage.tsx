@@ -1,6 +1,6 @@
 import { Suspense, lazy, useRef } from 'react';
 import styled from 'styled-components';
-import { useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../../hooks/useSmoothScroll';
 import { veilValue } from '../../lib/veil';
 
 // The 3D bundle is the heaviest asset on the page — keep it out of the

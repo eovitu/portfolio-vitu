@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Scene } from './Scene';
-import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../hooks/useSmoothScroll';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { CAMERA, QUALITY, RENDERER, detectTier } from './renderQuality';
 import { installRenderProbe } from '../lib/introAudit';

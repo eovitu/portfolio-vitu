@@ -1,7 +1,7 @@
 import { useRef, type MouseEvent } from 'react';
 import * as S from './Hero.styles';
 import { hero } from '../../../lib/content';
-import { useSmoothScroll } from '../../providers/SmoothScrollProvider';
+import { useSmoothScroll } from '../../../hooks/useSmoothScroll';
 import { useHeroExit } from '../../../hooks/useHeroExit';
 import { useGravityLetters } from '../../../hooks/useGravityLetters';
 

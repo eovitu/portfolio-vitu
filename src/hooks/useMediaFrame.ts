@@ -2,7 +2,7 @@ import { useLayoutEffect, type RefObject } from 'react';
 import { gsap } from '../lib/gsap';
 import { MEDIA_PARALLAX, MEDIA_REVEAL } from '../lib/motion';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
-import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../hooks/useSmoothScroll';
 import { CLIP_OPEN, revealVector } from '../lib/revealVector';
 
 /**

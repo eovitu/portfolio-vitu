@@ -2,10 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { GlobalStyle } from './styles/GlobalStyle';
 import { theme } from './styles/theme';
-import {
-  SmoothScrollProvider,
-  useSmoothScroll,
-} from './components/providers/SmoothScrollProvider';
+import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider';
+import { useSmoothScroll } from './hooks/useSmoothScroll';
 import { getGhostLayer } from './lib/ghosts';
 import { useScrollSkew } from './hooks/useScrollSkew';
 import { requestRefresh } from './lib/refreshGate';

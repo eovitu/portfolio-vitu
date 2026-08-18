@@ -1,7 +1,7 @@
 import { useRef, type MouseEvent } from 'react';
 import styled from 'styled-components';
 import { nav } from '../../lib/content';
-import { useSmoothScroll, useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { useSmoothScroll, useAnimationFrame } from '../../hooks/useSmoothScroll';
 import { EASE_CSS } from '../../lib/motion';
 
 const Bar = styled.header`

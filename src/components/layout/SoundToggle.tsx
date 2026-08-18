@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { useAnimationFrame } from '../../hooks/useSmoothScroll';
 import { horizonProgress } from '../../lib/horizon';
 import { readStoredPreference, setHorizon, setSound } from '../../lib/audio';
 
