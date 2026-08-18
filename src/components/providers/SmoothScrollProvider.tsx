@@ -1,5 +1,5 @@
 import Lenis from 'lenis';
-import { timeDilation, updateHorizon } from '../../lib/horizon';
+import { measureHorizon, timeDilation, updateHorizon } from '../../lib/horizon';
 import {
   createContext,
   useCallback,
@@ -143,10 +143,22 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       setSmooth(true);
     }
 
+    /**
+     * The document's scrollable extent is re-measured only when the layout is
+     * known to have settled — never per frame. ScrollTrigger's own `refresh`
+     * event is the exact moment the pin spacers have their final height, which
+     * is what the extent is mostly made of.
+     */
+    measureHorizon();
+    ScrollTrigger.addEventListener('refresh', measureHorizon);
+    window.addEventListener('resize', measureHorizon);
+
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      ScrollTrigger.removeEventListener('refresh', measureHorizon);
+      window.removeEventListener('resize', measureHorizon);
       gsap.ticker.remove(tick);
       lenisRef.current?.destroy();
       lenisRef.current = null;

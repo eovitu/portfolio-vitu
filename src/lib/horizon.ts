@@ -12,6 +12,29 @@
 const state = { progress: 0, dilation: 1 };
 
 /**
+ * The scrollable extent, measured rather than read per frame.
+ *
+ * `document.documentElement.scrollHeight` is not a stable quantity on this
+ * page: the WORK chapter's pin spacer is what gives the document most of its
+ * height, and ScrollTrigger rewrites that spacer on every refresh. Dividing by
+ * it once per frame made distance, dilation and redshift functions of a number
+ * that can change *during* a gesture — the reader scrolls smoothly downward
+ * and the HUD's readout steps, because the denominator moved, not the reader.
+ *
+ * So the extent is a measurement with an explicit lifetime: taken when the
+ * layout is known to be settled (`measureHorizon`, wired to ScrollTrigger's
+ * own refresh and to resize) and constant in between. Progress can then only
+ * change because `scrollY` changed, which is the only thing it was ever
+ * supposed to mean.
+ */
+let extent = 0;
+
+export function measureHorizon(): void {
+  if (typeof document === 'undefined') return;
+  extent = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+}
+
+/**
  * How much slower time runs at the bottom, as a multiplier on Lenis's
  * duration. The direction's ceiling is ~2.5x: past that the page stops reading
  * as heavy and starts reading as broken.
@@ -22,8 +45,10 @@ export const DILATION_MAX = 2.35;
 const ease = (t: number) => t * t * (3 - 2 * t);
 
 export function updateHorizon(): void {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+  // First frame of a fresh load, before anything has refreshed: measure now
+  // rather than report 0 for a reader who is already part-way down.
+  if (extent === 0) measureHorizon();
+  const p = extent > 0 ? Math.min(1, Math.max(0, window.scrollY / extent)) : 0;
   state.progress = p;
   /**
    * Deliberately weighted to the last third. A linear ramp makes the whole
