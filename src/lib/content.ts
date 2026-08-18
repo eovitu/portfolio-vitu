@@ -222,6 +222,23 @@ export const skills = {
   ] satisfies SpectralLine[] as SpectralLine[],
 } as const;
 
+/**
+ * The band that crosses the WORK -> ABOUT boundary. Written in the site's own
+ * voice: statements about matter and light, not a job title on repeat.
+ */
+export const marquee = {
+  items: [
+    { text: 'MATÉRIA EM ÓRBITA' },
+    { text: '•', accent: true },
+    { text: 'A LUZ CHEGA CURVADA' },
+    { text: '•', accent: true },
+    { text: 'O TEMPO ANDA MAIS DEVAGAR AQUI' },
+    { text: '•', accent: true },
+    { text: 'NADA QUE ENTRA VOLTA IGUAL' },
+    { text: '•', accent: true },
+  ] as { text: string; accent?: boolean }[],
+} as const;
+
 export const contact = {
   label: 'ÚLTIMA ÓRBITA',
   titleLines: ["LET'S BUILD", 'SOMETHING THAT', 'HAS GRAVITY.'],

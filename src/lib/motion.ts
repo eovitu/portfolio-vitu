@@ -117,6 +117,18 @@ export const INTRO = {
  * back as `y`, and the element ends up permanently offset even though
  * `yPercent` reached 0. Pinning `y` keeps the two components unambiguous.
  */
+/**
+ * Reveal presets.
+ *
+ * `soft` used to be `{ y: 34, opacity: 0 }`. Opacity is gone from every
+ * entrance on the site: a fade is the absence of a decision, and a mask reads
+ * as one. What replaces it is a clip-path wipe opening from the edge that
+ * faces the core, plus a short travel outward along that same vector — see
+ * lib/revealVector for why the direction is derived rather than chosen.
+ *
+ * `line` and `slow` were already masks (a translate inside an overflow clip)
+ * and are unchanged; they are what the rest of the site now matches.
+ */
 export const REVEAL = {
   line: {
     from: { yPercent: 115, y: 0 },
@@ -125,10 +137,10 @@ export const REVEAL = {
     stagger: 0.07,
   },
   soft: {
-    from: { y: 34, opacity: 0 },
-    to: { y: 0, opacity: 1 },
-    duration: 0.9,
-    stagger: 0.06,
+    from: { yPercent: 0, y: 0 },
+    to: { yPercent: 0, y: 0 },
+    duration: 1.05,
+    stagger: 0.075,
   },
   slow: {
     from: { yPercent: 120, y: 0 },
@@ -138,12 +150,31 @@ export const REVEAL = {
   },
 } as const;
 
+/**
+ * Media entrance: the frame wipes open while the picture settles out of an
+ * overscale. It is half of the "camera settling" feeling the reference has,
+ * and it costs one transform and one clip-path.
+ */
+export const MEDIA_REVEAL = {
+  scaleFrom: 1.07,
+  duration: 1.5,
+  ease: 'expo.out',
+} as const;
+
+/** How much slower the content inside a media frame moves than the frame. */
+export const MEDIA_PARALLAX = 0.14;
+
 export type RevealKind = keyof typeof REVEAL;
 
 /** Project panel entrance inside the pinned horizontal chapter. */
 export const PANEL = {
-  itemsFrom: { yPercent: 60, y: 0, opacity: 0 },
-  itemsTo: { yPercent: 0, y: 0, opacity: 1 },
+  /**
+   * No opacity. The panel items sit inside overflow clips, so a translate is
+   * already a mask — carrying a fade alongside it was the one place in the
+   * chapter where an element appeared instead of arriving.
+   */
+  itemsFrom: { yPercent: 60, y: 0 },
+  itemsTo: { yPercent: 0, y: 0 },
   itemsDuration: 0.5,
   itemsStagger: 0.05,
   /**
@@ -161,8 +192,21 @@ export const PANEL = {
   leadIn: 1,
   mediaDuration: 0.55,
   mediaDelay: 0.08,
-  imageScale: 1.16,
+  /**
+   * Overscale on entry, settling to 1. Was 1.16, which reads as a zoom effect;
+   * the brief for this pass is a camera settling, and that lives at 1.06-1.08.
+   */
+  imageScale: 1.08,
   imageParallax: 4,
+  /**
+   * Counter-drift against the track, in percent of the element's own width.
+   *
+   * The numeral is scenery and moves least, so one is always leaving while the
+   * next arrives; the title lags less, which reads as it holding position
+   * while its own copy slides out from under it.
+   */
+  ghostDrift: 26,
+  titleLag: 9,
 } as const;
 
 export const LENIS_OPTIONS = {
@@ -172,6 +216,24 @@ export const LENIS_OPTIONS = {
 } as const;
 
 /** Scroll-velocity skew, clamped exactly as in the design source. */
-export const SKEW = { factor: 0.045, clamp: 3, duration: 0.5 } as const;
+/**
+ * Scroll velocity as a global input.
+ *
+ * The old values (factor .045, clamp 3deg) were below the threshold of
+ * perception — the effect existed in the code and not on the screen. These are
+ * calibrated to be felt during a fast flick and to leave text readable: past
+ * roughly 7deg the baselines of a paragraph stop lining up and the copy turns
+ * into a smear, so the clamp is the legibility budget rather than a taste.
+ *
+ * `stretch` is the vertical scale that rides along with the skew: matter under
+ * acceleration deforms, and shear alone reads as a slide.
+ */
+export const SKEW = {
+  factor: 0.115,
+  clamp: 6.5,
+  duration: 0.62,
+  stretch: 0.0011,
+  stretchClamp: 0.06,
+} as const;
 
 export const CURSOR = { lerp: 0.16, size: 10, hoverScale: 3.4 } as const;

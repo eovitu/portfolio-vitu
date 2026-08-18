@@ -13,6 +13,7 @@ import { Header } from './components/navigation/Header';
 import { Hud } from './components/layout/Hud';
 import { Cursor } from './components/layout/Cursor';
 import { Grain } from './components/layout/Grain';
+import { Marquee } from './components/layout/Marquee';
 import { Redshift } from './components/layout/Redshift';
 import { SoundToggle } from './components/layout/SoundToggle';
 import { Hero } from './components/sections/Hero/Hero';
@@ -122,6 +123,9 @@ function Site() {
       <Main>
         <Hero onOpenChat={openChat} />
         <Work />
+        {/* Crosses the WORK -> ABOUT boundary, which is the site's biggest
+            change of register and the one seam most in need of a stitch. */}
+        <Marquee />
         <About />
         <Skills />
         <Contact />

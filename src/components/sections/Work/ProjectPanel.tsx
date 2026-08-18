@@ -16,7 +16,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
     >
       {/* Scenery, not content — hidden from the accessibility tree, since the
           same number is already announced by `S.Number` above the title. */}
-      <S.Ghost $orbit={orbit} aria-hidden="true">
+      <S.Ghost data-ghost $orbit={orbit} aria-hidden="true">
         {project.n}
       </S.Ghost>
 
@@ -28,7 +28,13 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
         </S.Clip>
 
         <S.Clip style={{ paddingBottom: '.05em' }}>
-          <S.Title data-p="2" data-skew id={`project-${project.n}`} $orbit={orbit}>
+          <S.Title
+            data-p="2"
+            data-panel-title
+            data-skew
+            id={`project-${project.n}`}
+            $orbit={orbit}
+          >
             {project.name}
           </S.Title>
         </S.Clip>
