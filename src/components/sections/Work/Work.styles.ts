@@ -38,11 +38,19 @@ export const Pin = styled.div`
     height: 180px;
     z-index: 4;
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.45s ease;
     background: linear-gradient(
       to bottom,
       ${({ theme }) => theme.colors.bg} 0%,
       rgba(8, 8, 10, 0) 100%
     );
+  }
+
+  /* Over the light panel that seam is a black bar hanging in a lit room. It
+     only ever had a job at the hero boundary, which is the dark register. */
+  :root[data-register='light'] &::before {
+    opacity: 0;
   }
 
   ${({ theme }) => theme.media.belowDesktop} {
@@ -63,11 +71,15 @@ export const Heading = styled.div`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.type.mono};
   letter-spacing: 0.2em;
-  color: ${({ theme }) => theme.colors.textFaint};
+  /* Pinned over three panels, one of which is a light surface — see
+     lib/register. */
+  color: var(--chrome-faint);
   pointer-events: none;
+  transition: color 0.45s ease;
 
   strong {
-    color: ${({ theme }) => theme.colors.text};
+    color: var(--chrome-text);
+    transition: color 0.45s ease;
     font-weight: inherit;
   }
 
@@ -108,6 +120,9 @@ export const Track = styled.div`
  */
 export type Orbit = 0 | 1 | 2;
 
+/** Stable orbit is the light panel — see WORLD below. */
+export const isLight = (orbit: Orbit): boolean => orbit === 1;
+
 const ORBIT = {
   0: {
     columns: 'minmax(0, 1.5fr) minmax(0, 0.75fr)',
@@ -141,7 +156,27 @@ const ORBIT = {
 const WORLD = {
   0: `radial-gradient(120% 88% at 22% 112%, rgba(214,159,81,.26) 0%, rgba(150,96,30,.10) 38%, rgba(8,8,10,0) 68%),
       linear-gradient(172deg, rgba(26,19,12,.92) 0%, rgba(13,10,9,.90) 52%, rgba(6,5,6,.94) 100%)`,
-  1: `linear-gradient(158deg, rgba(20,20,23,.88) 0%, rgba(14,14,17,.86) 54%, rgba(9,9,11,.90) 100%)`,
+  /**
+   * Orbit 1 is the site's second light surface.
+   *
+   * One inversion in a whole descent makes the rest read as monotone: the
+   * ABOUT bone is the best moment on the site precisely because it is a change
+   * of material, and a change of material that happens once is an exception
+   * rather than a language. Stable orbit is the right place for the second —
+   * it is the panel whose whole argument is equilibrium, and a lit, neutral
+   * room is what equilibrium looks like.
+   *
+   * Fully opaque, unlike its neighbours: the starfield showing through a light
+   * surface would read as dirt. That also takes the 3D object off screen for
+   * the panel, the same mechanism ABOUT uses, and gives the horizontal
+   * transition something real to reveal.
+   *
+   * Revert: restore
+   *   linear-gradient(158deg, rgba(20,20,23,.88), rgba(14,14,17,.86) 54%, rgba(9,9,11,.90))
+   * and delete the `$light` branches below.
+   */
+  1: `radial-gradient(120% 90% at 72% -10%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 58%),
+      linear-gradient(162deg, #DEDFDB 0%, #D3D5D0 54%, #C4C6C2 100%)`,
   2: `radial-gradient(150% 120% at 86% -14%, rgba(120,150,180,.13) 0%, rgba(8,8,10,0) 58%),
       linear-gradient(190deg, rgba(9,12,17,.90) 0%, rgba(6,7,10,.94) 100%)`,
 } as const;
@@ -166,8 +201,13 @@ export const Ghost = styled.div<{ $orbit: Orbit }>`
   pointer-events: none;
   user-select: none;
   z-index: 0;
-  color: ${({ theme, $orbit }) => ($orbit === 0 ? theme.colors.accent : theme.colors.text)};
-  opacity: ${({ $orbit }) => (['0.075', '0.05', '0.032'] as const)[$orbit]};
+  color: ${({ theme, $orbit }) =>
+    $orbit === 0
+      ? theme.colors.accent
+      : isLight($orbit)
+        ? theme.colors.ink
+        : theme.colors.text};
+  opacity: ${({ $orbit }) => (['0.075', '0.085', '0.032'] as const)[$orbit]};
 
   ${({ theme }) => theme.media.belowDesktop} {
     font-size: clamp(200px, 54vw, 420px);
@@ -276,8 +316,12 @@ export const Number = styled.div<{ $orbit: Orbit }>`
   font-size: ${({ theme }) => theme.type.mono};
   letter-spacing: 0.2em;
   color: ${({ theme, $orbit }) =>
-    $orbit === 2 ? theme.colors.textFaint : theme.colors.accent};
-  opacity: ${({ $orbit }) => ($orbit === 0 ? 1 : $orbit === 1 ? 0.85 : 0.55)};
+    $orbit === 2
+      ? theme.colors.textFaint
+      : isLight($orbit)
+        ? theme.colors.accentInk
+        : theme.colors.accent};
+  opacity: ${({ $orbit }) => ($orbit === 0 ? 1 : $orbit === 1 ? 0.95 : 0.55)};
 `;
 
 /**
@@ -312,7 +356,11 @@ export const Title = styled.h3<{ $orbit: Orbit }>`
   letter-spacing: ${({ $orbit }) => (['-0.058em', '-0.045em', '-0.02em'] as const)[$orbit]};
   font-weight: 500;
   color: ${({ theme, $orbit }) =>
-    $orbit === 2 ? theme.colors.textMuted : theme.colors.text};
+    $orbit === 2
+      ? theme.colors.textMuted
+      : isLight($orbit)
+        ? theme.colors.ink
+        : theme.colors.text};
 
   ${({ theme }) => theme.media.belowDesktop} {
     /* The stack has no panel edge to crop against — let it wrap instead of
@@ -328,28 +376,32 @@ export const Desc = styled.p<{ $placeholder?: boolean; $orbit: Orbit }>`
   font-size: ${({ $orbit }) => (['18px', '18px', '15px'] as const)[$orbit]};
   line-height: ${({ $orbit }) => (['1.45', '1.55', '1.8'] as const)[$orbit]};
   color: ${({ theme, $placeholder, $orbit }) =>
-    $orbit === 2
-      ? theme.colors.textGhost
-      : $placeholder
-        ? theme.colors.textDim
-        : theme.colors.textMuted};
+    isLight($orbit)
+      ? theme.colors.inkMuted
+      : $orbit === 2
+        ? theme.colors.textGhost
+        : $placeholder
+          ? theme.colors.textDim
+          : theme.colors.textMuted};
 
   ${({ theme }) => theme.media.mobile} {
     font-size: 16px;
   }
 `;
 
-export const Meta = styled.dl`
+export const Meta = styled.dl<{ $orbit: Orbit }>`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   margin: 0;
   padding-top: 16px;
-  border-top: 1px solid ${({ theme }) => theme.colors.line};
+  border-top: 1px solid
+    ${({ theme, $orbit }) => (isLight($orbit) ? theme.colors.inkLine : theme.colors.line)};
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.type.monoSm};
   letter-spacing: 0.14em;
-  color: ${({ theme }) => theme.colors.textFaint};
+  color: ${({ theme, $orbit }) =>
+    isLight($orbit) ? theme.colors.inkFaint : theme.colors.textFaint};
 
   > div {
     display: grid;
@@ -362,7 +414,7 @@ export const Meta = styled.dl`
 
   dd {
     margin: 0;
-    color: ${({ theme }) => theme.colors.text};
+    color: ${({ theme, $orbit }) => (isLight($orbit) ? theme.colors.ink : theme.colors.text)};
   }
 `;
 
@@ -392,7 +444,12 @@ export const Media = styled.figure<{ $orbit: Orbit }>`
   max-height: ${({ $orbit }) => (['82vh', '70vh', '38vh'] as const)[$orbit]};
   width: ${({ $orbit }) => (['100%', '100%', '78%'] as const)[$orbit]};
   border: 1px solid
-    ${({ theme, $orbit }) => ($orbit === 2 ? theme.colors.line : theme.colors.border)};
+    ${({ theme, $orbit }) =>
+      isLight($orbit)
+        ? theme.colors.inkLine
+        : $orbit === 2
+          ? theme.colors.line
+          : theme.colors.border};
   overflow: hidden;
 
   ${({ theme }) => theme.media.belowDesktop} {

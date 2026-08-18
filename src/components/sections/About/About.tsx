@@ -5,6 +5,7 @@ import { useReveal } from '../../../hooks/useReveal';
 import { useParallax } from '../../../hooks/useParallax';
 import { useMediaFrame } from '../../../hooks/useMediaFrame';
 import { useRegisterBreak } from '../../../hooks/useRegisterBreak';
+import { useLightSection } from '../../../hooks/useLightSection';
 
 /**
  * ABOUT — the register break.
@@ -257,6 +258,8 @@ export function About() {
   useParallax(ref);
   useMediaFrame(ref);
   useRegisterBreak(ref, topCurtain, bottomCurtain);
+  // The chrome that floats over this surface has to stop painting for black.
+  useLightSection(ref, 'about');
 
   return (
     <Section id="about" ref={ref} aria-labelledby="about-label">

@@ -48,7 +48,7 @@ const Readout = styled.div`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.type.monoSm};
   letter-spacing: 0.16em;
-  color: var(--accent);
+  color: var(--chrome-accent);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 `;
@@ -58,7 +58,7 @@ const Rate = styled.div`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 8px;
   letter-spacing: 0.16em;
-  color: ${({ theme }) => theme.colors.accentMuted};
+  color: var(--chrome-accent-muted);
   font-variant-numeric: tabular-nums;
   opacity: 0;
   transition: opacity 0.5s ease;
@@ -69,7 +69,7 @@ const Caption = styled.div`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: 8px;
   letter-spacing: 0.3em;
-  color: ${({ theme }) => theme.colors.textTrace};
+  color: var(--chrome-trace);
   writing-mode: vertical-rl;
 
   ${({ theme }) => theme.media.mobile} {
@@ -85,8 +85,8 @@ const Rule = styled.div`
   background: linear-gradient(
     to bottom,
     transparent,
-    ${({ theme }) => theme.colors.line} 12%,
-    ${({ theme }) => theme.colors.line} 88%,
+    var(--chrome-line) 12%,
+    var(--chrome-line) 88%,
     transparent
   );
 `;
@@ -98,7 +98,7 @@ const Tick = styled.div`
   top: 0;
   width: 9px;
   height: 1px;
-  background: var(--accent);
+  background: var(--chrome-accent);
   will-change: transform;
 `;
 
@@ -108,7 +108,7 @@ const Fallen = styled.div`
   left: 0;
   top: 0;
   width: 1px;
-  background: var(--accent-muted);
+  background: var(--chrome-accent-muted);
   will-change: height;
 `;
 

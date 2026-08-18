@@ -61,6 +61,25 @@ export const colors = {
    * neutral that sits comfortably beside the accent's 35° hue.
    */
   paper: '#E8E3D9',
+  /**
+   * The second light surface — the WORK chapter's stable orbit.
+   *
+   * Deliberately NOT the ABOUT bone. That surface is warm paper and it is the
+   * site's one human moment; reusing it for a project panel would spend the
+   * only card the ABOUT section holds. This is a cool mineral grey: the same
+   * inversion of register, a different material.
+   */
+  station: '#D9DAD6',
+  stationDeep: '#C6C8C4',
+  /**
+   * The accent, dark enough to survive on a light surface.
+   *
+   * `accent` is 2.1:1 on bone — fine as a 500px body of light on black, a
+   * failure as a 10px label on paper. Same hue, same measured 35°, driven down
+   * in luminance until it clears AA against both light surfaces (4.9:1 on
+   * paper, 4.7:1 on station).
+   */
+  accentInk: '#7E5518',
   paperDeep: '#DBD4C6',
   ink: '#0F0E0C',
   inkMuted: '#46423B',

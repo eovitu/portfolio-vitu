@@ -46,7 +46,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
           </S.Desc>
         </S.Clip>
 
-        <S.Meta data-p="4">
+        <S.Meta data-p="4" $orbit={orbit}>
           <div>
             <dt>ROLE</dt>
             <dd>{project.role}</dd>
