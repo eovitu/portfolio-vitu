@@ -129,11 +129,27 @@ export function Cursor() {
     };
   }, [active]);
 
-  useAnimationFrame(() => {
+  useAnimationFrame((_time, deltaMs) => {
     const el = ref.current;
     if (!el) return;
-    position.current.x += (target.current.x - position.current.x) * CURSOR.lerp;
-    position.current.y += (target.current.y - position.current.y) * CURSOR.lerp;
+    /**
+     * Frame-rate independent, not per-frame.
+     *
+     * `p += (target - p) * k` once per frame converges in a number of *frames*,
+     * so the cursor's weight is really a function of how fast the page happens
+     * to be running. On a long frame the cursor barely moves, and the reader
+     * watches it crawl toward the pointer instead of arriving — which reads as
+     * the cursor drifting on its own, most visibly in SKILLS, the one section
+     * where the pointer is held still over a target and actually looked at.
+     *
+     * The same smoothing expressed against elapsed time converges in a fixed
+     * amount of *time* instead. At 60fps this is arithmetically the shipped
+     * feel; below it the cursor stays with the pointer rather than lagging
+     * proportionally to the frame cost.
+     */
+    const k = 1 - Math.pow(1 - CURSOR.lerp, Math.min(4, deltaMs / (1000 / 60)));
+    position.current.x += (target.current.x - position.current.x) * k;
+    position.current.y += (target.current.y - position.current.y) * k;
 
     const px = position.current.x;
     const py = position.current.y;
@@ -183,7 +199,10 @@ export function Cursor() {
       if (!node) continue;
       const lead = i === 0 ? { x, y } : trailPos[i - 1];
       const p = trailPos[i];
-      const rate = 0.34 - i * 0.045;
+      // Same time-based correction as the cursor itself, so the wake keeps its
+      // shape at any frame rate instead of collapsing onto the dot on a slow
+      // frame and stringing out on a fast one.
+      const rate = 1 - Math.pow(1 - (0.34 - i * 0.045), Math.min(4, deltaMs / (1000 / 60)));
       p.x += (lead.x - p.x) * rate;
       p.y += (lead.y - p.y) * rate;
 
