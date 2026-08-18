@@ -27,7 +27,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
           </S.Number>
         </S.Clip>
 
-        <S.Clip style={{ paddingBottom: '.05em' }}>
+        <S.TitleClip>
           <S.Title
             data-p="2"
             data-panel-title
@@ -37,7 +37,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
           >
             {project.name}
           </S.Title>
-        </S.Clip>
+        </S.TitleClip>
 
         <S.Clip>
           <S.Desc data-p="3" $placeholder={project.descIsPlaceholder} $orbit={orbit}>

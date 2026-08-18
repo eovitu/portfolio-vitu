@@ -233,6 +233,37 @@ export const Clip = styled.div`
 `;
 
 /**
+ * The title's reveal mask, which must clip vertically and NOT horizontally.
+ *
+ * `overflow: hidden` on both axes would cut the title at the text column and
+ * the bleed would never happen. Mixing `overflow-x: visible` with
+ * `overflow-y: hidden` is not available in CSS — the visible axis computes to
+ * `auto` and the element becomes a scroll container.
+ *
+ * So the mask keeps `overflow: hidden` and is instead made wide enough that
+ * its own edge is never the thing doing the cutting: `width: max-content`
+ * sizes it to the glyphs, and grid children with a `minmax(0, …)` track do not
+ * constrain an overflowing child. The panel's `overflow: hidden` performs the
+ * crop, which is what the composition wants.
+ */
+export const TitleClip = styled.div`
+  overflow: hidden;
+  width: max-content;
+  max-width: none;
+  padding-bottom: 0.05em;
+  /* Above the media plate: where the two now cross, the word wins. */
+  position: relative;
+  z-index: 2;
+
+  ${({ theme }) => theme.media.belowDesktop} {
+    /* No panel edge to be cut by in the vertical stack — a nowrap title wider
+       than the screen would give the page a horizontal scrollbar. */
+    width: auto;
+    max-width: 100%;
+  }
+`;
+
+/**
  * Project numbering — one of the few places the accent is unconditional,
  * because it is the conceptual index of the piece, not a small label.
  *
@@ -249,17 +280,32 @@ export const Number = styled.div<{ $orbit: Orbit }>`
   opacity: ${({ $orbit }) => ($orbit === 0 ? 1 : $orbit === 1 ? 0.85 : 0.55)};
 `;
 
+/**
+ * The project title, sized to leave the column.
+ *
+ * At the old scale the title sat obediently inside its grid cell, and a title
+ * that fits its cell is a caption. These sizes are chosen so the word runs
+ * past the text column and is cut by the panel's own edge — the crop is the
+ * statement, and it is why `TitleClip` below has to stop clipping horizontally.
+ *
+ * The near/far grading survives: orbit 0 is crushed and enormous, orbit 2 is
+ * still the smallest of the three. What changed is the floor, not the shape.
+ *
+ * Revert: restore 'clamp(42px, 6.6vw, 108px)' / 'clamp(34px, 5.4vw, 88px)' /
+ * 'clamp(24px, 3.2vw, 52px)' and drop `TitleClip`'s width rules.
+ */
 export const Title = styled.h3<{ $orbit: Orbit }>`
   margin: 0;
   display: inline-block;
+  white-space: nowrap;
   /* Type scale is a grid variable here, not decoration: the near panel is
      crushed large and tight, the far one is small inside a big field. */
   font-size: ${({ $orbit }) =>
     (
       [
-        'clamp(42px, 6.6vw, 108px)',
-        'clamp(34px, 5.4vw, 88px)',
-        'clamp(24px, 3.2vw, 52px)',
+        'clamp(58px, 11.8vw, 208px)',
+        'clamp(48px, 9.6vw, 172px)',
+        'clamp(38px, 6.4vw, 116px)',
       ] as const
     )[$orbit]};
   line-height: ${({ $orbit }) => (['0.84', '0.92', '1.04'] as const)[$orbit]};
@@ -267,6 +313,13 @@ export const Title = styled.h3<{ $orbit: Orbit }>`
   font-weight: 500;
   color: ${({ theme, $orbit }) =>
     $orbit === 2 ? theme.colors.textMuted : theme.colors.text};
+
+  ${({ theme }) => theme.media.belowDesktop} {
+    /* The stack has no panel edge to crop against — let it wrap instead of
+       handing the document a horizontal scrollbar. */
+    white-space: normal;
+    font-size: clamp(38px, 12vw, 96px);
+  }
 `;
 
 export const Desc = styled.p<{ $placeholder?: boolean; $orbit: Orbit }>`

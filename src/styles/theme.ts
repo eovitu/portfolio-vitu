@@ -74,12 +74,34 @@ export const fonts = {
   mono: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
 } as const;
 
-/** Fluid type scale, exactly as authored in the design source. */
+/**
+ * Fluid type scale.
+ *
+ * The display end was authored against the design source and measured far too
+ * small once the site existed: the hero lockup occupied roughly a quarter of
+ * the viewport's height and every other surface inherited that timidity, which
+ * is what made the black read as empty rather than as chosen.
+ *
+ * The display sizes are now bound by `min(vw, vh)` rather than by `vw` alone.
+ * A `vw`-only clamp is a promise about width, and what the composition needed
+ * was a promise about *height* — "VICTOR HUGO" is two lines at 0.84 leading,
+ * so `21.5vh` per line puts the block at ~36vh on any aspect ratio instead of
+ * at 27vh on a 16:9 laptop and 45vh on a tall window.
+ *
+ * The small end is untouched on purpose. The tension between a 10px mono label
+ * and a 200px name is the authorship; raising both would just be a zoom.
+ *
+ * To revert the display scale to the handoff values, restore:
+ *   heroName: 'clamp(52px, 11.5vw, 178px)'
+ *   sectionTitle: 'clamp(28px, 4.6vw, 72px)'
+ *   projectTitle: 'clamp(34px, 5.4vw, 88px)'
+ *   contactTitle: 'clamp(38px, 8.2vw, 142px)'
+ */
 export const type = {
-  heroName: 'clamp(52px, 11.5vw, 178px)',
-  sectionTitle: 'clamp(28px, 4.6vw, 72px)',
-  projectTitle: 'clamp(34px, 5.4vw, 88px)',
-  contactTitle: 'clamp(38px, 8.2vw, 142px)',
+  heroName: 'clamp(58px, min(16.4vw, 21.5vh), 268px)',
+  sectionTitle: 'clamp(38px, min(7.4vw, 12.4vh), 138px)',
+  projectTitle: 'clamp(44px, 9.4vw, 168px)',
+  contactTitle: 'clamp(48px, min(11.6vw, 19vh), 214px)',
   body: '18px',
   bodyAlt: '17px',
   skill: '22px',
