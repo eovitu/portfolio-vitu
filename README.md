@@ -1,5 +1,7 @@
 # Singularity — portfólio de Victor Hugo
 
+![A hero do site: o buraco negro procedural em WebGL atrás do nome VICTOR HUGO, com o HUD marcando 12,00 Rs até o horizonte de eventos.](docs/hero.png)
+
 Portfólio pessoal construído em torno de um conceito só: **gravidade**. Um
 buraco negro renderizado em tempo real não é o plano de fundo do site — é o
 personagem. Ele consome a página no reload e a devolve, puxa a tipografia da

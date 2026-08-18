@@ -123,7 +123,7 @@ export function SoundToggle() {
         <i />
         <i />
       </Bars>
-      {on ? 'SOM' : 'MUDO'}
+      {on ? 'SOUND' : 'MUTED'}
     </Button>
   );
 }
