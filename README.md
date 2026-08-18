@@ -54,6 +54,7 @@ src/
   styles/         tokens e estilo global
 docs/
   ARCHITECTURE.md decisões técnicas e as descobertas por trás delas
+  BUGS-ABERTOS.md defeitos conhecidos e o que falta para fechar cada um
   reference/      protótipo de origem da cena 3D
 public/
   victor-2010.jpg a única fotografia do site
