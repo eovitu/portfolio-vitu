@@ -20,7 +20,6 @@ interface Options {
   trackRef: RefObject<HTMLElement>;
   /** Desktop + motion allowed. When false the section is a plain vertical stack. */
   enabled: boolean;
-  onProgress?: (index: number) => void;
 }
 
 /**
@@ -40,7 +39,6 @@ export function useHorizontalScroll({
   pinRef,
   trackRef,
   enabled,
-  onProgress,
 }: Options): void {
   useLayoutEffect(() => {
     const wrap = wrapRef.current;
@@ -154,7 +152,6 @@ export function useHorizontalScroll({
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            onProgress?.(Math.min(n - 1, Math.round(self.progress * (n - 1))));
             recordFrame(self.progress, self.getVelocity());
 
             /**
@@ -364,5 +361,5 @@ export function useHorizontalScroll({
         p.style.flex = '';
       });
     };
-  }, [wrapRef, pinRef, trackRef, enabled, onProgress]);
+  }, [wrapRef, pinRef, trackRef, enabled]);
 }

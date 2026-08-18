@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import * as S from './Work.styles';
 import { ProjectPanel } from './ProjectPanel';
 import { projects, work } from '../../../lib/content';
@@ -23,39 +23,29 @@ export function Work() {
   const reduced = useReducedMotion();
   const horizontal = isDesktop && !reduced;
 
-  // Imperative counter update: this fires on every scrubbed frame, so it must
-  // never go through React state.
-  const onProgress = useCallback((index: number) => {
-    const el = counterRef.current;
-    if (!el) return;
-    const next = `${String(index + 1).padStart(2, '0')} / ${total}`;
-    if (el.textContent !== next) el.textContent = next;
-  }, []);
-
-  useHorizontalScroll({
-    wrapRef,
-    pinRef,
-    trackRef,
-    enabled: horizontal,
-    onProgress,
-  });
+  useHorizontalScroll({ wrapRef, pinRef, trackRef, enabled: horizontal });
 
   /**
-   * The chapter tells the page which register it is in.
+   * Which panel is actually on screen — asked once, answered for both readers.
    *
-   * Stable orbit is a light surface, and the chrome floating over it — the
-   * header, the distance HUD, this chapter's own label — is painted for black.
+   * Two things need this: the register (stable orbit is a light surface, and
+   * the chrome floating over it — header, distance HUD, this chapter's label —
+   * has to be painted for black) and the counter in the heading.
    *
-   * The question is geometric: is the light panel the thing under the middle
-   * of the viewport. An observer with the root inset to a single vertical line
-   * answers exactly that, and answers it without reading layout on the frame
-   * loop. The first version did read a rect per frame and cost 11.1ms median
-   * while scrolling against a 5.6ms baseline.
+   * The question is geometric: what is under the middle of the viewport. An
+   * observer with the root inset to a single vertical line answers exactly
+   * that, and answers it without reading layout on the frame loop. The first
+   * version did read a rect per frame and cost 11.1ms median while scrolling
+   * against a 5.6ms baseline.
    *
-   * Not taken from the panel-index callback above: that callback quantises
-   * scroll progress and was observed holding a stale index while a different
-   * panel was on screen (logged in BUGS-ENCONTRADOS). A stale counter is
-   * cosmetic; chrome painted for the wrong register is not.
+   * The counter used to come from the scrub's own progress, quantised with
+   * `Math.round`. That is a different question — it asks how far through the
+   * chapter the *scroll* is, not what the reader is looking at — and the two
+   * answers come apart wherever the mapping is not perfectly linear: mid-pin,
+   * on a refresh, or on the trailing edge of an eased Lenis settle, the
+   * counter was observed holding a stale index while another panel was fully
+   * on screen. Asking the geometry directly cannot drift, because there is
+   * nothing left to drift from.
    */
   useEffect(() => {
     const track = trackRef.current;
@@ -63,15 +53,26 @@ export function Work() {
       setLight('work-panel', false);
       return;
     }
-    const panel = track.children[LIGHT_INDEX] as HTMLElement | undefined;
-    if (!panel) return;
+    const panels = Array.from(track.children) as HTMLElement[];
+    if (!panels.length) return;
 
     const io = new IntersectionObserver(
-      ([entry]) => setLight('work-panel', entry.isIntersecting),
+      (entries) => {
+        for (const entry of entries) {
+          const index = panels.indexOf(entry.target as HTMLElement);
+          if (index === -1) continue;
+          if (index === LIGHT_INDEX) setLight('work-panel', entry.isIntersecting);
+          if (!entry.isIntersecting) continue;
+          const el = counterRef.current;
+          if (!el) continue;
+          const next = `${String(index + 1).padStart(2, '0')} / ${total}`;
+          if (el.textContent !== next) el.textContent = next;
+        }
+      },
       // Root inset to the vertical centre line of the viewport.
       { root: null, rootMargin: '0px -50% 0px -50%', threshold: 0 },
     );
-    io.observe(panel);
+    panels.forEach((panel) => io.observe(panel));
 
     return () => {
       io.disconnect();
