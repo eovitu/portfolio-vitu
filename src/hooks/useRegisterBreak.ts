@@ -1,5 +1,6 @@
 import { useLayoutEffect, type RefObject } from 'react';
-import { gsap, ScrollTrigger } from '../lib/gsap';
+import { gsap } from '../lib/gsap';
+import { requestRefresh } from '../lib/refreshGate';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 
 /**
@@ -88,7 +89,10 @@ export function useRegisterBreak(
       );
     }, section);
 
-    ScrollTrigger.refresh();
+    // Through the gate, never directly: this fires on mount, and ABOUT mounts
+    // while the reader may already be inside the WORK pin — refreshing there
+    // re-measures the pin's length under a live scrub. See lib/refreshGate.
+    requestRefresh();
     return () => ctx.revert();
   }, [sectionRef, topRef, bottomRef]);
 }

@@ -2,7 +2,15 @@ import { useLayoutEffect, type RefObject } from 'react';
 import { gsap, ScrollTrigger } from '../lib/gsap';
 import { EASE, EASE_SOFT, PANEL } from '../lib/motion';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
+import { requestRefresh, setRefreshGuard } from '../lib/refreshGate';
 import { setTrackProgress } from '../lib/veil';
+
+/**
+ * Name of the guard this chapter raises while its pin is engaged. Any refresh
+ * asked for during that window is deferred until the pin releases — see
+ * `lib/refreshGate` for why the pin is the one place that cannot tolerate one.
+ */
+const PIN_GUARD = 'work-pin';
 
 interface Options {
   wrapRef: RefObject<HTMLElement>;
@@ -106,7 +114,9 @@ export function useHorizontalScroll({
         window.clearTimeout(resizeTimer);
         resizeTimer = window.setTimeout(() => {
           sizePanels();
-          ScrollTrigger.refresh();
+          // Gated: a resize that lands while the reader is inside the pin
+          // would otherwise re-measure the chapter's length mid-scrub.
+          requestRefresh();
         }, 150);
       };
       window.addEventListener('resize', onResize);
@@ -162,10 +172,34 @@ export function useHorizontalScroll({
             // orbit is on screen.
             setTrackProgress(self.progress, true);
           },
-          onLeave: () => setTrackProgress(1, false),
-          onLeaveBack: () => setTrackProgress(0, false),
-          onEnter: () => setTrackProgress(0, true),
-          onEnterBack: () => setTrackProgress(1, true),
+          /**
+           * The guard is raised for exactly as long as the pin is engaged.
+           *
+           * While it is up, a `refresh()` from anywhere else — a debounced
+           * resize, a section registering its triggers on mount, web fonts
+           * settling — is held rather than run. The reason is that this
+           * trigger's `end` is a *function*: refreshing recomputes the pin's
+           * total length, so the same `scrollY` starts mapping to a different
+           * scrub progress and the track snaps to a new position mid-gesture.
+           * Held refreshes are coalesced and run on release, which also stops
+           * one refresh from cascading into the next.
+           */
+          onLeave: () => {
+            setRefreshGuard(PIN_GUARD, false);
+            setTrackProgress(1, false);
+          },
+          onLeaveBack: () => {
+            setRefreshGuard(PIN_GUARD, false);
+            setTrackProgress(0, false);
+          },
+          onEnter: () => {
+            setRefreshGuard(PIN_GUARD, true);
+            setTrackProgress(0, true);
+          },
+          onEnterBack: () => {
+            setRefreshGuard(PIN_GUARD, true);
+            setTrackProgress(1, true);
+          },
         },
       });
 
@@ -289,6 +323,8 @@ export function useHorizontalScroll({
         window.clearTimeout(resizeTimer);
         window.removeEventListener('resize', onResize);
         ScrollTrigger.removeEventListener('refreshInit', sizePanels);
+        // Tearing down while pinned must not leave the gate shut forever.
+        setRefreshGuard(PIN_GUARD, false);
       };
     }, wrap);
 

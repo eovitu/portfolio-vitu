@@ -8,7 +8,7 @@ import {
 } from './components/providers/SmoothScrollProvider';
 import { getGhostLayer } from './lib/ghosts';
 import { useScrollSkew } from './hooks/useScrollSkew';
-import { ScrollTrigger } from './lib/gsap';
+import { requestRefresh } from './lib/refreshGate';
 import { Header } from './components/navigation/Header';
 import { Hud } from './components/layout/Hud';
 import { Cursor } from './components/layout/Cursor';
@@ -102,7 +102,7 @@ function Site() {
     const settle = () => {
       if (cancelled || started) return;
       started = true;
-      ScrollTrigger.refresh();
+      requestRefresh();
       setIntroReady(true);
     };
 
