@@ -50,6 +50,23 @@ export default tseslint.config(
       // into explicitly rather than blanket-allowed.
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+
+      /**
+       * Imports belong at the top of the file.
+       *
+       * `Contact.tsx` shipped with an import sitting below a module-level
+       * const. It is legal — ES module imports are hoisted, so it ran — and
+       * that is exactly why nothing caught it: neither TypeScript nor the
+       * bundler has any reason to complain, and no rule here was asking.
+       * It is still a file that reads as though an edit was abandoned midway.
+       */
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Program > :not(ImportDeclaration) ~ ImportDeclaration',
+          message: 'Imports must be at the top of the file, before any other statement.',
+        },
+      ],
     },
   },
   // Prettier last: it turns off every stylistic rule that would fight the

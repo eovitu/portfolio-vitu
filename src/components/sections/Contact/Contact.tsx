@@ -4,12 +4,12 @@ import { contact } from '../../../lib/content';
 import { useReveal } from '../../../hooks/useReveal';
 import { useParallax } from '../../../hooks/useParallax';
 import { useCollapse } from '../../../hooks/useCollapse';
+import { Footer } from '../../layout/Footer';
 
 const email = contact.links.find((l) => l.label === 'EMAIL') ?? {
   label: 'EMAIL',
   href: '#contact',
 };
-import { Footer } from '../../layout/Footer';
 
 const Section = styled.section`
   position: relative;
