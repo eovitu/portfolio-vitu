@@ -2,6 +2,7 @@ import { useLayoutEffect } from 'react';
 import { gsap } from '../lib/gsap';
 import { requestRefresh } from '../lib/refreshGate';
 import { EASE, HERO, INTRO } from '../lib/motion';
+import { whoosh } from '../lib/audio';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 import { veil } from '../lib/veil';
 import { setActive as setFieldActive } from '../lib/gravityField';
@@ -330,6 +331,20 @@ export function useSingularityIntro(
           reload.travel.duration,
           reload.fall.spread + reload.fall.duration,
         );
+        /**
+         * The absorb, in sound.
+         *
+         * `whoosh` no-ops unless the reader has actually turned sound on, so
+         * this cannot make a noise at anyone unprompted — the AudioContext is
+         * not even constructed until the toggle is used. It fires on a reload
+         * whose stored preference was "on", which is the only case where there
+         * is an engine to play it.
+         *
+         * Scheduled with `.call` rather than as part of a tween: it has no
+         * value to interpolate, and the timeline's shape is load-bearing here.
+         */
+        tl.call(() => whoosh('in'), undefined, reload.travel.at);
+
         const master = { u: 0 };
         tl.to(
           master,
@@ -440,6 +455,10 @@ export function useSingularityIntro(
       // ── EXPEL ────────────────────────────────────────────────────────────
       // Matter thrown clear of the core: each element leaves at its own
       // moment, decelerating hard (expo.out) into place — mass, not a fade.
+      // The sweep rises here where the absorb's fell, so the pair reads as one
+      // gesture reversed. Same no-op guarantee: silent unless sound is on.
+      tl.call(() => whoosh('out'), undefined, expelAt);
+
       tl.to(
         heroSignal,
         {
