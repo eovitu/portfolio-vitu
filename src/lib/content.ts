@@ -276,10 +276,9 @@ export const contact = {
   /** Named in the section as the one thing the collapse does not take. */
   survivorNote: 'THE ONE SIGNAL THAT ESCAPES',
   links: [
-    // TODO(content): real GITHUB / LINKEDIN URLs — placeholders in the handoff.
-    { label: 'EMAIL', href: 'mailto:hello@example.com', external: false },
-    { label: 'GITHUB', href: '#contact', external: false },
-    { label: 'LINKEDIN', href: '#contact', external: false },
+    { label: 'EMAIL', href: 'mailto:eovitu7@gmail.com', external: false },
+    { label: 'GITHUB', href: 'https://github.com/eovitu', external: true },
+    { label: 'LINKEDIN', href: 'https://www.linkedin.com/in/eovitu/', external: true },
   ],
 } as const;
 
