@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { about } from '../../../lib/content';
 import { useReveal } from '../../../hooks/useReveal';
 import { useParallax } from '../../../hooks/useParallax';
+import { useMediaFrame } from '../../../hooks/useMediaFrame';
+import { useRegisterBreak } from '../../../hooks/useRegisterBreak';
 
 /**
  * ABOUT — the register break.
@@ -29,8 +31,10 @@ const Section = styled.section`
   background: ${({ theme }) => theme.colors.paper};
   color: ${({ theme }) => theme.colors.ink};
   padding: 150px ${({ theme }) => theme.space.gutter} 170px;
-  /* Isolate so the global grain still composites, but nothing behind bleeds. */
+  /* Isolate so the global grain still composites, but nothing behind bleeds.
+     overflow clips the oversized skewed curtains as they translate out. */
   isolation: isolate;
+  overflow: hidden;
 
   ${({ theme }) => theme.media.mobile} {
     padding: 100px 20px 120px;
@@ -38,25 +42,29 @@ const Section = styled.section`
 `;
 
 /**
- * The passage in and out.
+ * The curtains that make the inversion an event.
  *
- * A hard edge between black and bone would be a cut. These are the frames of
- * the transition: the page black dissolves into the paper across ~140px at
- * each boundary, so the inversion arrives as a change in the material rather
- * than as a seam between two sections.
+ * These used to be soft gradients, which read as two pages glued together.
+ * They are now solid sheets of page black, sitting over the light section and
+ * clipped away by useRegisterBreak as the reader crosses the boundary — the
+ * dark is consumed rather than faded through.
+ *
+ * Tall on purpose: the sweep needs room to be legible as a movement, and a
+ * 140px band resolves too fast to register as anything.
  */
-const Edge = styled.div<{ $side: 'top' | 'bottom' }>`
+const Curtain = styled.div<{ $side: 'top' | 'bottom' }>`
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 140px;
+  /* Wider than the section so the static skew never exposes a corner. */
+  left: -12%;
+  right: -12%;
+  height: 46vh;
+  z-index: 3;
   pointer-events: none;
   ${({ $side }) => ($side === 'top' ? 'top: 0;' : 'bottom: 0;')}
-  background: linear-gradient(
-    ${({ $side }) => ($side === 'top' ? 'to bottom' : 'to top')},
-    ${({ theme }) => theme.colors.bg} 0%,
-    rgba(232, 227, 217, 0) 100%
-  );
+  background: ${({ theme }) => theme.colors.bg};
+  /* The shear is applied by GSAP in both keyframes — see useRegisterBreak for
+     why it cannot live here. */
+  will-change: transform;
 `;
 
 const Inner = styled.div`
@@ -127,8 +135,15 @@ const Frame = styled.div`
 
   img {
     width: 100%;
-    height: 100%;
+    /* Taller than the frame so the parallax drift never exposes an edge. */
+    height: calc(100% + 14%);
+    position: absolute;
+    inset: -7% 0 auto 0;
     object-fit: cover;
+    will-change: transform;
+    /* Written by useMediaFrame on the shared ticker; the frame is the window
+       and the picture moves behind it. */
+    transform: translate3d(0, var(--media-shift, 0px), 0);
     /* Archive treatment: strip the colour, then rebuild the tonal range hard.
        Never the clean colour original.
        The first pass at 1.42/0.92 produced a pleasant sepia print — which is
@@ -236,13 +251,17 @@ const MetaList = styled.ul`
 
 export function About() {
   const ref = useRef<HTMLElement>(null);
+  const topCurtain = useRef<HTMLDivElement>(null);
+  const bottomCurtain = useRef<HTMLDivElement>(null);
   useReveal(ref);
   useParallax(ref);
+  useMediaFrame(ref);
+  useRegisterBreak(ref, topCurtain, bottomCurtain);
 
   return (
     <Section id="about" ref={ref} aria-labelledby="about-label">
-      <Edge $side="top" aria-hidden="true" />
-      <Edge $side="bottom" aria-hidden="true" />
+      <Curtain ref={topCurtain} $side="top" aria-hidden="true" />
+      <Curtain ref={bottomCurtain} $side="bottom" aria-hidden="true" />
 
       <Inner>
         <Clip data-warp>
@@ -260,8 +279,13 @@ export function About() {
         </Title>
 
         <Plate data-warp data-reveal-group>
-          <Frame data-parallax="1.04">
-            <img src="/victor-2010.jpg" alt={about.photoAlt} loading="lazy" />
+          <Frame data-media-frame data-parallax="1.04">
+            <img
+              data-media-inner
+              src="/victor-2010.jpg"
+              alt={about.photoAlt}
+              loading="lazy"
+            />
           </Frame>
           <Aside>
             <Body data-reveal="soft">{about.bodySecond}</Body>
