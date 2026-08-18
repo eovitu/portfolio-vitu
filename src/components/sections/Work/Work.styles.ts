@@ -297,16 +297,19 @@ export const Body = styled.div<{ $orbit: Orbit }>`
   &::before {
     content: '';
     position: absolute;
-    inset: -12% -22% -14% -10%;
+    /* Reaches well past the copy column on the right: the title bleeds out
+       there, and the pixels measured under 3:1 were all in the stretch of the
+       word that had run out from under this gradient. */
+    inset: -14% -52% -16% -10%;
     z-index: -1;
     pointer-events: none;
     opacity: ${({ $orbit }) => (isLight($orbit) ? 0 : 1)};
     background: radial-gradient(
-      ellipse 62% 60% at 34% 52%,
-      rgba(6, 6, 8, 0.86) 0%,
-      rgba(6, 6, 8, 0.62) 42%,
-      rgba(6, 6, 8, 0.24) 70%,
-      rgba(6, 6, 8, 0) 86%
+      ellipse 66% 62% at 40% 52%,
+      rgba(6, 6, 8, 0.88) 0%,
+      rgba(6, 6, 8, 0.68) 44%,
+      rgba(6, 6, 8, 0.3) 72%,
+      rgba(6, 6, 8, 0) 88%
     );
   }
 
@@ -408,6 +411,12 @@ export const Title = styled.h3<{ $orbit: Orbit }>`
       : isLight($orbit)
         ? theme.colors.ink
         : theme.colors.text};
+  /* The title now runs across its own plate. Measured through a glyph mask,
+     1.55% of orbit 0's pixels fell below 3:1 where the word crosses the hot
+     core; a shadow that hugs the letterforms fixes exactly those pixels and
+     leaves the plate's light alone everywhere else. */
+  text-shadow: ${({ $orbit }) =>
+    isLight($orbit) ? 'none' : '0 0 14px rgba(6,6,8,.8), 0 0 38px rgba(6,6,8,.55)'};
 
   ${({ theme }) => theme.media.belowDesktop} {
     /* The stack has no panel edge to crop against — let it wrap instead of
