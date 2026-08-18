@@ -5,6 +5,7 @@ import { useReveal } from '../../../hooks/useReveal';
 import { useParallax } from '../../../hooks/useParallax';
 import { useMediaFrame } from '../../../hooks/useMediaFrame';
 import { useRegisterBreak } from '../../../hooks/useRegisterBreak';
+import { useLightSection } from '../../../hooks/useLightSection';
 
 /**
  * ABOUT — the register break.
@@ -88,11 +89,16 @@ const Label = styled.div`
 
 const Title = styled.h2`
   margin: 0;
+  /* Bleeds to the physical edge, like the hero name — the gutter is for the
+     body copy, not for the one statement the section exists to make. */
+  margin-left: calc(-1 * ${({ theme }) => theme.space.gutter});
   font-size: ${({ theme }) => theme.type.sectionTitle};
   line-height: 1.06;
   letter-spacing: -0.04em;
   font-weight: 300;
-  max-width: 18ch;
+  /* Narrowed with the scale: at 18ch the third line broke after "está" and
+     left "lá." alone on a line of its own. */
+  max-width: 15ch;
 `;
 
 const TitleLine = styled.span`
@@ -206,9 +212,30 @@ const Frame = styled.div`
  * picture is given less than half the row, and the rest of the line is air.
  */
 const Aside = styled.figcaption`
+  position: relative;
+  z-index: 2;
   display: grid;
   gap: 26px;
   padding-bottom: 6px;
+
+  /**
+   * The caption is pulled onto the photograph.
+   *
+   * Everything on this site used to occupy its own quadrant, and a layout
+   * where nothing crosses anything is a layout with no depth in it. This is
+   * the one overlap the ABOUT section can afford: the type stays on its own
+   * bone ground — a chip of paper laid over the print, the way a caption is
+   * physically laid on a contact sheet — so the picture is never covered by
+   * text it would fight.
+   *
+   * Revert: drop the margin, the padding and the background.
+   */
+  ${({ theme }) => theme.media.desktop} {
+    margin-left: -19%;
+    align-self: end;
+    padding: 30px 34px 26px;
+    background: ${({ theme }) => theme.colors.paper};
+  }
 `;
 
 const Body = styled.p`
@@ -257,6 +284,8 @@ export function About() {
   useParallax(ref);
   useMediaFrame(ref);
   useRegisterBreak(ref, topCurtain, bottomCurtain);
+  // The chrome that floats over this surface has to stop painting for black.
+  useLightSection(ref, 'about');
 
   return (
     <Section id="about" ref={ref} aria-labelledby="about-label">

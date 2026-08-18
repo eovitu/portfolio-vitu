@@ -1,5 +1,6 @@
 import { useLayoutEffect } from 'react';
-import { gsap, ScrollTrigger } from '../lib/gsap';
+import { gsap } from '../lib/gsap';
+import { requestRefresh } from '../lib/refreshGate';
 import { EASE, HERO, INTRO } from '../lib/motion';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 import { veil } from '../lib/veil';
@@ -229,7 +230,7 @@ export function useSingularityIntro(
          * Hand the hero's scrubbed exit back its authority: `useHeroExit`
          * caches state that an intro can leave stale.
          */
-        ScrollTrigger.refresh();
+        requestRefresh();
         markEnd();
         /**
          * Only now does the gravitational field take over the glyphs. It is

@@ -99,13 +99,49 @@ const Label = styled.div`
   color: ${({ theme }) => theme.colors.textFaint};
 `;
 
+/**
+ * The closing statement, and the one place on the site where large type sits
+ * directly on the brightest part of the object.
+ *
+ * At the display scale this phase introduced, the statement grew into the
+ * photon ring. Measured through a glyph mask against the composited backdrop,
+ * 79% of its pixels fell below 3:1 and the median was 1.99 — white type on
+ * white light. The rule for this site is that legibility is bought with weight
+ * behind the type and never by shrinking the object, so this is the hero's
+ * mitigation applied here: a scrim sized to the block, plus a shadow that hugs
+ * the letterforms and therefore darkens only the few pixels where a glyph edge
+ * meets the ring.
+ */
 const Title = styled.h2`
+  position: relative;
   margin: 0;
+  /* Bleeds to the physical edge, like the hero and the interludes. */
+  margin-left: calc(-1 * ${({ theme }) => theme.space.gutter});
   font-size: ${({ theme }) => theme.type.contactTitle};
   line-height: 0.92;
   letter-spacing: -0.05em;
   font-weight: 500;
   max-width: 14ch;
+  text-shadow:
+    0 0 16px rgba(8, 8, 10, 0.94),
+    0 0 40px rgba(8, 8, 10, 0.78),
+    0 0 88px rgba(8, 8, 10, 0.5);
+`;
+
+/** Page black under the statement, with the falloff finishing off-block so no
+ *  edge is ever perceptible against the starfield. */
+const TitleScrim = styled.div`
+  position: absolute;
+  inset: -18% -10% -22% -14%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 58% 56% at 38% 52%,
+    rgba(8, 8, 10, 0.92) 0%,
+    rgba(8, 8, 10, 0.74) 40%,
+    rgba(8, 8, 10, 0.34) 68%,
+    rgba(8, 8, 10, 0) 84%
+  );
 `;
 
 const TitleLine = styled.span`
@@ -173,6 +209,7 @@ export function Contact() {
         </Clip>
 
         <Title data-reveal-group>
+          <TitleScrim aria-hidden="true" />
           {contact.titleLines.map((line) => (
             <TitleLine key={line} data-warp>
               <span data-reveal="slow" data-skew>

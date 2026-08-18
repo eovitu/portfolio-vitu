@@ -17,11 +17,20 @@ const Bar = styled.header`
   font-size: ${({ theme }) => theme.type.mono};
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: ${({ theme }) => theme.colors.textDim};
+  color: var(--chrome-dim);
   transform: translateY(-110%);
-  background: rgba(8, 8, 10, 0);
+  background: transparent;
   backdrop-filter: blur(10px);
-  transition: background 0.5s ease;
+  transition:
+    background 0.5s ease,
+    color 0.45s ease;
+
+  /* Set by the frame loop past half a viewport. The colour is not written by
+     JS — only the flag is — so a register change repaints the bar without the
+     loop having to notice. */
+  &[data-solid='true'] {
+    background: var(--chrome-veil);
+  }
 
   ${({ theme }) => theme.media.mobile} {
     padding: 14px 20px;
@@ -30,6 +39,10 @@ const Bar = styled.header`
 `;
 
 const Brand = styled.a`
+  /* The global anchor rule sets an explicit colour, so inheriting the bar's
+     register-aware colour is not enough — measured as near-white links on the
+     light bar before this line existed. */
+  color: var(--chrome-dim);
   display: flex;
   gap: 10px;
   align-items: center;
@@ -39,7 +52,7 @@ const Brand = styled.a`
   span {
     width: 5px;
     height: 5px;
-    background: ${({ theme }) => theme.colors.accent};
+    background: var(--chrome-accent);
     border-radius: 50%;
     animation: blink 3.5s ease-in-out infinite;
   }
@@ -60,6 +73,7 @@ const Links = styled.nav`
 `;
 
 const NavLink = styled.a`
+  color: var(--chrome-text);
   opacity: 0;
 
   ${({ theme }) => theme.media.mobile} {
@@ -73,9 +87,9 @@ const NavLink = styled.a`
 
 const ChatTrigger = styled.button`
   opacity: 0;
-  border: 1px solid ${({ theme }) => theme.colors.border};
+  border: 1px solid var(--chrome-border);
   background: transparent;
-  color: ${({ theme }) => theme.colors.text};
+  color: var(--chrome-text);
   font: inherit;
   letter-spacing: 0.16em;
   padding: 9px 16px;
@@ -89,8 +103,8 @@ const ChatTrigger = styled.button`
 
   &:hover,
   &:focus-visible {
-    border-color: ${({ theme }) => theme.colors.text};
-    color: ${({ theme }) => theme.colors.text};
+    border-color: var(--chrome-text);
+    color: var(--chrome-text);
   }
 
   ${({ theme }) => theme.media.mobile} {
@@ -120,7 +134,9 @@ export function Header({ onOpenChat, chatOpen }: Props) {
     const next = window.scrollY > window.innerHeight * 0.5;
     if (next === solid.current) return;
     solid.current = next;
-    el.style.background = next ? 'rgba(8,8,10,0.78)' : 'rgba(8,8,10,0)';
+    /* A flag, not a colour: rgba(8,8,10,.78) baked in here would paint a
+       black bar with light type on it over a light section. */
+    el.dataset.solid = String(next);
   });
 
   const onAnchorClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -135,7 +151,7 @@ export function Header({ onOpenChat, chatOpen }: Props) {
     // paints a translucent background and a backdrop blur, so swallowing only
     // the children would leave that strip floating. `reload` mode keeps the
     // first-visit slide-in (`[data-nav]` / `[data-nav-item]`) untouched.
-    <Bar ref={barRef} data-nav data-warp data-warp-mode="reload">
+    <Bar ref={barRef} data-chrome data-nav data-warp data-warp-mode="reload">
       <Brand href="#top" data-nav-item onClick={(e) => onAnchorClick(e, '#top')}>
         <span aria-hidden="true" />
         {nav.brand}

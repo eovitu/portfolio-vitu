@@ -14,6 +14,53 @@ export const GlobalStyle = createGlobalStyle`
     --accent-bright: ${({ theme }) => theme.colors.accentBright};
     --accent-muted: ${({ theme }) => theme.colors.accentMuted};
     --bg: ${({ theme }) => theme.colors.bg};
+
+    /**
+     * Chrome colours — what the fixed and pinned layers paint themselves with.
+     *
+     * The header, the distance HUD and the WORK chapter label float over
+     * whatever section is under them. With one light section that was
+     * survivable; with two it is light grey type on bone. These variables are
+     * the whole mechanism: the chrome reads them, lib/register publishes the
+     * register on the root element, and the block below restates them.
+     */
+    --chrome-text: ${({ theme }) => theme.colors.text};
+    --chrome-dim: ${({ theme }) => theme.colors.textDim};
+    --chrome-faint: ${({ theme }) => theme.colors.textFaint};
+    --chrome-trace: ${({ theme }) => theme.colors.textTrace};
+    --chrome-line: ${({ theme }) => theme.colors.line};
+    --chrome-border: ${({ theme }) => theme.colors.border};
+    --chrome-accent: ${({ theme }) => theme.colors.accent};
+    --chrome-accent-muted: ${({ theme }) => theme.colors.accentMuted};
+    --chrome-veil: rgba(8, 8, 10, 0.78);
+  }
+
+  /**
+   * The light register.
+   *
+   * Transitioned rather than switched: the reader crosses the boundary over a
+   * few hundred milliseconds of scroll, and chrome that flips instantly reads
+   * as a bug in the page rather than as the page changing material. Colour is
+   * not a compositor property, but this is four small nodes changing at a
+   * boundary crossing, not per frame.
+   */
+  :root[data-register='light'] {
+    --chrome-text: ${({ theme }) => theme.colors.ink};
+    --chrome-dim: ${({ theme }) => theme.colors.inkMuted};
+    --chrome-faint: ${({ theme }) => theme.colors.inkFaint};
+    --chrome-trace: ${({ theme }) => theme.colors.inkFaint};
+    --chrome-line: ${({ theme }) => theme.colors.inkLine};
+    --chrome-border: ${({ theme }) => theme.colors.inkLine};
+    --chrome-accent: ${({ theme }) => theme.colors.accentInk};
+    --chrome-accent-muted: ${({ theme }) => theme.colors.inkMuted};
+    --chrome-veil: rgba(226, 222, 212, 0.82);
+  }
+
+  [data-chrome] {
+    transition:
+      color 0.45s ease,
+      border-color 0.45s ease,
+      background-color 0.45s ease;
   }
 
   *, *::before, *::after { box-sizing: border-box; }

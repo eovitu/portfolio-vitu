@@ -1,5 +1,6 @@
 import { useEffect, type RefObject } from 'react';
-import { gsap, ScrollTrigger } from '../lib/gsap';
+import { gsap } from '../lib/gsap';
+import { requestRefresh } from '../lib/refreshGate';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 import { WARP, dropNested } from '../lib/warpTargets';
 
@@ -96,7 +97,8 @@ export function useCollapse(
       }
     }, section);
 
-    ScrollTrigger.refresh();
+    // Deferred while the WORK pin is engaged — see lib/refreshGate.
+    requestRefresh();
     return () => ctx.revert();
   }, [sectionRef, surviveSelector]);
 }

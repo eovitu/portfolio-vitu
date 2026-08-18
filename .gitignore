@@ -73,4 +73,5 @@ $RECYCLE.BIN/
 project/
 
 # Agent tooling that is specific to one machine's setup.
-.claude/
+.claude/*
+!.claude/settings.json

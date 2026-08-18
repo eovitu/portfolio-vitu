@@ -38,11 +38,19 @@ export const Pin = styled.div`
     height: 180px;
     z-index: 4;
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.45s ease;
     background: linear-gradient(
       to bottom,
       ${({ theme }) => theme.colors.bg} 0%,
       rgba(8, 8, 10, 0) 100%
     );
+  }
+
+  /* Over the light panel that seam is a black bar hanging in a lit room. It
+     only ever had a job at the hero boundary, which is the dark register. */
+  :root[data-register='light'] &::before {
+    opacity: 0;
   }
 
   ${({ theme }) => theme.media.belowDesktop} {
@@ -63,11 +71,15 @@ export const Heading = styled.div`
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.type.mono};
   letter-spacing: 0.2em;
-  color: ${({ theme }) => theme.colors.textFaint};
+  /* Pinned over three panels, one of which is a light surface — see
+     lib/register. */
+  color: var(--chrome-faint);
   pointer-events: none;
+  transition: color 0.45s ease;
 
   strong {
-    color: ${({ theme }) => theme.colors.text};
+    color: var(--chrome-text);
+    transition: color 0.45s ease;
     font-weight: inherit;
   }
 
@@ -108,6 +120,9 @@ export const Track = styled.div`
  */
 export type Orbit = 0 | 1 | 2;
 
+/** Stable orbit is the light panel — see WORLD below. */
+export const isLight = (orbit: Orbit): boolean => orbit === 1;
+
 const ORBIT = {
   0: {
     columns: 'minmax(0, 1.5fr) minmax(0, 0.75fr)',
@@ -141,7 +156,27 @@ const ORBIT = {
 const WORLD = {
   0: `radial-gradient(120% 88% at 22% 112%, rgba(214,159,81,.26) 0%, rgba(150,96,30,.10) 38%, rgba(8,8,10,0) 68%),
       linear-gradient(172deg, rgba(26,19,12,.92) 0%, rgba(13,10,9,.90) 52%, rgba(6,5,6,.94) 100%)`,
-  1: `linear-gradient(158deg, rgba(20,20,23,.88) 0%, rgba(14,14,17,.86) 54%, rgba(9,9,11,.90) 100%)`,
+  /**
+   * Orbit 1 is the site's second light surface.
+   *
+   * One inversion in a whole descent makes the rest read as monotone: the
+   * ABOUT bone is the best moment on the site precisely because it is a change
+   * of material, and a change of material that happens once is an exception
+   * rather than a language. Stable orbit is the right place for the second —
+   * it is the panel whose whole argument is equilibrium, and a lit, neutral
+   * room is what equilibrium looks like.
+   *
+   * Fully opaque, unlike its neighbours: the starfield showing through a light
+   * surface would read as dirt. That also takes the 3D object off screen for
+   * the panel, the same mechanism ABOUT uses, and gives the horizontal
+   * transition something real to reveal.
+   *
+   * Revert: restore
+   *   linear-gradient(158deg, rgba(20,20,23,.88), rgba(14,14,17,.86) 54%, rgba(9,9,11,.90))
+   * and delete the `$light` branches below.
+   */
+  1: `radial-gradient(120% 90% at 72% -10%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 58%),
+      linear-gradient(162deg, #DEDFDB 0%, #D3D5D0 54%, #C4C6C2 100%)`,
   2: `radial-gradient(150% 120% at 86% -14%, rgba(120,150,180,.13) 0%, rgba(8,8,10,0) 58%),
       linear-gradient(190deg, rgba(9,12,17,.90) 0%, rgba(6,7,10,.94) 100%)`,
 } as const;
@@ -165,9 +200,26 @@ export const Ghost = styled.div<{ $orbit: Orbit }>`
   letter-spacing: -0.06em;
   pointer-events: none;
   user-select: none;
-  z-index: 0;
-  color: ${({ theme, $orbit }) => ($orbit === 0 ? theme.colors.accent : theme.colors.text)};
-  opacity: ${({ $orbit }) => (['0.075', '0.05', '0.032'] as const)[$orbit]};
+  /**
+   * Between the plate and the copy, not behind both.
+   *
+   * The panel used to be three parallel quadrants — copy left, plate right,
+   * numeral behind everything — and nothing ever crossed anything. Sitting the
+   * numeral above the plate and below the copy gives one element two different
+   * depths on the same screen, which is the cheapest way to make a flat grid
+   * read as layers. Revert: z-index 0.
+   */
+  z-index: 3;
+  color: ${({ theme, $orbit }) =>
+    $orbit === 0
+      ? theme.colors.accent
+      : isLight($orbit)
+        ? theme.colors.ink
+        : theme.colors.text};
+  /* Raised with the depth change: at 0.03 the numeral vanished entirely where
+     it crossed a lit plate, which made the new layering invisible exactly
+     where it was supposed to read. */
+  opacity: ${({ $orbit }) => (['0.11', '0.1', '0.062'] as const)[$orbit]};
 
   ${({ theme }) => theme.media.belowDesktop} {
     font-size: clamp(200px, 54vw, 420px);
@@ -188,7 +240,12 @@ export const Panel = styled.article<{ $orbit: Orbit }>`
    * into the grid, consumed the first column and pushed the copy and the media
    * plate one cell along. The layout looked plausible and was wrong.
    */
-  > [data-panel-body],
+  > [data-panel-body] {
+    position: relative;
+    /* Above the ghost numeral, which is above the plate. */
+    z-index: 4;
+  }
+
   > [data-panel-cell] {
     position: relative;
     z-index: 1;
@@ -222,7 +279,40 @@ export const Panel = styled.article<{ $orbit: Orbit }>`
 `;
 
 export const Body = styled.div<{ $orbit: Orbit }>`
+  position: relative;
   display: grid;
+
+  /**
+   * Local weight under the copy, now that the plate is allowed to slide
+   * beneath it.
+   *
+   * The direction's rule for overlaps is that legibility is bought with weight
+   * behind the type, never by shrinking what is behind it. This is a soft
+   * ellipse of page black with its falloff finishing outside the block, so no
+   * edge is ever perceptible — the same device the hero uses under the name.
+   *
+   * Orbit 1 is exempt: nothing overlaps there, and a black scrim on a light
+   * panel would be a bruise.
+   */
+  &::before {
+    content: '';
+    position: absolute;
+    /* Reaches well past the copy column on the right: the title bleeds out
+       there, and the pixels measured under 3:1 were all in the stretch of the
+       word that had run out from under this gradient. */
+    inset: -14% -52% -16% -10%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: ${({ $orbit }) => (isLight($orbit) ? 0 : 1)};
+    background: radial-gradient(
+      ellipse 66% 62% at 40% 52%,
+      rgba(6, 6, 8, 0.88) 0%,
+      rgba(6, 6, 8, 0.68) 44%,
+      rgba(6, 6, 8, 0.3) 72%,
+      rgba(6, 6, 8, 0) 88%
+    );
+  }
+
   /* Density is the tell: crushed at the horizon, generous far away. */
   gap: ${({ $orbit }) => (['14px', '22px', '40px'] as const)[$orbit]};
   align-content: ${({ $orbit }) => (['end', 'center', 'start'] as const)[$orbit]};
@@ -230,6 +320,37 @@ export const Body = styled.div<{ $orbit: Orbit }>`
 
 export const Clip = styled.div`
   overflow: hidden;
+`;
+
+/**
+ * The title's reveal mask, which must clip vertically and NOT horizontally.
+ *
+ * `overflow: hidden` on both axes would cut the title at the text column and
+ * the bleed would never happen. Mixing `overflow-x: visible` with
+ * `overflow-y: hidden` is not available in CSS — the visible axis computes to
+ * `auto` and the element becomes a scroll container.
+ *
+ * So the mask keeps `overflow: hidden` and is instead made wide enough that
+ * its own edge is never the thing doing the cutting: `width: max-content`
+ * sizes it to the glyphs, and grid children with a `minmax(0, …)` track do not
+ * constrain an overflowing child. The panel's `overflow: hidden` performs the
+ * crop, which is what the composition wants.
+ */
+export const TitleClip = styled.div`
+  overflow: hidden;
+  width: max-content;
+  max-width: none;
+  padding-bottom: 0.05em;
+  /* Above the media plate: where the two now cross, the word wins. */
+  position: relative;
+  z-index: 2;
+
+  ${({ theme }) => theme.media.belowDesktop} {
+    /* No panel edge to be cut by in the vertical stack — a nowrap title wider
+       than the screen would give the page a horizontal scrollbar. */
+    width: auto;
+    max-width: 100%;
+  }
 `;
 
 /**
@@ -245,28 +366,64 @@ export const Number = styled.div<{ $orbit: Orbit }>`
   font-size: ${({ theme }) => theme.type.mono};
   letter-spacing: 0.2em;
   color: ${({ theme, $orbit }) =>
-    $orbit === 2 ? theme.colors.textFaint : theme.colors.accent};
-  opacity: ${({ $orbit }) => ($orbit === 0 ? 1 : $orbit === 1 ? 0.85 : 0.55)};
+    $orbit === 2
+      ? theme.colors.textFaint
+      : isLight($orbit)
+        ? theme.colors.accentInk
+        : theme.colors.accent};
+  opacity: ${({ $orbit }) => ($orbit === 0 ? 1 : $orbit === 1 ? 0.95 : 0.55)};
 `;
 
+/**
+ * The project title, sized to leave the column.
+ *
+ * At the old scale the title sat obediently inside its grid cell, and a title
+ * that fits its cell is a caption. These sizes are chosen so the word runs
+ * past the text column and is cut by the panel's own edge — the crop is the
+ * statement, and it is why `TitleClip` below has to stop clipping horizontally.
+ *
+ * The near/far grading survives: orbit 0 is crushed and enormous, orbit 2 is
+ * still the smallest of the three. What changed is the floor, not the shape.
+ *
+ * Revert: restore 'clamp(42px, 6.6vw, 108px)' / 'clamp(34px, 5.4vw, 88px)' /
+ * 'clamp(24px, 3.2vw, 52px)' and drop `TitleClip`'s width rules.
+ */
 export const Title = styled.h3<{ $orbit: Orbit }>`
   margin: 0;
   display: inline-block;
+  white-space: nowrap;
   /* Type scale is a grid variable here, not decoration: the near panel is
      crushed large and tight, the far one is small inside a big field. */
   font-size: ${({ $orbit }) =>
     (
       [
-        'clamp(42px, 6.6vw, 108px)',
-        'clamp(34px, 5.4vw, 88px)',
-        'clamp(24px, 3.2vw, 52px)',
+        'clamp(58px, 11.8vw, 208px)',
+        'clamp(48px, 9.6vw, 172px)',
+        'clamp(38px, 6.4vw, 116px)',
       ] as const
     )[$orbit]};
   line-height: ${({ $orbit }) => (['0.84', '0.92', '1.04'] as const)[$orbit]};
   letter-spacing: ${({ $orbit }) => (['-0.058em', '-0.045em', '-0.02em'] as const)[$orbit]};
   font-weight: 500;
   color: ${({ theme, $orbit }) =>
-    $orbit === 2 ? theme.colors.textMuted : theme.colors.text};
+    $orbit === 2
+      ? theme.colors.textMuted
+      : isLight($orbit)
+        ? theme.colors.ink
+        : theme.colors.text};
+  /* The title now runs across its own plate. Measured through a glyph mask,
+     1.55% of orbit 0's pixels fell below 3:1 where the word crosses the hot
+     core; a shadow that hugs the letterforms fixes exactly those pixels and
+     leaves the plate's light alone everywhere else. */
+  text-shadow: ${({ $orbit }) =>
+    isLight($orbit) ? 'none' : '0 0 14px rgba(6,6,8,.8), 0 0 38px rgba(6,6,8,.55)'};
+
+  ${({ theme }) => theme.media.belowDesktop} {
+    /* The stack has no panel edge to crop against — let it wrap instead of
+       handing the document a horizontal scrollbar. */
+    white-space: normal;
+    font-size: clamp(38px, 12vw, 96px);
+  }
 `;
 
 export const Desc = styled.p<{ $placeholder?: boolean; $orbit: Orbit }>`
@@ -275,28 +432,32 @@ export const Desc = styled.p<{ $placeholder?: boolean; $orbit: Orbit }>`
   font-size: ${({ $orbit }) => (['18px', '18px', '15px'] as const)[$orbit]};
   line-height: ${({ $orbit }) => (['1.45', '1.55', '1.8'] as const)[$orbit]};
   color: ${({ theme, $placeholder, $orbit }) =>
-    $orbit === 2
-      ? theme.colors.textGhost
-      : $placeholder
-        ? theme.colors.textDim
-        : theme.colors.textMuted};
+    isLight($orbit)
+      ? theme.colors.inkMuted
+      : $orbit === 2
+        ? theme.colors.textGhost
+        : $placeholder
+          ? theme.colors.textDim
+          : theme.colors.textMuted};
 
   ${({ theme }) => theme.media.mobile} {
     font-size: 16px;
   }
 `;
 
-export const Meta = styled.dl`
+export const Meta = styled.dl<{ $orbit: Orbit }>`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   margin: 0;
   padding-top: 16px;
-  border-top: 1px solid ${({ theme }) => theme.colors.line};
+  border-top: 1px solid
+    ${({ theme, $orbit }) => (isLight($orbit) ? theme.colors.inkLine : theme.colors.line)};
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.type.monoSm};
   letter-spacing: 0.14em;
-  color: ${({ theme }) => theme.colors.textFaint};
+  color: ${({ theme, $orbit }) =>
+    isLight($orbit) ? theme.colors.inkFaint : theme.colors.textFaint};
 
   > div {
     display: grid;
@@ -309,7 +470,7 @@ export const Meta = styled.dl`
 
   dd {
     margin: 0;
-    color: ${({ theme }) => theme.colors.text};
+    color: ${({ theme, $orbit }) => (isLight($orbit) ? theme.colors.ink : theme.colors.text)};
   }
 `;
 
@@ -320,7 +481,20 @@ export const Meta = styled.dl`
  * `opacity` and `yPercent`, and the intro would be writing the same `opacity`
  * from a second timeline. The cell owns the warp, the figure keeps the scrub.
  */
+/**
+ * The plate is allowed into the column beside it.
+ *
+ * Grid cells that respect their tracks produce a layout where text and image
+ * are neighbours; the reference this phase is measured against overlaps them,
+ * and overlap is what produces depth. The negative margin pulls the plate back
+ * under the copy column, and the copy stays legible because it sits two layers
+ * above with its own local weight — never by shrinking the plate.
+ *
+ * Not applied at orbit 1: that panel is the still point, and the one place
+ * where the grid holding still is the statement. Revert: drop margin-left.
+ */
 export const MediaCell = styled.div<{ $orbit: Orbit }>`
+  margin-left: ${({ $orbit }) => (['-14%', '0', '-18%'] as const)[$orbit]};
   display: grid;
   align-content: ${({ $orbit }) => (['end', 'center', 'start'] as const)[$orbit]};
   justify-items: ${({ $orbit }) => (['stretch', 'stretch', 'end'] as const)[$orbit]};
@@ -339,7 +513,12 @@ export const Media = styled.figure<{ $orbit: Orbit }>`
   max-height: ${({ $orbit }) => (['82vh', '70vh', '38vh'] as const)[$orbit]};
   width: ${({ $orbit }) => (['100%', '100%', '78%'] as const)[$orbit]};
   border: 1px solid
-    ${({ theme, $orbit }) => ($orbit === 2 ? theme.colors.line : theme.colors.border)};
+    ${({ theme, $orbit }) =>
+      isLight($orbit)
+        ? theme.colors.inkLine
+        : $orbit === 2
+          ? theme.colors.line
+          : theme.colors.border};
   overflow: hidden;
 
   ${({ theme }) => theme.media.belowDesktop} {
@@ -350,57 +529,102 @@ export const Media = styled.figure<{ $orbit: Orbit }>`
 `;
 
 /**
- * Placeholder plate — composed, not reserved.
+ * The plate's body.
  *
- * These are still mocks, but a flat grey rectangle would read as missing
- * content and drag the whole panel down with it. Each plate is instead lit
- * like a frame belonging to its orbit: a hot rake of light near the horizon, a
- * neutral silver in stable orbit, an almost-empty cold field far out. They do
- * not look like each other, which is the point.
+ * This used to be three layered CSS gradients with a faint word inside, and it
+ * was the single largest reason the dark sections read as unfinished: a plate
+ * with no matter in it is a hole in the composition, and each panel had one
+ * occupying between a third and a half of the frame.
  *
- * TODO(assets): swap the layered background for the real capture as an <img>,
- * keeping `data-panel-image` so the parallax and scale reveal keep working.
- * The framing is already correct for each orbit, so the images drop in
- * without a redesign.
+ * The gradients are gone. A generated field (see lib/matterField) paints the
+ * body on a canvas underneath, and what remains here is the treatment over it:
+ * a light leak from the direction of the orbit's source, and a coarse grain
+ * that keeps the upscaled noise from reading as a smooth digital gradient.
+ *
+ * TODO(assets): the real capture drops in as an <img> above the canvas, with
+ * `data-panel-image` kept where it is. The framing per orbit is already right,
+ * so nothing about the layout has to change when it arrives.
  */
 export const MediaInner = styled.div<{ $orbit: Orbit }>`
   position: absolute;
   inset: -6%;
-  background: ${({ $orbit }) =>
-    [
-      /* 0 — near: matter raked by the disc, warm and high contrast. */
-      `radial-gradient(120% 90% at 18% 108%, rgba(214,159,81,.30) 0%, rgba(214,159,81,.07) 34%, rgba(8,8,10,0) 62%),
-       linear-gradient(168deg, #17130E 0%, #0C0B0A 46%, #060506 100%),
-       repeating-linear-gradient(122deg, rgba(255,255,255,.045) 0px, rgba(255,255,255,.045) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 9px)`,
-      /* 1 — stable: neutral silver, even, classical. */
-      `linear-gradient(150deg, #141417 0%, #0E0E11 52%, #0A0A0C 100%),
-       repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 3px, rgba(0,0,0,0) 3px, rgba(0,0,0,0) 13px)`,
-      /* 2 — far: cold, nearly empty, a single cool wash off one edge. */
-      `radial-gradient(140% 120% at 88% -10%, rgba(150,170,190,.10) 0%, rgba(8,8,10,0) 55%),
-       linear-gradient(190deg, #0B0C0E 0%, #08080A 100%)`,
-    ][$orbit]};
-  display: flex;
-  align-items: ${({ $orbit }) => (['flex-end', 'center', 'flex-start'] as const)[$orbit]};
-  justify-content: ${({ $orbit }) => (['flex-start', 'center', 'flex-end'] as const)[$orbit]};
+  overflow: hidden;
+  background: #060608;
 
-  span {
-    font-family: ${({ theme }) => theme.fonts.mono};
-    font-size: ${({ theme }) => theme.type.monoSm};
-    letter-spacing: 0.24em;
-    color: ${({ theme, $orbit }) =>
-      $orbit === 2 ? theme.colors.textTrace : theme.colors.textGhost};
-    text-align: ${({ $orbit }) => (['left', 'center', 'right'] as const)[$orbit]};
-    padding: 26px 24px;
-    max-width: 60%;
+  /* The leak: the panel's light source, stated once more over the field so
+     the plate belongs to the same sky as the panel behind it. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: ${({ $orbit }) =>
+      [
+        `radial-gradient(88% 74% at 8% 104%, rgba(255,206,138,.30) 0%, rgba(214,159,81,.10) 34%, rgba(0,0,0,0) 66%)`,
+        `linear-gradient(158deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,0) 44%),
+         radial-gradient(96% 80% at 50% 40%, rgba(255,255,255,.05) 0%, rgba(0,0,0,0) 70%)`,
+        `radial-gradient(120% 96% at 96% -8%, rgba(150,186,232,.16) 0%, rgba(0,0,0,0) 58%),
+         linear-gradient(190deg, rgba(0,0,0,0) 40%, rgba(4,5,8,.55) 100%)`,
+      ][$orbit]};
+  }
+
+  /* Grain over the field, at a coarser frequency than the global film grain.
+     The upscale that makes the noise read as plasma also makes it perfectly
+     smooth, and perfectly smooth is what makes generated imagery look
+     generated. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: ${({ $orbit }) => (['0.5', '0.38', '0.3'] as const)[$orbit]};
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
   }
 `;
 
-export const MediaNote = styled.figcaption`
+/**
+ * The plate's stamp.
+ *
+ * The old treatment put two faint mono labels on every plate — the slot name
+ * and a `REGISTRO PENDENTE` caption — both at 10px in a dim grey over black.
+ * At that weight they did not read as a decision; they read as text that had
+ * failed to render.
+ *
+ * There is now one mark instead of two, and it states itself: a rule in the
+ * orbit's own light, then the slot name at a size that admits it is there on
+ * purpose. Revert: restore `MediaNote` in ProjectPanel and drop this.
+ */
+export const MediaStamp = styled.figcaption<{ $orbit: Orbit }>`
   position: absolute;
-  left: 14px;
-  bottom: 12px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px;
   font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: ${({ theme }) => theme.type.monoSm};
-  letter-spacing: 0.14em;
-  color: ${({ theme }) => theme.colors.textTrace};
+  font-size: ${({ theme }) => theme.type.mono};
+  letter-spacing: 0.22em;
+  color: ${({ theme }) => theme.colors.text};
+  /* Local weight so the mark keeps its contrast wherever the field happens to
+     be bright — the field moves, the label cannot move with it. */
+  background: linear-gradient(
+    to top,
+    rgba(4, 4, 6, 0.82) 0%,
+    rgba(4, 4, 6, 0.52) 46%,
+    rgba(4, 4, 6, 0) 100%
+  );
+
+  &::before {
+    content: '';
+    display: block;
+    width: 46px;
+    height: 1px;
+    background: ${({ theme, $orbit }) =>
+      $orbit === 2 ? theme.colors.textFaint : theme.colors.accent};
+  }
 `;

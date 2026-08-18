@@ -8,12 +8,13 @@ import {
 } from './components/providers/SmoothScrollProvider';
 import { getGhostLayer } from './lib/ghosts';
 import { useScrollSkew } from './hooks/useScrollSkew';
-import { ScrollTrigger } from './lib/gsap';
+import { requestRefresh } from './lib/refreshGate';
 import { Header } from './components/navigation/Header';
 import { Hud } from './components/layout/Hud';
 import { Cursor } from './components/layout/Cursor';
 import { Grain } from './components/layout/Grain';
 import { Marquee } from './components/layout/Marquee';
+import { Interlude } from './components/layout/Interlude';
 import { Redshift } from './components/layout/Redshift';
 import { SoundToggle } from './components/layout/SoundToggle';
 import { Hero } from './components/sections/Hero/Hero';
@@ -24,6 +25,7 @@ import { Contact } from './components/sections/Contact/Contact';
 import { ChatWidget } from './components/chat/ChatWidget';
 import { useChat } from './hooks/useChat';
 import { useSingularityIntro } from './hooks/useSingularityIntro';
+import { interludes } from './lib/content';
 import { SingularityStage } from './components/layout/SingularityStage';
 
 const SkipLink = styled.a`
@@ -100,7 +102,7 @@ function Site() {
     const settle = () => {
       if (cancelled || started) return;
       started = true;
-      ScrollTrigger.refresh();
+      requestRefresh();
       setIntroReady(true);
     };
 
@@ -123,11 +125,28 @@ function Site() {
       <Main>
         <Hero onOpenChat={openChat} />
         <Work />
-        {/* Crosses the WORK -> ABOUT boundary, which is the site's biggest
+        {/* Crosses the WORK -> interlude boundary, which is the site's biggest
             change of register and the one seam most in need of a stitch. */}
         <Marquee />
+        {/**
+         * The rhythm of the descent, stated as two full-bleed screens.
+         *
+         * The first is saturation: it lands where the page used to hold its
+         * longest stretch of nothing — the gap between the last panel and the
+         * light section — and answers it with a screen that is entirely image.
+         * The second is breath, and it sits immediately before the collapse so
+         * that the collapse has silence to break.
+         */}
+        <Interlude
+          id={interludes.matter.id}
+          kind={0}
+          lines={interludes.matter.lines}
+          lead={interludes.matter.lead}
+          metrics={interludes.matter.metrics}
+        />
         <About />
         <Skills />
+        <Interlude id={interludes.fall.id} kind={2} lines={interludes.fall.lines} />
         <Contact />
       </Main>
 

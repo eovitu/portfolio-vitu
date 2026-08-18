@@ -1,5 +1,6 @@
 import * as S from './Work.styles';
-import { work, type Project } from '../../../lib/content';
+import { MatterField } from '../../layout/MatterField';
+import { type Project } from '../../../lib/content';
 
 /**
  * A single project panel. `data-p` marks the entrance-staggered items and
@@ -27,7 +28,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
           </S.Number>
         </S.Clip>
 
-        <S.Clip style={{ paddingBottom: '.05em' }}>
+        <S.TitleClip>
           <S.Title
             data-p="2"
             data-panel-title
@@ -37,7 +38,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
           >
             {project.name}
           </S.Title>
-        </S.Clip>
+        </S.TitleClip>
 
         <S.Clip>
           <S.Desc data-p="3" $placeholder={project.descIsPlaceholder} $orbit={orbit}>
@@ -45,7 +46,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
           </S.Desc>
         </S.Clip>
 
-        <S.Meta data-p="4">
+        <S.Meta data-p="4" $orbit={orbit}>
           <div>
             <dt>ROLE</dt>
             <dd>{project.role}</dd>
@@ -68,9 +69,9 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
       <S.MediaCell data-panel-cell data-warp $orbit={orbit}>
         <S.Media data-p="5" data-panel-media $orbit={orbit}>
           <S.MediaInner data-panel-image $orbit={orbit}>
-            <span>{project.slot}</span>
+            <MatterField kind={orbit} />
           </S.MediaInner>
-          <S.MediaNote>{work.mediaNote}</S.MediaNote>
+          <S.MediaStamp $orbit={orbit}>{project.slot}</S.MediaStamp>
         </S.Media>
       </S.MediaCell>
     </S.Panel>

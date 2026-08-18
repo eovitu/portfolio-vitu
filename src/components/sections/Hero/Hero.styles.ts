@@ -65,6 +65,13 @@ export const Content = styled.div`
   position: relative;
   display: grid;
   gap: 30px;
+
+  /* The lockup now claims ~36vh on its own. On a short window that plus the
+     info grid would push past the fold, and the hero is the one screen that
+     must never scroll to be complete. */
+  @media (max-height: 760px) {
+    gap: 20px;
+  }
 `;
 
 /**
@@ -83,10 +90,13 @@ export const Content = styled.div`
 export const NameScrim = styled.div`
   position: absolute;
   /* Generous bleed so the falloff finishes off-block, never at an edge. */
-  inset: -14% -8% -18%;
+  /* Follows the block, which is now roughly twice as tall and starts off the
+     left edge — the falloff has to finish outside the viewport on that side
+     or the ellipse becomes a visible shape against the starfield. */
+  inset: -12% -6% -16% -22%;
   pointer-events: none;
   background: radial-gradient(
-    ellipse 62% 58% at 34% 62%,
+    ellipse 66% 62% at 32% 60%,
     rgba(8, 8, 10, 0.9) 0%,
     rgba(8, 8, 10, 0.72) 38%,
     rgba(8, 8, 10, 0.34) 64%,
@@ -94,8 +104,20 @@ export const NameScrim = styled.div`
   );
 `;
 
+/**
+ * The lockup bleeds to the physical edge of the screen.
+ *
+ * Every other element on the page respects the 32px gutter, and a name that
+ * respects it too reads as one more item in a column. Pulling it out by the
+ * full gutter plus the glyph's left sidebearing puts the stem of the "V" on
+ * the viewport's own edge, so the type stops being content inside a frame and
+ * becomes the frame. The `Stage` already clips, so nothing can escape.
+ *
+ * Revert: delete the `margin-left` declaration.
+ */
 export const Name = styled.h1`
   margin: 0;
+  margin-left: calc(-1 * ${({ theme }) => theme.space.gutter} - 0.055em);
   font-size: ${({ theme }) => theme.type.heroName};
   line-height: 0.84;
   letter-spacing: -0.05em;
@@ -118,6 +140,12 @@ export const Name = styled.h1`
     0 0 14px rgba(8, 8, 10, 0.92),
     0 0 34px rgba(8, 8, 10, 0.72),
     0 0 72px rgba(8, 8, 10, 0.45);
+
+  /* The Stage's padding drops to 20px here, so the bleed has to match it or
+     the name hangs 12px off the screen. */
+  ${({ theme }) => theme.media.mobile} {
+    margin-left: calc(-20px - 0.055em);
+  }
 `;
 
 export const NameLine = styled.span`
