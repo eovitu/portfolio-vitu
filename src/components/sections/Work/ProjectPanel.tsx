@@ -1,5 +1,6 @@
 import * as S from './Work.styles';
-import { work, type Project } from '../../../lib/content';
+import { MatterField } from './MatterField';
+import { type Project } from '../../../lib/content';
 
 /**
  * A single project panel. `data-p` marks the entrance-staggered items and
@@ -68,9 +69,9 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
       <S.MediaCell data-panel-cell data-warp $orbit={orbit}>
         <S.Media data-p="5" data-panel-media $orbit={orbit}>
           <S.MediaInner data-panel-image $orbit={orbit}>
-            <span>{project.slot}</span>
+            <MatterField kind={orbit} />
           </S.MediaInner>
-          <S.MediaNote>{work.mediaNote}</S.MediaNote>
+          <S.MediaStamp $orbit={orbit}>{project.slot}</S.MediaStamp>
         </S.Media>
       </S.MediaCell>
     </S.Panel>

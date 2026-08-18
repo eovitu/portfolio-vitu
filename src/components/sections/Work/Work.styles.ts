@@ -403,57 +403,102 @@ export const Media = styled.figure<{ $orbit: Orbit }>`
 `;
 
 /**
- * Placeholder plate — composed, not reserved.
+ * The plate's body.
  *
- * These are still mocks, but a flat grey rectangle would read as missing
- * content and drag the whole panel down with it. Each plate is instead lit
- * like a frame belonging to its orbit: a hot rake of light near the horizon, a
- * neutral silver in stable orbit, an almost-empty cold field far out. They do
- * not look like each other, which is the point.
+ * This used to be three layered CSS gradients with a faint word inside, and it
+ * was the single largest reason the dark sections read as unfinished: a plate
+ * with no matter in it is a hole in the composition, and each panel had one
+ * occupying between a third and a half of the frame.
  *
- * TODO(assets): swap the layered background for the real capture as an <img>,
- * keeping `data-panel-image` so the parallax and scale reveal keep working.
- * The framing is already correct for each orbit, so the images drop in
- * without a redesign.
+ * The gradients are gone. A generated field (see lib/matterField) paints the
+ * body on a canvas underneath, and what remains here is the treatment over it:
+ * a light leak from the direction of the orbit's source, and a coarse grain
+ * that keeps the upscaled noise from reading as a smooth digital gradient.
+ *
+ * TODO(assets): the real capture drops in as an <img> above the canvas, with
+ * `data-panel-image` kept where it is. The framing per orbit is already right,
+ * so nothing about the layout has to change when it arrives.
  */
 export const MediaInner = styled.div<{ $orbit: Orbit }>`
   position: absolute;
   inset: -6%;
-  background: ${({ $orbit }) =>
-    [
-      /* 0 — near: matter raked by the disc, warm and high contrast. */
-      `radial-gradient(120% 90% at 18% 108%, rgba(214,159,81,.30) 0%, rgba(214,159,81,.07) 34%, rgba(8,8,10,0) 62%),
-       linear-gradient(168deg, #17130E 0%, #0C0B0A 46%, #060506 100%),
-       repeating-linear-gradient(122deg, rgba(255,255,255,.045) 0px, rgba(255,255,255,.045) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 9px)`,
-      /* 1 — stable: neutral silver, even, classical. */
-      `linear-gradient(150deg, #141417 0%, #0E0E11 52%, #0A0A0C 100%),
-       repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 3px, rgba(0,0,0,0) 3px, rgba(0,0,0,0) 13px)`,
-      /* 2 — far: cold, nearly empty, a single cool wash off one edge. */
-      `radial-gradient(140% 120% at 88% -10%, rgba(150,170,190,.10) 0%, rgba(8,8,10,0) 55%),
-       linear-gradient(190deg, #0B0C0E 0%, #08080A 100%)`,
-    ][$orbit]};
-  display: flex;
-  align-items: ${({ $orbit }) => (['flex-end', 'center', 'flex-start'] as const)[$orbit]};
-  justify-content: ${({ $orbit }) => (['flex-start', 'center', 'flex-end'] as const)[$orbit]};
+  overflow: hidden;
+  background: #060608;
 
-  span {
-    font-family: ${({ theme }) => theme.fonts.mono};
-    font-size: ${({ theme }) => theme.type.monoSm};
-    letter-spacing: 0.24em;
-    color: ${({ theme, $orbit }) =>
-      $orbit === 2 ? theme.colors.textTrace : theme.colors.textGhost};
-    text-align: ${({ $orbit }) => (['left', 'center', 'right'] as const)[$orbit]};
-    padding: 26px 24px;
-    max-width: 60%;
+  /* The leak: the panel's light source, stated once more over the field so
+     the plate belongs to the same sky as the panel behind it. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: ${({ $orbit }) =>
+      [
+        `radial-gradient(88% 74% at 8% 104%, rgba(255,206,138,.30) 0%, rgba(214,159,81,.10) 34%, rgba(0,0,0,0) 66%)`,
+        `linear-gradient(158deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,0) 44%),
+         radial-gradient(96% 80% at 50% 40%, rgba(255,255,255,.05) 0%, rgba(0,0,0,0) 70%)`,
+        `radial-gradient(120% 96% at 96% -8%, rgba(150,186,232,.16) 0%, rgba(0,0,0,0) 58%),
+         linear-gradient(190deg, rgba(0,0,0,0) 40%, rgba(4,5,8,.55) 100%)`,
+      ][$orbit]};
+  }
+
+  /* Grain over the field, at a coarser frequency than the global film grain.
+     The upscale that makes the noise read as plasma also makes it perfectly
+     smooth, and perfectly smooth is what makes generated imagery look
+     generated. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: ${({ $orbit }) => (['0.5', '0.38', '0.3'] as const)[$orbit]};
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
   }
 `;
 
-export const MediaNote = styled.figcaption`
+/**
+ * The plate's stamp.
+ *
+ * The old treatment put two faint mono labels on every plate — the slot name
+ * and a `REGISTRO PENDENTE` caption — both at 10px in a dim grey over black.
+ * At that weight they did not read as a decision; they read as text that had
+ * failed to render.
+ *
+ * There is now one mark instead of two, and it states itself: a rule in the
+ * orbit's own light, then the slot name at a size that admits it is there on
+ * purpose. Revert: restore `MediaNote` in ProjectPanel and drop this.
+ */
+export const MediaStamp = styled.figcaption<{ $orbit: Orbit }>`
   position: absolute;
-  left: 14px;
-  bottom: 12px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px;
   font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: ${({ theme }) => theme.type.monoSm};
-  letter-spacing: 0.14em;
-  color: ${({ theme }) => theme.colors.textTrace};
+  font-size: ${({ theme }) => theme.type.mono};
+  letter-spacing: 0.22em;
+  color: ${({ theme }) => theme.colors.text};
+  /* Local weight so the mark keeps its contrast wherever the field happens to
+     be bright — the field moves, the label cannot move with it. */
+  background: linear-gradient(
+    to top,
+    rgba(4, 4, 6, 0.82) 0%,
+    rgba(4, 4, 6, 0.52) 46%,
+    rgba(4, 4, 6, 0) 100%
+  );
+
+  &::before {
+    content: '';
+    display: block;
+    width: 46px;
+    height: 1px;
+    background: ${({ theme, $orbit }) =>
+      $orbit === 2 ? theme.colors.textFaint : theme.colors.accent};
+  }
 `;

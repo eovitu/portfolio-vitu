@@ -92,7 +92,6 @@ export const about = {
 
 export const work = {
   label: 'MATÉRIA EM ÓRBITA',
-  mediaNote: 'REGISTRO PENDENTE',
 } as const;
 
 /**
