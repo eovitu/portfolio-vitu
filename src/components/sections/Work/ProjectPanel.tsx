@@ -1,5 +1,5 @@
 import * as S from './Work.styles';
-import { MatterField } from './MatterField';
+import { MatterField } from '../../layout/MatterField';
 import { type Project } from '../../../lib/content';
 
 /**

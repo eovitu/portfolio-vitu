@@ -172,7 +172,11 @@ export interface Field {
  */
 const BUDGET = 33000;
 
-export function createField(canvas: HTMLCanvasElement, kind: FieldKind): Field | null {
+export function createField(
+  canvas: HTMLCanvasElement,
+  kind: FieldKind,
+  budget: number = BUDGET,
+): Field | null {
   const ctx = canvas.getContext('2d', { alpha: false });
   if (!ctx) return null;
 
@@ -196,7 +200,7 @@ export function createField(canvas: HTMLCanvasElement, kind: FieldKind): Field |
   }
 
   const fit = (aspect: number) => {
-    const nw = Math.max(48, Math.round(Math.sqrt(BUDGET * aspect)));
+    const nw = Math.max(48, Math.round(Math.sqrt(budget * aspect)));
     const nh = Math.max(48, Math.round(nw / aspect));
     if (nw === w && nh === h) return;
     w = nw;

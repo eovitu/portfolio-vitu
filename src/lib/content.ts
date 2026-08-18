@@ -238,6 +238,33 @@ export const marquee = {
   ] as { text: string; accent?: boolean }[],
 } as const;
 
+/**
+ * The two full-bleed screens.
+ *
+ * They exist for rhythm before they exist for copy. Every section of this site
+ * used to be the same length at the same density, and a descent with no
+ * variation of pressure reads as one long section however good each part is.
+ * One is saturation — a hot field with a statement and a strip of instrument
+ * data over it. The other is breath — a cold field, one line, nothing else,
+ * placed immediately before the collapse so the collapse has silence to break.
+ */
+export const interludes = {
+  matter: {
+    id: 'interlude-matter',
+    lines: ['A MATÉRIA CHEGA', 'INTEIRA.'],
+    lead: 'SAI OUTRA COISA.',
+    metrics: [
+      ['MASSA ABSORVIDA', '3 PROJETOS'],
+      ['TEMPO PRÓPRIO', '2023 — 2026'],
+      ['ESTADO', 'EM ÓRBITA'],
+    ] as [string, string][],
+  },
+  fall: {
+    id: 'interlude-fall',
+    lines: ['DAQUI EM DIANTE,', 'SÓ QUEDA.'],
+  },
+} as const;
+
 export const contact = {
   label: 'ÚLTIMA ÓRBITA',
   titleLines: ["LET'S BUILD", 'SOMETHING THAT', 'HAS GRAVITY.'],
