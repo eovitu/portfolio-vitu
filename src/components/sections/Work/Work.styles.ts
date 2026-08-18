@@ -9,8 +9,11 @@ import styled from 'styled-components';
  * spacer ScrollTrigger injects provides the exact scroll distance, so the
  * section can never be taller than the animation it drives.
  *
- * Below the desktop breakpoint (or under reduced motion) the same markup is a
- * plain vertical stack — no pin, no track transform, no height maths.
+ * Below the desktop breakpoint OR under reduced motion the same markup is a
+ * plain vertical stack — no pin, no track transform, no height maths. Both
+ * conditions matter: `useHorizontalScroll` declines to build the pin under
+ * reduced motion at any width, so a width-only query left those readers with a
+ * clipped 100vh row and panels 02 and 03 permanently off screen.
  */
 
 export const Wrap = styled.section`
@@ -53,7 +56,7 @@ export const Pin = styled.div`
     opacity: 0;
   }
 
-  ${({ theme }) => theme.media.belowDesktop} {
+  ${({ theme }) => theme.media.stacked} {
     height: auto;
     overflow: visible;
   }
@@ -83,7 +86,7 @@ export const Heading = styled.div`
     font-weight: inherit;
   }
 
-  ${({ theme }) => theme.media.belowDesktop} {
+  ${({ theme }) => theme.media.stacked} {
     position: static;
     padding: 96px 20px 0;
   }
@@ -94,7 +97,7 @@ export const Track = styled.div`
   height: 100%;
   will-change: transform;
 
-  ${({ theme }) => theme.media.belowDesktop} {
+  ${({ theme }) => theme.media.stacked} {
     flex-direction: column;
     height: auto;
     will-change: auto;

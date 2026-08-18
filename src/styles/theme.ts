@@ -153,6 +153,17 @@ export const media = {
   mobile: `@media (max-width: ${breakpoints.mobile}px)`,
   hover: '@media (hover: hover) and (pointer: fine)',
   reduce: '@media (prefers-reduced-motion: reduce)',
+  /**
+   * "This layout must be a plain vertical stack."
+   *
+   * Two independent reasons produce the same requirement: the viewport is too
+   * narrow for a horizontal track, or the reader has asked for reduced motion
+   * and the pin is therefore never built. Width alone was the condition for a
+   * long time, which left reduced-motion desktop readers with a 100vh clipped
+   * row and no way to reach panels 02 and 03 — the JS had correctly declined
+   * to pin, and the CSS had not been told.
+   */
+  stacked: `@media (max-width: ${breakpoints.desktop - 1}px), (prefers-reduced-motion: reduce)`,
 } as const;
 
 export const z = {
