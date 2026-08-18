@@ -230,7 +230,7 @@ export function useSingularityIntro(
          * Hand the hero's scrubbed exit back its authority: `useHeroExit`
          * caches state that an intro can leave stale.
          */
-        requestRefresh();
+        requestRefresh('intro:landed');
         markEnd();
         /**
          * Only now does the gravitational field take over the glyphs. It is

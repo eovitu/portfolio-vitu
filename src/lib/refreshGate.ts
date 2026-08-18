@@ -24,6 +24,7 @@
  */
 
 import { ScrollTrigger } from './gsap';
+import { recordRefresh } from './scrollDebug';
 
 /**
  * Named rather than counted. A guard is a *state* ("the WORK pin is engaged"),
@@ -33,7 +34,7 @@ import { ScrollTrigger } from './gsap';
  */
 const guards = new Set<string>();
 
-let pending = false;
+let pending: false | string = false;
 
 /** Raise or clear a named guard. Idempotent in both directions. */
 export function setRefreshGuard(name: string, active: boolean): void {
@@ -43,8 +44,9 @@ export function setRefreshGuard(name: string, active: boolean): void {
   }
   if (!guards.delete(name)) return;
   if (guards.size === 0 && pending) {
+    const by = pending;
     pending = false;
-    ScrollTrigger.refresh();
+    recordRefresh(`released:${by}`, false, () => ScrollTrigger.refresh());
   }
 }
 
@@ -52,12 +54,12 @@ export function setRefreshGuard(name: string, active: boolean): void {
  * Ask for a refresh. Runs immediately when nothing is guarding, and is
  * deferred to the end of the guarded window otherwise.
  */
-export function requestRefresh(): void {
+export function requestRefresh(by = 'unknown'): void {
   if (guards.size > 0) {
-    pending = true;
+    pending = by;
     return;
   }
-  ScrollTrigger.refresh();
+  recordRefresh(by, false, () => ScrollTrigger.refresh());
 }
 
 /** True while at least one guard is up. Exposed for instrumentation. */

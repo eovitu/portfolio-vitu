@@ -92,7 +92,7 @@ export function useRegisterBreak(
     // Through the gate, never directly: this fires on mount, and ABOUT mounts
     // while the reader may already be inside the WORK pin — refreshing there
     // re-measures the pin's length under a live scrub. See lib/refreshGate.
-    requestRefresh();
+    requestRefresh('about:register-break');
     return () => ctx.revert();
   }, [sectionRef, topRef, bottomRef]);
 }

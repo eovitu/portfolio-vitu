@@ -102,7 +102,7 @@ function Site() {
     const settle = () => {
       if (cancelled || started) return;
       started = true;
-      requestRefresh();
+      requestRefresh('app:fonts-settled');
       setIntroReady(true);
     };
 

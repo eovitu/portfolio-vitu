@@ -4,6 +4,7 @@ import { EASE, EASE_SOFT, PANEL } from '../lib/motion';
 import { detectTier } from '../three/renderQuality';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 import { requestRefresh, setRefreshGuard } from '../lib/refreshGate';
+import { registerPinProbe, recordFrame } from '../lib/scrollDebug';
 import { setTrackProgress } from '../lib/veil';
 
 /**
@@ -117,7 +118,7 @@ export function useHorizontalScroll({
           sizePanels();
           // Gated: a resize that lands while the reader is inside the pin
           // would otherwise re-measure the chapter's length mid-scrub.
-          requestRefresh();
+          requestRefresh('work:resize');
         }, 150);
       };
       window.addEventListener('resize', onResize);
@@ -154,6 +155,7 @@ export function useHorizontalScroll({
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             onProgress?.(Math.min(n - 1, Math.round(self.progress * (n - 1))));
+            recordFrame(self.progress, self.getVelocity());
 
             /**
              * Falling between orbits, not sliding between slides.
@@ -217,6 +219,16 @@ export function useHorizontalScroll({
           },
         },
       });
+
+      /**
+       * Diagnostics read the pin's live geometry through this, so the debug
+       * module never has to find the trigger by guessing which one is pinned.
+       */
+      const unprobe = registerPinProbe(() => ({
+        end: tl.scrollTrigger?.end ?? -1,
+        distance: distance(),
+        progress: tl.scrollTrigger?.progress ?? -1,
+      }));
 
       // Track travel: duration `n - 1` so one timeline unit === one panel.
       tl.to(track, { x: () => -distance(), duration: n - 1 }, 0);
@@ -338,6 +350,7 @@ export function useHorizontalScroll({
         window.clearTimeout(resizeTimer);
         window.removeEventListener('resize', onResize);
         ScrollTrigger.removeEventListener('refreshInit', sizePanels);
+        unprobe();
         // Tearing down while pinned must not leave the gate shut forever.
         setRefreshGuard(PIN_GUARD, false);
       };

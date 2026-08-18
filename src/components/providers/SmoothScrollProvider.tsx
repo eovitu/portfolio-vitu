@@ -1,5 +1,6 @@
 import Lenis from 'lenis';
 import { measureHorizon, timeDilation, updateHorizon } from '../../lib/horizon';
+import { sampleHeight } from '../../lib/scrollDebug';
 import {
   createContext,
   useCallback,
@@ -91,6 +92,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
        * so this is a property write rather than a re-instantiation.
        */
       updateHorizon();
+      // Diagnostics only, and a single boolean test when the flag is off.
+      sampleHeight();
       const lenis = lenisRef.current;
       if (lenis) {
         const d = timeDilation();
