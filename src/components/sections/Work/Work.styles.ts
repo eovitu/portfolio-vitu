@@ -200,14 +200,26 @@ export const Ghost = styled.div<{ $orbit: Orbit }>`
   letter-spacing: -0.06em;
   pointer-events: none;
   user-select: none;
-  z-index: 0;
+  /**
+   * Between the plate and the copy, not behind both.
+   *
+   * The panel used to be three parallel quadrants — copy left, plate right,
+   * numeral behind everything — and nothing ever crossed anything. Sitting the
+   * numeral above the plate and below the copy gives one element two different
+   * depths on the same screen, which is the cheapest way to make a flat grid
+   * read as layers. Revert: z-index 0.
+   */
+  z-index: 3;
   color: ${({ theme, $orbit }) =>
     $orbit === 0
       ? theme.colors.accent
       : isLight($orbit)
         ? theme.colors.ink
         : theme.colors.text};
-  opacity: ${({ $orbit }) => (['0.075', '0.085', '0.032'] as const)[$orbit]};
+  /* Raised with the depth change: at 0.03 the numeral vanished entirely where
+     it crossed a lit plate, which made the new layering invisible exactly
+     where it was supposed to read. */
+  opacity: ${({ $orbit }) => (['0.11', '0.1', '0.062'] as const)[$orbit]};
 
   ${({ theme }) => theme.media.belowDesktop} {
     font-size: clamp(200px, 54vw, 420px);
@@ -228,7 +240,12 @@ export const Panel = styled.article<{ $orbit: Orbit }>`
    * into the grid, consumed the first column and pushed the copy and the media
    * plate one cell along. The layout looked plausible and was wrong.
    */
-  > [data-panel-body],
+  > [data-panel-body] {
+    position: relative;
+    /* Above the ghost numeral, which is above the plate. */
+    z-index: 4;
+  }
+
   > [data-panel-cell] {
     position: relative;
     z-index: 1;
@@ -262,7 +279,37 @@ export const Panel = styled.article<{ $orbit: Orbit }>`
 `;
 
 export const Body = styled.div<{ $orbit: Orbit }>`
+  position: relative;
   display: grid;
+
+  /**
+   * Local weight under the copy, now that the plate is allowed to slide
+   * beneath it.
+   *
+   * The direction's rule for overlaps is that legibility is bought with weight
+   * behind the type, never by shrinking what is behind it. This is a soft
+   * ellipse of page black with its falloff finishing outside the block, so no
+   * edge is ever perceptible — the same device the hero uses under the name.
+   *
+   * Orbit 1 is exempt: nothing overlaps there, and a black scrim on a light
+   * panel would be a bruise.
+   */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -12% -22% -14% -10%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: ${({ $orbit }) => (isLight($orbit) ? 0 : 1)};
+    background: radial-gradient(
+      ellipse 62% 60% at 34% 52%,
+      rgba(6, 6, 8, 0.86) 0%,
+      rgba(6, 6, 8, 0.62) 42%,
+      rgba(6, 6, 8, 0.24) 70%,
+      rgba(6, 6, 8, 0) 86%
+    );
+  }
+
   /* Density is the tell: crushed at the horizon, generous far away. */
   gap: ${({ $orbit }) => (['14px', '22px', '40px'] as const)[$orbit]};
   align-content: ${({ $orbit }) => (['end', 'center', 'start'] as const)[$orbit]};
@@ -425,7 +472,20 @@ export const Meta = styled.dl<{ $orbit: Orbit }>`
  * `opacity` and `yPercent`, and the intro would be writing the same `opacity`
  * from a second timeline. The cell owns the warp, the figure keeps the scrub.
  */
+/**
+ * The plate is allowed into the column beside it.
+ *
+ * Grid cells that respect their tracks produce a layout where text and image
+ * are neighbours; the reference this phase is measured against overlaps them,
+ * and overlap is what produces depth. The negative margin pulls the plate back
+ * under the copy column, and the copy stays legible because it sits two layers
+ * above with its own local weight — never by shrinking the plate.
+ *
+ * Not applied at orbit 1: that panel is the still point, and the one place
+ * where the grid holding still is the statement. Revert: drop margin-left.
+ */
 export const MediaCell = styled.div<{ $orbit: Orbit }>`
+  margin-left: ${({ $orbit }) => (['-14%', '0', '-18%'] as const)[$orbit]};
   display: grid;
   align-content: ${({ $orbit }) => (['end', 'center', 'start'] as const)[$orbit]};
   justify-items: ${({ $orbit }) => (['stretch', 'stretch', 'end'] as const)[$orbit]};
