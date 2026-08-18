@@ -245,6 +245,44 @@ export function useHorizontalScroll({
             Math.max(0, i - 0.5),
           );
         }
+
+        /**
+         * Continuity across the panel boundary.
+         *
+         * Riding the track exactly means each panel is a self-contained slide:
+         * everything in it arrives and leaves together, and the chapter reads
+         * as three cards rather than as one continuous fall.
+         *
+         * Both of these counter-drift against the travel. The scenery numeral
+         * moves slowest, so one numeral is still leaving while the next is
+         * already entering and the frame is never without one. The title lags
+         * less, which makes it appear to hold near the leading edge while its
+         * description and metadata slide out from under it — the horizontal
+         * equivalent of a heading sticking to the top of a scrolling column.
+         *
+         * The span is deliberately generous (two panel-units, centred on this
+         * panel) so the motion is continuous across the handover instead of
+         * restarting at each boundary.
+         */
+        const ghost = panel.querySelector<HTMLElement>('[data-ghost]');
+        if (ghost) {
+          tl.fromTo(
+            ghost,
+            { xPercent: PANEL.ghostDrift },
+            { xPercent: -PANEL.ghostDrift, duration: 2, ease: 'none' },
+            Math.max(0, i - 1),
+          );
+        }
+
+        const title = panel.querySelector<HTMLElement>('[data-panel-title]');
+        if (title) {
+          tl.fromTo(
+            title,
+            { xPercent: PANEL.titleLag },
+            { xPercent: -PANEL.titleLag, duration: 2, ease: 'none' },
+            Math.max(0, i - 1),
+          );
+        }
       });
 
       return () => {
