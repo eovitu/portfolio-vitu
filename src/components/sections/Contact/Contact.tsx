@@ -221,16 +221,25 @@ export function Contact() {
 
         {/* `data-warp` sits on the container, not the links: the grid paints
             its own rule colour between them, so warping the children alone
-            would leave that bar hanging in the air after they are swallowed. */}
-        {/* `data-warp` sits on the container, not the links: the grid paints
-            its own rule colour between them. The email is lifted out of the
-            group entirely — it is the signal that survives the collapse, so it
-            must not be a warp target at all. */}
+            would leave that bar hanging in the air after they are swallowed.
+            The email is lifted out of the group entirely — it is the signal
+            that survives the collapse, so it must not be a warp target. */}
         <Links data-reveal-group data-warp>
           {contact.links
             .filter((link) => link.label !== 'EMAIL')
             .map((link) => (
-              <Link key={link.label} href={link.href} data-reveal="soft">
+              <Link
+                key={link.label}
+                href={link.href}
+                data-reveal="soft"
+                // The arrow already promises a new tab; now that these point
+                // at real profiles rather than back at this section, the
+                // markup has to keep that promise. `noopener` because a link
+                // that opens a tab hands it a reference to this window.
+                {...(link.external
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : null)}
+              >
                 <span>{link.label}</span>
                 <span aria-hidden="true">↗</span>
               </Link>
