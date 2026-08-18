@@ -106,7 +106,7 @@ export function SoundToggle() {
     <Button
       type="button"
       aria-pressed={on}
-      aria-label={on ? 'Desligar som' : 'Ligar som'}
+      aria-label={on ? 'Turn sound off' : 'Turn sound on'}
       onClick={() => {
         const next = !on;
         setOn(next);

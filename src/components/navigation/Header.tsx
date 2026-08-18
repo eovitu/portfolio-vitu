@@ -157,7 +157,7 @@ export function Header({ onOpenChat, chatOpen }: Props) {
         {nav.brand}
       </Brand>
 
-      <Links aria-label="Navegação principal">
+      <Links aria-label="Main navigation">
         {nav.links.map((link) => (
           <NavLink
             key={link.href}

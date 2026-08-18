@@ -157,7 +157,7 @@ export function Hud() {
         <Tick ref={tick} />
       </Rule>
       <Rate ref={rate} />
-      <Caption>HORIZONTE DE EVENTOS</Caption>
+      <Caption>EVENT HORIZON</Caption>
     </Frame>
   );
 }

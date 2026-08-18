@@ -116,7 +116,7 @@ function Site() {
 
   return (
     <>
-      <SkipLink href="#work">PULAR PARA O CONTEÚDO</SkipLink>
+      <SkipLink href="#work">SKIP TO CONTENT</SkipLink>
       <Hud />
       <Cursor />
       <SingularityStage />

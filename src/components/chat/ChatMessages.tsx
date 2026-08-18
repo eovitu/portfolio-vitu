@@ -19,14 +19,14 @@ export function ChatMessages({ messages, pending }: Props) {
     <S.Thread aria-live="polite">
       {messages.map((message) => (
         <S.Message key={message.id} $from={message.from}>
-          <small>{message.from === 'user' ? 'VOCÊ' : 'VITU'}</small>
+          <small>{message.from === 'user' ? 'YOU' : 'VITU'}</small>
           <p>{message.text}</p>
         </S.Message>
       ))}
       {pending && (
         <S.Message $from="bot">
           <small>VITU</small>
-          <p aria-label="Digitando">···</p>
+          <p aria-label="Typing">···</p>
         </S.Message>
       )}
     </S.Thread>

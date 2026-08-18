@@ -10,29 +10,29 @@
 
 const CANNED: Array<{ match: RegExp; answer: string }> = [
   {
-    match: /trabalh/i,
+    match: /work|process|how do you/i,
     answer:
-      '[ RESPOSTA MOCK ] Começo pelo problema e pelo modelo de dados, e só então desenho a interface. Design e código no mesmo movimento — é assim que este portfolio foi feito.',
+      '[ MOCK ANSWER ] I start from the problem and the data model, and only then draw the interface. Design and code in one movement — which is how this portfolio was built.',
   },
   {
     match: /stack/i,
     answer:
-      '[ RESPOSTA MOCK ] Java e Spring Boot no backend, React, TypeScript e Three.js na interface. Figma para o design.',
+      '[ MOCK ANSWER ] Java and Spring Boot on the backend; React, TypeScript and Three.js on the interface. Figma for design.',
   },
   {
     match: /emprega/i,
     answer:
-      '[ RESPOSTA MOCK ] Emprega.co é um marketplace de serviços domésticos: busca, agendamento e pagamento em um fluxo só. Cuidei do modelo de dados à interface.',
+      '[ MOCK ANSWER ] Emprega.co is a marketplace for home services: search, booking and payment in a single flow. I handled it from the data model through to the interface.',
   },
   {
-    match: /dispon|projeto/i,
+    match: /avail|hire|project/i,
     answer:
-      '[ RESPOSTA MOCK ] Sim — aberto a projetos de produto e experiências digitais. O caminho mais curto é o e-mail na seção CONTACT.',
+      '[ MOCK ANSWER ] Yes — open to product work and digital experiences. The shortest route is the email in the CONTACT section.',
   },
 ];
 
 const FALLBACK =
-  '[ RESPOSTA MOCK ] Ainda não estou conectado a uma IA real. Quando estiver, respondo a partir de um contexto curado sobre o Victor.';
+  '[ MOCK ANSWER ] I am not wired to a real model yet. When I am, I will answer from a curated context about Victor.';
 
 export function askMock(question: string): Promise<string> {
   const hit = CANNED.find((entry) => entry.match.test(question));

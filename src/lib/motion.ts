@@ -184,8 +184,8 @@ export const PANEL = {
    * This MUST be >= 1: panel `i` starts entering the viewport exactly one unit
    * before it is centred. The prototype used 0.55, which is when its *text*
    * column arrives — so the panel's right half sat on screen as a large empty
-   * black column for half a panel of scrolling. That is the "espaço preto onde
-   * deveria estar o PROJECT 03". At 1.0 the reveal starts the instant the
+   * black column for half a panel of scrolling. That is the "black gap where
+   * PROJECT 03 should have been". At 1.0 the reveal starts the instant the
    * panel's leading edge appears, and finishes at ~0.3 units — well composed
    * before it reaches the centre.
    */
