@@ -55,6 +55,7 @@ src/
 docs/
   ARCHITECTURE.md decisões técnicas e as descobertas por trás delas
   BUGS-ABERTOS.md defeitos conhecidos e o que falta para fechar cada um
+  CONTRIBUTING.md padrão de commits, branches e estrutura do GitHub
   reference/      protótipo de origem da cena 3D
 public/
   victor-2010.jpg a única fotografia do site
@@ -111,6 +112,11 @@ tem teto de 3,2s.
 - Estados de foco visíveis no acento dourado.
 - O espectro de habilidades é navegável por teclado, com o detalhe anunciado por
   `aria-live` e uma lista agrupada como leitura alternativa.
+
+## Contribuindo
+
+Padrão de commits (`tipo(escopo): descrição`), nome de branch e estrutura do
+GitHub em [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
 
 ## Licença
 
