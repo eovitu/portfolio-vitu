@@ -44,6 +44,24 @@ export const DILATION_MAX = 2.35;
 /** Smooth, so the weight arrives gradually instead of stepping. */
 const ease = (t: number) => t * t * (3 - 2 * t);
 
+/**
+ * How close to the very bottom the reader has to be before dilation starts,
+ * in viewport-heights of remaining distance.
+ *
+ * This used to be `(p - 0.35) / 0.65` — a fraction of the *whole* document.
+ * That reads correctly only if every chapter's length is roughly proportional
+ * to how far through the "fall" it is, and WORK breaks that assumption: its
+ * pin alone measures two full viewport *widths* of vertical scroll, which on
+ * a wide monitor can be a third or more of the entire document by itself.
+ * With the old formula, crossing 35% of the document landed inside or right
+ * at the end of WORK — nowhere near CONTACT — so the reader felt the scroll
+ * go heavy while still leaving the pinned chapter, well before "approaching
+ * the horizon" was supposed to mean anything. Measuring from the *bottom* in
+ * a fixed number of screens is immune to how long any one chapter happens to
+ * be: the ramp always starts the same visual distance from CONTACT.
+ */
+const RAMP_VH = 2.5;
+
 export function updateHorizon(): void {
   // First frame of a fresh load, before anything has refreshed: measure now
   // rather than report 0 for a reader who is already part-way down.
@@ -51,12 +69,15 @@ export function updateHorizon(): void {
   const p = extent > 0 ? Math.min(1, Math.max(0, window.scrollY / extent)) : 0;
   state.progress = p;
   /**
-   * Deliberately weighted to the last third. A linear ramp makes the whole
-   * page feel sluggish, which reads as a bad scroll implementation rather than
-   * as gravity; concentrating it near the horizon means the reader only feels
+   * Deliberately weighted to the final approach, not to the document as a
+   * whole. A linear ramp over the whole page reads as sluggish rather than as
+   * gravity; concentrating it near the horizon means the reader only feels
    * the drag where the site is claiming it should exist.
    */
-  state.dilation = 1 + ease(Math.max(0, (p - 0.35) / 0.65)) * (DILATION_MAX - 1);
+  const remaining = Math.max(0, extent - window.scrollY);
+  const rampPx = Math.max(1, window.innerHeight * RAMP_VH);
+  const nearness = 1 - Math.min(1, remaining / rampPx);
+  state.dilation = 1 + ease(nearness) * (DILATION_MAX - 1);
 }
 
 /** The extent currently in force. Read by diagnostics, not by the page. */
