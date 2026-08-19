@@ -165,23 +165,22 @@ const Frame = styled.div`
     filter: grayscale(1) contrast(2.6) brightness(0.62) saturate(0);
   }
 
-  /* Duotone: the accent laid into the midtones with the color blend, over a deep
-     shadow multiply. Two layers rather than one so the darks stay neutral and
-     only the middle of the range goes warm — a flat tint would look like a
-     filter, this looks like a print. */
+  /* Duotone: a cool neutral laid into the midtones with the color blend, over
+     a deep shadow multiply. Two layers rather than one so the darks stay
+     neutral and only the middle of the range picks up the cast — a flat tint
+     would look like a filter, this looks like a print. Same cool mineral grey
+     as WORK's stable orbit (station/stationDeep) rather than the accent's
+     warm 35° hue — this print is not lit by the horizon. */
   &::after {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
-    /* Much less warmth than the first two passes: the gold now only touches
-       the upper midtones, and the rest of the range stays a cold neutral. A
-       print stored for twenty years has a cast, not a colour. */
     background: linear-gradient(
       168deg,
-      rgba(206, 158, 92, 0.42) 0%,
-      rgba(120, 112, 104, 0.5) 40%,
-      rgba(18, 17, 16, 0.94) 100%
+      rgba(196, 199, 202, 0.42) 0%,
+      rgba(112, 114, 118, 0.5) 40%,
+      rgba(16, 17, 20, 0.94) 100%
     );
     mix-blend-mode: multiply;
   }

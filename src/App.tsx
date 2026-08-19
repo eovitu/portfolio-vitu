@@ -135,9 +135,11 @@ function Site() {
          * The second is breath, and it sits immediately before the collapse so
          * that the collapse has silence to break.
          */}
+        {/* kind={1}: the same silver field as WORK's stable orbit (project
+            02) — was kind={0} (the warm/gold field), by request. */}
         <Interlude
           id={interludes.matter.id}
-          kind={0}
+          kind={1}
           lines={interludes.matter.lines}
           lead={interludes.matter.lead}
           metrics={interludes.matter.metrics}
