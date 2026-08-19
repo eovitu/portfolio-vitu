@@ -198,13 +198,30 @@ export function useHorizontalScroll({
            * Held refreshes are coalesced and run on release, which also stops
            * one refresh from cascading into the next.
            */
+          /**
+           * The smear is velocity-driven and only written on change (`step
+           * !== lastBlur`), so whatever step was current the instant the
+           * reader crosses `end` is what stays on the track — `onUpdate` does
+           * not fire again once the trigger goes inactive. A fast exit was
+           * leaving `filter: blur(...)` and a `scaleX` compression stuck on
+           * a track that had already scrolled off, needlessly holding it on
+           * its own composited layer. Both are cleared here, and `lastBlur`
+           * is reset so the next entry starts from a known state instead of
+           * skipping its first write because it happens to match.
+           */
           onLeave: () => {
             setRefreshGuard(PIN_GUARD, false);
             setTrackProgress(1, false);
+            track.style.filter = '';
+            gsap.set(track, { scaleX: 1 });
+            lastBlur = -1;
           },
           onLeaveBack: () => {
             setRefreshGuard(PIN_GUARD, false);
             setTrackProgress(0, false);
+            track.style.filter = '';
+            gsap.set(track, { scaleX: 1 });
+            lastBlur = -1;
           },
           onEnter: () => {
             setRefreshGuard(PIN_GUARD, true);
