@@ -99,6 +99,13 @@ const Title = styled.h2`
   /* Narrowed with the scale: at 18ch the third line broke before the last
      word and left it alone on a line of its own. */
   max-width: 15ch;
+
+  /* The Section's padding drops to 20px here, so the bleed has to match it —
+     otherwise the first glyph of every line hangs 12px off-screen and gets
+     clipped by the Section's own overflow: hidden. Same fix as Hero/Interlude. */
+  ${({ theme }) => theme.media.mobile} {
+    margin-left: -20px;
+  }
 `;
 
 const TitleLine = styled.span`

@@ -126,6 +126,13 @@ const Title = styled.h2`
     0 0 16px rgba(8, 8, 10, 0.94),
     0 0 40px rgba(8, 8, 10, 0.78),
     0 0 88px rgba(8, 8, 10, 0.5);
+
+  /* Same fix as Hero/Interlude: the Section's padding drops to 20px on
+     mobile, so the bleed has to match it or the first glyph of every line
+     hangs off-screen and gets clipped. */
+  ${({ theme }) => theme.media.mobile} {
+    margin-left: -20px;
+  }
 `;
 
 /** Page black under the statement, with the falloff finishing off-block so no
