@@ -92,9 +92,9 @@ export function SoundToggle() {
   const [on, setOn] = useState(false);
 
   useEffect(() => {
-    // Read the stored preference but never act on it: the AudioContext is only
-    // ever created from a real gesture, so a stored "on" shows the control in
-    // its on state and waits for the reader to confirm by clicking.
+    // Read the stored preference but never act on it: the AudioContext is
+    // only ever created from a real gesture, so even a stored "on" leaves the
+    // control muted on load — the reader has to click again to confirm.
     if (readStoredPreference()) setOn(false);
     // This control owns the engine's whole lifetime — it is the only thing
     // that can build one — so it is also what releases it. Without this the
