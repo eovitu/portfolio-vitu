@@ -48,6 +48,12 @@ const Brand = styled.a`
   align-items: center;
   opacity: 0;
   white-space: nowrap;
+  transition: color 0.35s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--chrome-text);
+  }
 
   span {
     width: 5px;
@@ -75,6 +81,18 @@ const Links = styled.nav`
 const NavLink = styled.a`
   color: var(--chrome-text);
   opacity: 0;
+  /* box-shadow rather than border-bottom: an underline that reveals on hover
+     without ever reserving layout space for it, and without touching hue —
+     the accent stays reserved for meaning, per the rule above. */
+  box-shadow: 0 1px 0 0 transparent;
+  transition:
+    color 0.35s ease,
+    box-shadow 0.35s ease;
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: 0 1px 0 0 var(--chrome-text);
+  }
 
   ${({ theme }) => theme.media.mobile} {
     /* At 375px the brand + three anchors + CTA cannot coexist without

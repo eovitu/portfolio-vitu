@@ -89,7 +89,7 @@ export const GlobalStyle = createGlobalStyle`
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   .lenis.lenis-stopped { overflow: hidden; }
 
-  a { color: ${({ theme }) => theme.colors.text}; text-decoration: none; }
+  a { color: ${({ theme }) => theme.colors.text}; text-decoration: none; transition: color 0.3s ease; }
   /* Hover brightens; it does not change hue. The accent is reserved for
      meaning (the HUD, project numbering, active state), and a generic link
      hover is not meaning — spending gold here is what turned the accent into

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { EASE_CSS } from '../../lib/motion';
 
 export const Root = styled.div<{ $open: boolean }>`
@@ -131,9 +131,28 @@ export const Thread = styled.div`
   gap: 20px;
 `;
 
+/**
+ * Each new message arrives instead of appearing — a short fade-and-rise, run
+ * as a plain CSS animation rather than GSAP: it fires once per mount with no
+ * scroll/frame coupling to coordinate, so the ticker would be overkill.
+ * `theme.media.reduce` (GlobalStyle) already floors every animation-duration
+ * under prefers-reduced-motion, so no extra gating is needed here.
+ */
+const messageIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 export const Message = styled.div<{ $from: 'user' | 'bot' }>`
   display: grid;
   gap: 8px;
+  animation: ${messageIn} 0.4s ${EASE_CSS} both;
 
   small {
     font-family: ${({ theme }) => theme.fonts.mono};
@@ -150,6 +169,17 @@ export const Message = styled.div<{ $from: 'user' | 'bot' }>`
     color: ${({ theme, $from }) =>
       $from === 'user' ? theme.colors.textDim : theme.colors.text};
   }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+`;
+
+/** The pending "···" — breathing rather than static, so waiting reads as the
+ *  other side typing instead of the thread being stalled. */
+export const Typing = styled.p`
+  animation: ${pulse} 1.1s ease-in-out infinite;
 `;
 
 export const Form = styled.form`

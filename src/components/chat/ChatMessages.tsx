@@ -26,7 +26,7 @@ export function ChatMessages({ messages, pending }: Props) {
       {pending && (
         <S.Message $from="bot">
           <small>VITU</small>
-          <p aria-label="Typing">···</p>
+          <S.Typing aria-label="Typing">···</S.Typing>
         </S.Message>
       )}
     </S.Thread>

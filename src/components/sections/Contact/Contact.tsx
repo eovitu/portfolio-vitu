@@ -69,6 +69,7 @@ const SurvivorLink = styled.a`
   color: ${({ theme }) => theme.colors.text};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   padding-bottom: 6px;
+  transition: border-bottom-color 0.3s ease;
 
   &:hover,
   &:focus-visible {

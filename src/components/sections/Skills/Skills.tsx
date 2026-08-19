@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { skills, type SpectralLine } from '../../../lib/content';
 import { useReveal } from '../../../hooks/useReveal';
 import { useReducedMotion } from '../../../hooks/useReducedMotion';
+import { gsap } from '../../../lib/gsap';
 
 /**
  * SKILLS as an emission spectrum.
@@ -259,6 +260,8 @@ const DOMAINS: SpectralLine['domain'][] = [
 
 export function Skills() {
   const ref = useRef<HTMLElement>(null);
+  const readoutRef = useRef<HTMLDivElement>(null);
+  const readoutMounted = useRef(false);
   const [active, setActive] = useState<SpectralLine | null>(null);
   const [drawn, setDrawn] = useState(false);
   const reduced = useReducedMotion();
@@ -285,6 +288,26 @@ export function Skills() {
 
   const shown =
     active ?? skills.lines.find((l) => l.name === 'TypeScript') ?? skills.lines[0];
+
+  /**
+   * The readout swaps its whole content on hover/click of a line. A cross-fade
+   * (not a layout tween — nothing here moves or resizes) marks it as a value
+   * updating in place rather than a new block of copy appearing. Skipped on
+   * the first mount, so it never fights the section's own entrance.
+   */
+  useEffect(() => {
+    if (!readoutMounted.current) {
+      readoutMounted.current = true;
+      return;
+    }
+    const el = readoutRef.current;
+    if (!el || reduced) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 4 },
+      { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' },
+    );
+  }, [shown.name, reduced]);
 
   return (
     <Section id="skills" ref={ref} aria-labelledby="skills-label">
@@ -319,7 +342,7 @@ export function Skills() {
 
         {/* `aria-live` so keyboard and screen-reader users get the detail the
             hover reveals, rather than the band being a decorative dead end. */}
-        <Readout aria-live="polite">
+        <Readout aria-live="polite" ref={readoutRef}>
           <ReadoutHead>
             <ReadoutName>{shown.name}</ReadoutName>
             <ReadoutDomain>{shown.domain}</ReadoutDomain>
