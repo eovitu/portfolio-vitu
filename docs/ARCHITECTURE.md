@@ -65,8 +65,10 @@ imediatamente, e o teardown final continua centralizado em `scene.dispose()`.
 Frustum culling só é desativado no rig de lensing, onde o billboard muda os
 bounds; o restante da cena usa o culling padrão.
 
-Quando a aba fica oculta, o driver do canvas para completamente. Quando o
-objeto está fora do palco, a cadência cai para aproximadamente 12 FPS. Nenhum
+Quando a aba fica oculta, o driver do canvas para completamente. O estado do
+palco é atualizado somente pelo `FrameDriver`: presença ativa usa a cadência
+normal, presença ambiente usa aproximadamente 12 FPS e ausência real usa 4
+FPS. Mudanças entre esses estados sempre renderizam imediatamente. Nenhum
 desses caminhos cria um segundo relógio.
 
 ## Intro, reload e a continuidade
@@ -103,6 +105,16 @@ que projeta uma vez por quadro. Três consumidores leem:
 2. **Cursor** (`src/components/layout/Cursor.tsx`)
 3. **Campo estelar** (`src/three/DustField.tsx`, no vertex shader)
 
+A projeção da câmera sozinha não basta para ativar o campo: o núcleo pode estar
+matematicamente dentro do frustum e visualmente ausente por decisão do palco.
+`src/three/stagePolicy.ts` combina projeção e presença efetiva. Essa regra
+impede que o cursor seja atraído em SKILLS por uma singularidade invisível.
+
+Os limites do palco são medidos novamente em todo `ScrollTrigger.refresh`.
+Isso é obrigatório porque o pin spacer de WORK altera a posição absoluta de
+SKILLS e CONTACT depois da montagem inicial; usar os limites antigos fazia o
+objeto retornar uma seção cedo demais.
+
 ### Por que as letras têm um wrapper próprio
 
 Três sistemas querem escrever `transform` num glifo da hero: a revelação da
@@ -132,17 +144,17 @@ O **campo estelar é a constante do site**. Como o véu é uma camada preta pint
 por cima do canvas, `DustField` pré-divide a opacidade pelo que o véu vai tirar,
 mantendo o resultado _composto_ aproximadamente constante em todas as seções.
 
-## Dilatação temporal no scroll
+## Distância sem latência no scroll
 
-`src/lib/horizon.ts` publica progresso, distância em raios de Schwarzschild e o
-fator de dilatação. HUD, redshift e o peso do scroll leem dali.
+`src/lib/horizon.ts` continua publicando progresso e distância em raios de
+Schwarzschild para HUD e redshift. Esse progresso não altera mais `duration`,
+`wheelMultiplier` ou `touchMultiplier` do Lenis.
 
-**Descoberta que vale registrar:** esticar apenas `duration` do Lenis não produz
-peso. Medido, o mesmo gesto movia 2520px no topo e 2453px a 71% de profundidade
-— distância estatisticamente igual. `duration` governa o tempo de assentamento,
-não o quanto o gesto carrega, então sozinho ele gera latência, que lê como site
-travado. A resistência vem de dividir `wheelMultiplier`. Com os dois: 2438px por
-gesto a 21% contra 1544px a 83%.
+A dilatação temporal foi removida após validação de UX: mesmo quando o efeito
+era fisicamente coerente e mensurável, reduzir a distância por gesto e alongar
+o assentamento era percebido como travamento exatamente na entrada de CONTACT.
+Gravidade permanece como linguagem visual; input direto mantém resposta
+uniforme em toda a página.
 
 ## Grão e redshift não podem levantar o preto
 
