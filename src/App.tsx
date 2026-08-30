@@ -42,7 +42,7 @@ function Site() {
       <SkipLink href={route.kind === 'home' ? '#work' : '#case-content'}>
         Skip to content
       </SkipLink>
-      <Header onOpenChat={() => undefined} chatOpen={false} />
+      <Header />
       {route.kind === 'home' && <SingularityStage />}
       {project ? <CaseStudy project={project} /> : <HomePage />}
     </>

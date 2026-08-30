@@ -13,6 +13,18 @@ export interface PageMetadata {
   canonical: string;
 }
 
+export function personJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Victor Hugo',
+    jobTitle: 'Backend Developer & Product Engineer',
+    url: `${ORIGIN}/`,
+    email: 'mailto:eovitu7@gmail.com',
+    sameAs: ['https://github.com/eovitu'],
+  } as const;
+}
+
 export function metadataFor(route: Route): PageMetadata {
   if (route.kind === 'home') {
     return {
@@ -63,4 +75,13 @@ export function applyMetadata(route: Route): void {
     document.head.append(canonical);
   }
   canonical.href = page.canonical;
+
+  let structuredData = document.head.querySelector<HTMLScriptElement>('#person-jsonld');
+  if (!structuredData) {
+    structuredData = document.createElement('script');
+    structuredData.id = 'person-jsonld';
+    structuredData.type = 'application/ld+json';
+    document.head.append(structuredData);
+  }
+  structuredData.text = JSON.stringify(personJsonLd());
 }

@@ -71,12 +71,7 @@ const MenuButton = styled.button`
   }
 `;
 
-interface Props {
-  onOpenChat: () => void;
-  chatOpen: boolean;
-}
-
-export function Header({ onOpenChat: _onOpenChat, chatOpen: _chatOpen }: Props) {
+export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const { scrollTo } = useSmoothScroll();

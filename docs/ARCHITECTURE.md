@@ -1,147 +1,36 @@
-# Arquitetura
+# Architecture
 
-Notas técnicas sobre as partes do site que não são óbvias a partir do código, e
-sobre as decisões que custaram caro para chegar até aqui.
+## Product boundary
 
-## Um único frame loop
+The portfolio is a single-page React application with four stable URLs: home and one route per case study. It deliberately avoids a router dependency because the public route set is small and static. `src/lib/routes.ts` owns pathname parsing, while normal anchors preserve native browser behavior and direct-link support.
 
-Todo movimento do site sai de um relógio só:
+The content model in `src/lib/content.ts` is the source of truth for project identity, media, ownership, outcomes, case-study narrative, and public actions. Private work never receives an invented repository or live-product link.
 
-```
-Lenis → ticker do GSAP → ScrollTrigger → animações → advance() do R3F
-```
+## Rendering layers
 
-`SmoothScrollProvider` cria a única instância do Lenis e o único
-`requestAnimationFrame` da aplicação. O canvas roda com `frameloop="never"` e é
-avançado manualmente por esse mesmo tick.
+The page is split into two independent layers:
 
-**Consequência prática para quem for medir performance:** com a aba em segundo
-plano o Chrome suspende o `requestAnimationFrame`, e o site inteiro congela — a
-intro para no meio e qualquer leitura de tempo vira lixo. Medições precisam da
-janela em primeiro plano (`Page.bringToFront`) e, em ambiente automatizado, das
-flags `--disable-background-timer-throttling`,
-`--disable-backgrounding-occluded-windows` e `--disable-renderer-backgrounding`.
+1. Semantic React content and navigation, which render immediately.
+2. The procedural Three.js singularity, which is deferred until the browser is idle and appears only on the homepage.
 
-## A cena 3D é procedural, não um asset
+This separation is intentional. WebGL enriches the identity but never blocks reading, navigation, contact, or case-study media. `src/three/scenePolicy.ts` decides whether continuous rendering is appropriate. Reduced-motion users receive a static visual treatment, and the canvas pauses when the document is hidden.
 
-`src/three/singularityScene.ts` constrói o buraco negro em código. Isso não é
-preferência de estilo: um GLB do mesmo objeto foi tentado e descartado.
+The singularity itself remains procedural in `src/three/singularityScene.ts`. The reference implementation is retained in `docs/reference/black-hole.html` because additive materials, vertex colors, billboarding, and the core mask do not survive a conventional glTF export faithfully.
 
-O formato glTF não transporta o que faz o objeto funcionar. Na exportação, todos
-os materiais saíam como `KHR_materials_unlit`, sem emissivo, e se perdiam:
+## Motion and scroll
 
-- o **blending aditivo** de 19 das 20 malhas, que é o mecanismo da luz;
-- as **cores de vértice em HDR** (chegando a ~3.1), sem as quais o tone mapping
-  ACES não tem o que dobrar em direção ao branco — o tone mapper _é_ o bloom;
-- o **billboard** do halo de lente, que mantém o anel fechando em volta da
-  silhueta em vez de ficar ao lado dela;
-- o **shader de máscara do núcleo** (`onBeforeCompile`), que impede a luz de
-  vazar sobre o vazio.
+`SmoothScrollProvider` coordinates Lenis with GSAP and ScrollTrigger. The experience uses ordinary vertical document flow: there is no wheel resistance, forced scroll restoration, horizontal project pinning, or reload choreography. Motion supports hierarchy and continuity rather than delaying access to content.
 
-O resultado importado parecia uma fotografia do objeto, não o objeto. O
-protótipo de origem está em [`reference/black-hole.html`](reference/black-hole.html)
-— é a fonte de verdade de onde os valores foram transcritos, incluindo a semente
-`1337`, que mantém a geometria determinística.
+All essential content remains visible under `prefers-reduced-motion: reduce`. WebGL animation is disabled there rather than merely slowed down.
 
-`singularityScene.ts` é tratado como fechado para materiais, geometria, tone
-mapping e blending. A amplitude de movimento é a única exceção, isolada na
-constante `MOTION`.
+## Case studies and media
 
-## Intro, reload e a continuidade
+`HomePage` renders the overview and `CaseStudy` renders each long-form project route from the same typed data. Videos are muted, inline, looped previews with poster frames. The current compressed files are intentionally small enough to avoid making the first viewport depend on multi-megabyte media.
 
-O site nunca restaura a posição de scroll. **Todo carregamento termina na hero
-com `scrollY` 0**, e isso é deliberado.
+## Metadata
 
-- `src/lib/reloadSnapshot.ts` grava, no `pagehide`, a posição de cada palavra
-  visível medindo com `Range.getBoundingClientRect()`.
-- `src/lib/ghosts.ts` remonta esses fragmentos antes do React renderar, para que
-  o primeiro quadro pintado já seja a página que estava lá.
-- `src/hooks/useSingularityIntro.ts` suga os fragmentos para dentro do objeto e
-  leva a câmera de volta à hero, numa timeline mestre única.
-- A restauração nativa é desligada com `scrollRestoration = 'manual'`, inline e
-  síncrono no `<head>`.
+`src/lib/metadata.ts` derives English titles, descriptions, canonical URLs, Open Graph values, and verified `Person` JSON-LD from the resolved route. The production origin is `https://devitu.vercel.app`. The social preview is a 1200×630 raster image for broad crawler compatibility.
 
-**Bug histórico que explica a guarda de scroll:** um reload de dentro do WORK
-caía no PROJETO 03. Causa raiz: o _pin spacer_ do ScrollTrigger só é criado
-depois da montagem, o documento cresce nesse instante, e qualquer offset
-restaurado antes disso aterrissa na seção errada. Existe hoje uma guarda que
-segura `scrollY` em 0 até haver gesto real do usuário, com contador exposto em
-`__introAudit().scrollGuard`.
+## Verification boundary
 
-Orçamento: a sequência inteira tem teto de **3,2s**, medido do primeiro quadro
-pintado. Medições recentes ficam entre 2,99s e 3,04s.
-
-## Campo gravitacional
-
-`src/lib/gravityField.ts` é a **única** fonte de verdade sobre onde o núcleo
-está em espaço de tela e com que força puxa. O produtor é `src/three/Scene.tsx`,
-que projeta uma vez por quadro. Três consumidores leem:
-
-1. **Letras** (`src/hooks/useGravityLetters.ts`)
-2. **Cursor** (`src/components/layout/Cursor.tsx`)
-3. **Campo estelar** (`src/three/DustField.tsx`, no vertex shader)
-
-### Por que as letras têm um wrapper próprio
-
-Três sistemas querem escrever `transform` num glifo da hero: a revelação da
-intro, o warp de absorção, e o campo. Em vez de negociar, os canais são
-**disjuntos no DOM**: o GSAP é dono de `[data-letter]` e nunca sabe que
-`[data-glyph]` existe; o campo é dono de `[data-glyph]` e nunca toca no de fora.
-Compor os três num nó só foi o que gerou os transforms órfãos que
-`__introAudit()` caça.
-
-## Presença do objeto por seção
-
-`src/lib/stagePresence.ts` decide onde o objeto pode estar:
-
-| Seção   | Presença | Efeito                                   |
-| ------- | -------- | ---------------------------------------- |
-| hero    | 1.00     | composição completa                      |
-| WORK    | 0.16     | ponto distante num canto                 |
-| SKILLS  | 0.00     | ausente                                  |
-| ABOUT   | 0.00     | ausente (a seção é opaca sobre o canvas) |
-| CONTACT | 0 → 1.45 | volta e cresce até o colapso             |
-
-Antes disso o objeto era uma camada fixa atrás de tudo, e por isso nenhuma seção
-conseguia ter mundo próprio. A presença dirige véu, escala e posição — nunca
-`display: none`.
-
-O **campo estelar é a constante do site**. Como o véu é uma camada preta pintada
-por cima do canvas, `DustField` pré-divide a opacidade pelo que o véu vai tirar,
-mantendo o resultado _composto_ aproximadamente constante em todas as seções.
-
-## Dilatação temporal no scroll
-
-`src/lib/horizon.ts` publica progresso, distância em raios de Schwarzschild e o
-fator de dilatação. HUD, redshift e o peso do scroll leem dali.
-
-**Descoberta que vale registrar:** esticar apenas `duration` do Lenis não produz
-peso. Medido, o mesmo gesto movia 2520px no topo e 2453px a 71% de profundidade
-— distância estatisticamente igual. `duration` governa o tempo de assentamento,
-não o quanto o gesto carrega, então sozinho ele gera latência, que lê como site
-travado. A resistência vem de dividir `wheelMultiplier`. Com os dois: 2438px por
-gesto a 21% contra 1544px a 83%.
-
-## Grão e redshift não podem levantar o preto
-
-O objeto é preto absoluto com luz aditiva em cima. Qualquer camada que levante o
-black point destrói o mecanismo.
-
-- **Grão** usa `mix-blend-mode: soft-light`. Contra backdrop 0, soft-light
-  devolve 0 para qualquer valor de fonte: para `Cs ≤ 0.5` o termo é
-  `b − (1−2Cs)·b·(1−b)`; para `Cs > 0.5` é `b + (2Cs−1)·(D(b)−b)` com `D(0) = 0`.
-  Máscara sobre a região do canvas foi rejeitada porque deixaria a hero — a
-  superfície mais vetorial da página — como o único lugar sem grão.
-- **Redshift** usa `multiply`. Multiply contra 0 é 0, e multiply por branco puro
-  é identidade, então o topo da página é um no-op real.
-
-Para verificar: `readPixels` **não** enxerga camadas DOM. O black point tem que
-ser medido no pixel composto, via `Page.captureScreenshot`.
-
-## Instrumentação
-
-`src/lib/introAudit.ts` expõe `window.__introAudit()` — transforms órfãos, alvos
-ocultos, duração da intro, contador da guarda de scroll. O gravador por quadro e
-a sonda do renderer ficam atrás de `sessionStorage['singularity:record']`, então
-uma sessão normal não paga por eles. É ferramenta de verificação, mantida de
-propósito.
+The repository checks content contracts, route parsing, metadata, case rendering, and Three.js policy with Node tests. TypeScript, ESLint, Prettier, and the Vite production build form the static integration gate. Browser review additionally covers desktop, mobile, direct routes, keyboard menu behavior, overflow, console errors, and network errors.

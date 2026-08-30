@@ -26,6 +26,7 @@
 ### Task 1: Typed content and pathname contract
 
 **Files:**
+
 - Create: `src/lib/routes.ts`
 - Create: `src/lib/routes.test.mjs`
 - Create: `src/lib/content.test.mjs`
@@ -33,6 +34,7 @@
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Produces: `type Route = { kind: 'home' } | { kind: 'case'; slug: ProjectSlug }`
 - Produces: `resolveRoute(pathname: string): Route`
 - Produces: `hrefForCase(slug: ProjectSlug): string`
@@ -63,7 +65,10 @@ import test from 'node:test';
 import { projects } from './content.ts';
 
 test('publishes exactly three complete, unique cases', () => {
-  assert.deepEqual(projects.map((project) => project.slug), ['emprega-co', 'doces-da-pati', 'helppet']);
+  assert.deepEqual(
+    projects.map((project) => project.slug),
+    ['emprega-co', 'doces-da-pati', 'helppet'],
+  );
   for (const project of projects) {
     assert.ok(project.summary.length > 30);
     assert.ok(project.ownership.length >= 2);
@@ -105,6 +110,7 @@ git commit -m "feat(content): define portfolio cases and routes"
 ### Task 2: Global foundation, metadata, and navigation
 
 **Files:**
+
 - Create: `src/components/navigation/MobileMenu.tsx`
 - Create: `src/lib/metadata.ts`
 - Create: `src/lib/metadata.test.mjs`
@@ -115,6 +121,7 @@ git commit -m "feat(content): define portfolio cases and routes"
 - Modify: `src/styles/theme.ts`
 
 **Interfaces:**
+
 - Consumes: `resolveRoute`, `navigation`, `site`, `contact`
 - Produces: `applyMetadata(route: Route): void`
 - Produces: `Header({ route, onNavigate }: HeaderProps)` with desktop links and an accessible mobile dialog menu.
@@ -161,6 +168,7 @@ git commit -m "feat(navigation): establish accessible site foundation"
 ### Task 3: Evidence-led homepage
 
 **Files:**
+
 - Create: `src/components/sections/Profile/Profile.tsx`
 - Create: `src/components/sections/Profile/Profile.styles.ts`
 - Modify: `src/components/sections/Hero/Hero.tsx`
@@ -173,6 +181,7 @@ git commit -m "feat(navigation): establish accessible site foundation"
 - Modify: `src/App.tsx`
 
 **Interfaces:**
+
 - Consumes: `hero`, `projects`, `profile`, `about`, `contact`, `hrefForCase`
 - Produces: vertical `Selected Work` previews with `View Case Study` and verified external actions.
 - Produces: readable capability groups before any optional spectral enhancement.
@@ -217,6 +226,7 @@ git commit -m "feat(home): rebuild portfolio around proof of work"
 ### Task 4: Three individual case-study routes
 
 **Files:**
+
 - Create: `src/components/cases/CaseStudy.tsx`
 - Create: `src/components/cases/CaseStudy.styles.ts`
 - Create: `src/components/cases/CaseMedia.tsx`
@@ -230,6 +240,7 @@ git commit -m "feat(home): rebuild portfolio around proof of work"
 - Create: optimized preview videos under `public/media/`
 
 **Interfaces:**
+
 - Consumes: `Project`, `ProjectSlug`, `projects`, `hrefForCase`
 - Produces: `CaseStudy({ project }: { project: Project })`
 - Produces: `CaseMedia({ media }: { media: ProjectMedia })`
@@ -280,6 +291,7 @@ git commit -m "feat(cases): add navigable project case studies"
 ### Task 5: Motion simplification and progressive WebGL
 
 **Files:**
+
 - Create: `src/three/scenePolicy.ts`
 - Create: `src/three/scenePolicy.test.mjs`
 - Modify: `src/components/layout/SingularityStage.tsx`
@@ -292,6 +304,7 @@ git commit -m "feat(cases): add navigable project case studies"
 - Delete only after consumer audit: obsolete HUD, redshift, sound, collapse, and horizontal-scroll files.
 
 **Interfaces:**
+
 - Produces: `sceneMode(input: ScenePolicyInput): 'poster' | 'economy' | 'full'`
 - Produces: `shouldRenderScene(input: { visible: boolean; documentVisible: boolean; reducedMotion: boolean }): boolean`
 - Consumes: existing single-clock `advance()` ownership.
@@ -300,12 +313,21 @@ git commit -m "feat(cases): add navigable project case studies"
 
 ```js
 test('falls back before WebGL and uses economy mode on constrained devices', () => {
-  assert.equal(sceneMode({ webgl: false, coarse: false, width: 1440, saveData: false }), 'poster');
-  assert.equal(sceneMode({ webgl: true, coarse: true, width: 390, saveData: false }), 'economy');
+  assert.equal(
+    sceneMode({ webgl: false, coarse: false, width: 1440, saveData: false }),
+    'poster',
+  );
+  assert.equal(
+    sceneMode({ webgl: true, coarse: true, width: 390, saveData: false }),
+    'economy',
+  );
 });
 
 test('does not render while the document is hidden', () => {
-  assert.equal(shouldRenderScene({ visible: true, documentVisible: false, reducedMotion: false }), false);
+  assert.equal(
+    shouldRenderScene({ visible: true, documentVisible: false, reducedMotion: false }),
+    false,
+  );
 });
 ```
 
@@ -339,6 +361,7 @@ git commit -m "perf(three): load the singularity progressively"
 ### Task 6: Browser verification, SEO assets, and delivery
 
 **Files:**
+
 - Create: `public/og.png`
 - Create: `public/resume/.gitkeep` only if the empty directory is needed by build tooling; otherwise create no résumé artifact.
 - Modify: `README.md`
@@ -346,6 +369,7 @@ git commit -m "perf(three): load the singularity progressively"
 - Modify: `.github/PULL_REQUEST_TEMPLATE.md` if absent or inaccurate.
 
 **Interfaces:**
+
 - Consumes: all public routes and progressive scene states.
 - Produces: documented architecture and a reviewable pull request.
 

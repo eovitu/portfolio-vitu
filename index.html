@@ -5,27 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!--
-      Critical, inline, before any script or stylesheet: the browser must never
-      have a moment where it can paint the default white canvas. The reload
-      choreography depends on the first frame already being the void.
-    -->
     <style>
       html,
       body {
         margin: 0;
         padding: 0;
         background: #000;
-      }
-      /*
-        While the ghost layer stands in for the previous screen, the real
-        composition is held back — otherwise the hero would be showing through
-        the content it is impersonating. Released the instant the core starts
-        expelling (see hooks/useSingularityIntro).
-      */
-      html.warp-staging main,
-      html.warp-staging [data-nav] {
-        opacity: 0;
       }
     </style>
 
@@ -45,7 +30,7 @@
       property="og:description"
       content="Backend developer building reliable digital products from system architecture to expressive interfaces."
     />
-    <meta property="og:image" content="/og.svg" />
+    <meta property="og:image" content="/og.png" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://devitu.vercel.app/" />
     <link rel="canonical" href="https://devitu.vercel.app/" />
