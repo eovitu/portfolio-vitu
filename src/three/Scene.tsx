@@ -9,6 +9,8 @@ import { setCoreScreen, setCoreWorld, setEnergy } from '../lib/gravityField';
 import { measureStage, stage } from '../lib/stagePresence';
 import { heroSignal } from './heroSignal';
 import { gravityEnabled } from './stagePolicy';
+import { ScrollTrigger } from '../lib/gsap';
+import { requestRefresh } from '../lib/refreshGate';
 
 /**
  * Reused every frame — the rig is the field's producer and runs inside the
@@ -84,10 +86,13 @@ export function Scene({ reduced, tier }: Props) {
     const settle = window.setTimeout(remeasure, 400);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', remeasure);
+    ScrollTrigger.addEventListener('refresh', remeasure);
+    requestRefresh('stage:bounds');
     return () => {
       window.clearTimeout(settle);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', remeasure);
+      ScrollTrigger.removeEventListener('refresh', remeasure);
     };
   }, []);
 
