@@ -6,9 +6,37 @@
  * trivial to find later. TODO(content): replace before launch.
  */
 
+export type ProjectSlug = 'emprega-co' | 'doces-da-pati' | 'helppet';
+
+export interface ProjectMedia {
+  video: string;
+  poster: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+export interface ProjectSection {
+  title: string;
+  body: string;
+}
+
+export interface ProjectAction {
+  label: 'Live Project' | 'View Source';
+  href: string;
+}
+
 export interface Project {
+  slug: ProjectSlug;
   n: string;
   name: string;
+  eyebrow: string;
+  summary: string;
+  outcome: string;
+  ownership: readonly string[];
+  media: ProjectMedia;
+  sections: readonly ProjectSection[];
+  actions: readonly ProjectAction[];
   desc: string;
   /** Designer placeholder copy — replace with the real case text. */
   descIsPlaceholder?: boolean;
@@ -21,8 +49,37 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: 'emprega-co',
     n: '01',
     name: 'EMPREGA.CO',
+    eyebrow: 'Two-sided employment platform',
+    summary:
+      'A connected candidate and employer experience designed around discovery, applications and hiring workflows.',
+    outcome:
+      'Defined the product journeys and system structure for candidates and employers across one platform.',
+    ownership: ['Backend architecture', 'Product flows', 'Interface direction'],
+    media: {
+      video: '/media/emprega-co.mp4',
+      poster: '/media/emprega-co-poster.webp',
+      alt: 'Emprega.co candidate and employer product flow screens',
+      width: 1440,
+      height: 900,
+    },
+    sections: [
+      {
+        title: 'Context',
+        body: 'Employment products serve two audiences with different goals. The work maps candidate discovery and application states alongside employer publishing and management flows.',
+      },
+      {
+        title: 'What I owned',
+        body: 'I worked across backend structure, product decisions and interface direction, keeping the two journeys separate while sharing one domain model.',
+      },
+      {
+        title: 'Engineering approach',
+        body: 'The architecture centers explicit Java and Spring contracts, predictable state transitions and a React interface that makes loading, empty and recovery states visible.',
+      },
+    ],
+    actions: [],
     desc: 'Marketplace de serviços domésticos — busca, agendamento e pagamento em um fluxo só. Do modelo de dados à interface.',
     role: 'DESIGN · PRODUCT · FRONT-END',
     tech: 'JAVA · SPRING · REACT',
@@ -30,24 +87,83 @@ export const projects: Project[] = [
     slot: 'PLACA 01 · PRÓXIMA DO HORIZONTE',
   },
   {
+    slug: 'doces-da-pati',
     n: '02',
-    name: 'PROJETO DOIS',
+    name: 'DOCES DA PATI',
+    eyebrow: 'Mobile-first local storefront',
+    summary:
+      'A lightweight storefront that turns a small confectionery catalogue into a clear mobile ordering journey.',
+    outcome:
+      'Shipped a public catalogue experience with product discovery and a direct path from selection to contact.',
+    ownership: ['Product design', 'Frontend engineering', 'Deployment'],
+    media: {
+      video: '/media/doces-da-pati.mp4',
+      poster: '/media/doces-da-pati-poster.webp',
+      alt: 'Doces da Pati mobile storefront and product catalogue',
+      width: 1440,
+      height: 900,
+    },
+    sections: [
+      {
+        title: 'Context',
+        body: 'The business needed a simple public catalogue that works well on phones and does not introduce operational infrastructure the owner cannot maintain.',
+      },
+      {
+        title: 'What I owned',
+        body: 'I designed and built the storefront, structured the catalogue and shaped the ordering path around the tools already used by the business.',
+      },
+      {
+        title: 'Engineering approach',
+        body: 'The implementation prioritizes mobile rendering, legible product information, low-friction contact and a deployment model that stays inexpensive to operate.',
+      },
+    ],
+    actions: [
+      { label: 'Live Project', href: 'https://doces-da-pati.vercel.app/' },
+      { label: 'View Source', href: 'https://github.com/eovitu/doces-da-pati' },
+    ],
     desc: '[ Uma frase sobre o problema, uma sobre a solução, uma sobre o resultado. Números ajudam. ]',
-    descIsPlaceholder: true,
-    role: 'FULL-STACK',
-    tech: 'NEXT · TS · POSTGRES',
-    year: '2024',
-    slot: 'PLACA 02 · ÓRBITA ESTÁVEL',
+    role: 'PRODUCT · FRONT-END',
+    tech: 'NEXT.JS · TYPESCRIPT · FIREBASE',
+    year: '2026',
+    slot: 'STOREFRONT · MOBILE COMMERCE',
   },
   {
+    slug: 'helppet',
     n: '03',
-    name: 'PROJETO TRÊS',
+    name: 'HELPPET',
+    eyebrow: 'Connected pet-care product system',
+    summary:
+      'A product and design-system study connecting pet owners, care information and service journeys.',
+    outcome:
+      'Structured a reusable interface language and the principal journeys for a connected care experience.',
+    ownership: ['Design system', 'Product flows', 'Interaction architecture'],
+    media: {
+      video: '/media/helppet.mp4',
+      poster: '/media/helppet-poster.webp',
+      alt: 'HelpPet design system components and connected care flows',
+      width: 1440,
+      height: 900,
+    },
+    sections: [
+      {
+        title: 'Context',
+        body: 'Pet-care journeys combine recurring information, service discovery and trust. The project explores how those needs can share a coherent product language.',
+      },
+      {
+        title: 'What I owned',
+        body: 'I organized the page flows and created the component rules, variants and visual foundations needed for the product to grow consistently.',
+      },
+      {
+        title: 'System approach',
+        body: 'Reusable tokens and components connect the interface states while the flow model keeps navigation and feedback understandable across the journey.',
+      },
+    ],
+    actions: [],
     desc: '[ Substituir pelo case real. Prefira um projeto com resultado mensurável ou desafio técnico claro. ]',
-    descIsPlaceholder: true,
-    role: 'MOBILE',
-    tech: 'FLUTTER · FIREBASE',
-    year: '2023',
-    slot: 'PLACA 03 · CAMPO DISTANTE',
+    role: 'PRODUCT · UI/UX',
+    tech: 'FIGMA · DESIGN SYSTEMS · PROTOTYPING',
+    year: '2026',
+    slot: 'DESIGN SYSTEM · CONNECTED CARE',
   },
 ];
 
