@@ -19,7 +19,9 @@ export function Work() {
   const trackRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
 
-  const isDesktop = useMediaQuery(`(min-width: ${breakpoints.desktop}px)`);
+  const isDesktop = useMediaQuery(
+    `(min-width: ${breakpoints.desktop}px) and (min-height: 650px) and (hover: hover) and (pointer: fine)`,
+  );
   const reduced = useReducedMotion();
   const horizontal = isDesktop && !reduced;
 

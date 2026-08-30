@@ -20,7 +20,6 @@ const Bar = styled.header`
   color: var(--chrome-dim);
   transform: translateY(-110%);
   background: transparent;
-  backdrop-filter: blur(10px);
   transition:
     background 0.5s ease,
     color 0.45s ease;
@@ -35,6 +34,11 @@ const Bar = styled.header`
   ${({ theme }) => theme.media.mobile} {
     padding: 14px 20px;
     gap: 12px;
+  }
+
+  ${({ theme }) => theme.media.short} {
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 `;
 
@@ -54,7 +58,7 @@ const Brand = styled.a`
     height: 5px;
     background: var(--chrome-accent);
     border-radius: 50%;
-    animation: blink 3.5s ease-in-out infinite;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--chrome-accent) 45%, transparent);
   }
 
   ${({ theme }) => theme.media.mobile} {
@@ -81,6 +85,10 @@ const NavLink = styled.a`
        clipping the CTA. The anchors are dropped rather than shrunk: the
        sections are reached by scrolling, and the CTA is the design's primary
        action. The skip link still exposes the same targets to keyboards. */
+    display: none;
+  }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
     display: none;
   }
 `;

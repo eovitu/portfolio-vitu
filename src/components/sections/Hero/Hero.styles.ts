@@ -12,6 +12,7 @@ export const Stage = styled.div`
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -20,6 +21,10 @@ export const Stage = styled.div`
 
   ${({ theme }) => theme.media.mobile} {
     padding: 0 20px 28px;
+  }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
+    padding-bottom: 16px;
   }
 `;
 
@@ -59,6 +64,10 @@ export const MetaRow = styled.div`
     font-size: 9px;
     letter-spacing: 0.18em;
   }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
+    top: 58px;
+  }
 `;
 
 export const Content = styled.div`
@@ -71,6 +80,10 @@ export const Content = styled.div`
      must never scroll to be complete. */
   @media (max-height: 760px) {
     gap: 20px;
+  }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
+    gap: 12px;
   }
 `;
 
@@ -146,6 +159,10 @@ export const Name = styled.h1`
   ${({ theme }) => theme.media.mobile} {
     margin-left: calc(-20px - 0.055em);
   }
+
+  ${({ theme }) => theme.media.short} {
+    font-size: clamp(52px, min(13vw, 18vh), 180px);
+  }
 `;
 
 export const NameLine = styled.span`
@@ -192,6 +209,10 @@ export const LetterGlyph = styled.span`
   ${({ theme }) => theme.media.reduce} {
     cursor: auto;
   }
+
+  ${({ theme }) => theme.media.touch} {
+    cursor: auto;
+  }
 `;
 
 export const InfoGrid = styled.div`
@@ -204,6 +225,12 @@ export const InfoGrid = styled.div`
 
   ${({ theme }) => theme.media.mobile} {
     gap: 22px;
+  }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
+    grid-template-columns: 0.8fr 1.2fr 1fr;
+    gap: 18px;
+    padding-top: 14px;
   }
 `;
 
@@ -229,6 +256,11 @@ export const Description = styled.p`
 
   ${({ theme }) => theme.media.mobile} {
     font-size: 16px;
+  }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
+    font-size: 14px;
+    line-height: 1.4;
   }
 `;
 

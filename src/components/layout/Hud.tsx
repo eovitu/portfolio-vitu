@@ -38,8 +38,11 @@ const Frame = styled.div`
   gap: 12px;
 
   ${({ theme }) => theme.media.mobile} {
-    right: 10px;
-    gap: 8px;
+    display: none;
+  }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
+    display: none;
   }
 `;
 
@@ -58,10 +61,6 @@ const Caption = styled.div`
   letter-spacing: 0.3em;
   color: var(--chrome-trace);
   writing-mode: vertical-rl;
-
-  ${({ theme }) => theme.media.mobile} {
-    display: none;
-  }
 `;
 
 const Rule = styled.div`

@@ -41,8 +41,11 @@ const Button = styled.button`
   }
 
   ${({ theme }) => theme.media.mobile} {
-    left: 12px;
-    bottom: 12px;
+    display: none;
+  }
+
+  ${({ theme }) => theme.media.touch} {
+    display: none;
   }
 `;
 

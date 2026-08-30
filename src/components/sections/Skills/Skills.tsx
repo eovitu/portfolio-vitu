@@ -81,6 +81,7 @@ const Band = styled.div`
 
   ${({ theme }) => theme.media.mobile} {
     height: 150px;
+    display: none;
   }
 `;
 
@@ -141,24 +142,7 @@ const Line = styled.button<{
     box-shadow 0.28s ease,
     width 0.28s ease;
 
-  /* Each line breathes on its own phase, so the band is alive without
-     anything actually moving. Delay is derived from position, which keeps the
-     whole set permanently out of sync. */
-  animation: emission ${({ $weight }) => 3.4 + $weight * 2.6}s ease-in-out infinite;
-  animation-delay: ${({ $at }) => (-$at * 6).toFixed(2)}s;
-  /* The flicker only starts once every line has settled — a band that
-     shimmers while it is still being drawn reads as two effects fighting. */
-  animation-play-state: ${({ $drawn }) => ($drawn ? 'running' : 'paused')};
-
-  @keyframes emission {
-    0%,
-    100% {
-      opacity: 0.72;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
+  opacity: ${({ $on }) => ($on ? 1 : 0.78)};
 
   &:focus-visible {
     outline: 1px solid var(--accent);
@@ -179,6 +163,10 @@ const Readout = styled.div`
   min-height: 92px;
   border-top: 1px solid ${({ theme }) => theme.colors.line};
   padding-top: 20px;
+
+  ${({ theme }) => theme.media.mobile} {
+    display: none;
+  }
 `;
 
 const ReadoutHead = styled.div`
@@ -228,6 +216,11 @@ const Groups = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 34px;
   padding-top: 12px;
+
+  ${({ theme }) => theme.media.mobile} {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 18px;
+  }
 `;
 
 const GroupLabel = styled.div`

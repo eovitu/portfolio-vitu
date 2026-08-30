@@ -152,6 +152,9 @@ export const media = {
   belowTablet: `@media (max-width: ${breakpoints.tablet - 1}px)`,
   mobile: `@media (max-width: ${breakpoints.mobile}px)`,
   hover: '@media (hover: hover) and (pointer: fine)',
+  touch: '@media (hover: none), (pointer: coarse)',
+  short: '@media (max-height: 680px)',
+  landscapeMobile: '@media (max-height: 520px) and (orientation: landscape)',
   reduce: '@media (prefers-reduced-motion: reduce)',
   /**
    * "This layout must be a plain vertical stack."
@@ -163,7 +166,7 @@ export const media = {
    * row and no way to reach panels 02 and 03 — the JS had correctly declined
    * to pin, and the CSS had not been told.
    */
-  stacked: `@media (max-width: ${breakpoints.desktop - 1}px), (prefers-reduced-motion: reduce)`,
+  stacked: `@media (max-width: ${breakpoints.desktop - 1}px), (max-height: 649px), (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce)`,
 } as const;
 
 export const z = {
