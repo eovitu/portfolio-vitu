@@ -55,7 +55,7 @@ const Veil = styled.div`
   opacity: 0;
 `;
 
-export function SingularityStage() {
+export function SingularityStage({ onReady }: { onReady?: () => void }) {
   const veil = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
 
@@ -73,7 +73,7 @@ export function SingularityStage() {
     <>
       <Layer data-gl aria-hidden="true">
         <Suspense fallback={null}>
-          <SingularityCanvas />
+          <SingularityCanvas onReady={onReady} />
         </Suspense>
       </Layer>
       <Veil ref={veil} data-veil aria-hidden="true" />

@@ -73,7 +73,13 @@ function FrameDriver({ active, reduced }: { active: boolean; reduced: boolean })
   return null;
 }
 
-export default function SingularityCanvas({ className }: { className?: string }) {
+export default function SingularityCanvas({
+  className,
+  onReady,
+}: {
+  className?: string;
+  onReady?: () => void;
+}) {
   const wrapper = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const reduced = useReducedMotion();
@@ -114,6 +120,7 @@ export default function SingularityCanvas({ className }: { className?: string })
           gl.toneMappingExposure = RENDERER.exposure;
           gl.outputColorSpace = THREE.SRGBColorSpace;
           installRenderProbe({ gl, scene, camera });
+          onReady?.();
         }}
       >
         <FrameDriver active={visible} reduced={reduced} />

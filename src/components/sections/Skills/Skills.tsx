@@ -308,7 +308,7 @@ export function Skills() {
               $rgb={DOMAIN_HUE[line.domain]}
               $on={shown.name === line.name}
               $drawn={drawn}
-              aria-label={`${line.name} — ${line.domain}`}
+              aria-label={`${line.name}, ${line.domain}`}
               aria-pressed={shown.name === line.name}
               onMouseEnter={() => !reduced && setActive(line)}
               onFocus={() => setActive(line)}

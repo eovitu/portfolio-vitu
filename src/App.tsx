@@ -23,6 +23,8 @@ import { Contact } from './components/sections/Contact/Contact';
 import { useSingularityIntro } from './hooks/useSingularityIntro';
 import { interludes } from './lib/content';
 import { SingularityStage } from './components/layout/SingularityStage';
+import { LaunchIntro } from './components/layout/LaunchIntro';
+import { NotFound } from './components/layout/NotFound';
 
 const SkipLink = styled.a`
   position: absolute;
@@ -57,6 +59,7 @@ const Main = styled.main`
 function Site() {
   const { stop, start } = useSmoothScroll();
   const [introReady, setIntroReady] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
   useScrollSkew();
 
   const onLock = useCallback(() => stop(), [stop]);
@@ -98,7 +101,13 @@ function Site() {
       if (cancelled || started) return;
       started = true;
       requestRefresh('app:fonts-settled');
-      setIntroReady(true);
+      const startWhenSceneSettles = () => {
+        if (cancelled) return;
+        requestRefresh('app:scene-settled');
+        setIntroReady(true);
+      };
+      if (sceneReady) startWhenSceneSettles();
+      else window.setTimeout(startWhenSceneSettles, 900);
     };
 
     document.fonts?.ready.then(settle).catch(() => undefined);
@@ -107,14 +116,14 @@ function Site() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [sceneReady]);
 
   return (
     <>
       <SkipLink href="#work">SKIP TO CONTENT</SkipLink>
       <Hud />
       <Cursor />
-      <SingularityStage />
+      <SingularityStage onReady={() => setSceneReady(true)} />
       <Header />
 
       <Main>
@@ -149,6 +158,7 @@ function Site() {
           layers so it never tints a control. */}
       <Redshift />
       <Grain />
+      <LaunchIntro ready={introReady} />
 
       <SoundToggle />
     </>
@@ -156,12 +166,12 @@ function Site() {
 }
 
 export default function App() {
+  const isHome = window.location.pathname === '/';
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <SmoothScrollProvider>
-        <Site />
-      </SmoothScrollProvider>
+      <SmoothScrollProvider>{isHome ? <Site /> : <NotFound />}</SmoothScrollProvider>
     </ThemeProvider>
   );
 }

@@ -193,7 +193,7 @@ export const skills = {
       domain: 'BACKEND',
       at: 0.26,
       weight: 0.7,
-      detail: 'Contracts between systems — where most product bugs are actually born.',
+      detail: 'Contracts between systems, where most product bugs are actually born.',
     },
     {
       name: 'TypeScript',
@@ -263,7 +263,7 @@ export const skills = {
       domain: 'DESIGN',
       at: 0.98,
       weight: 0.65,
-      detail: 'Weight, friction and anticipation — physics, not duration.',
+      detail: 'Weight, friction and anticipation: physics, not duration.',
     },
   ] satisfies SpectralLine[] as SpectralLine[],
 } as const;
@@ -302,7 +302,7 @@ export const interludes = {
     lead: 'SOMETHING ELSE LEAVES.',
     metrics: [
       ['MASS ABSORBED', '3 PROJECTS'],
-      ['PROPER TIME', '2023 — 2026'],
+      ['PROPER TIME', '2023 / 2026'],
       ['STATE', 'IN ORBIT'],
     ] as [string, string][],
   },
@@ -330,8 +330,8 @@ export const contact = {
 
 export const footer = {
   items: [
-    '© 2026 — VICTOR HUGO',
-    'SÃO PAULO — 23.5505° S / 46.6333° W',
+    '© 2026 / VICTOR HUGO',
+    'SÃO PAULO / 23.5505° S / 46.6333° W',
     'SINGULARITY / END OF TRANSMISSION',
   ],
 } as const;
@@ -341,17 +341,6 @@ export const nav = {
   links: [
     { label: 'WORK', href: '#work' },
     { label: 'ABOUT', href: '#about' },
-    { label: 'CONTACT', href: '#contact' },
   ],
   cta: 'CONTACT',
-} as const;
-
-/** Legacy chat copy kept typed until the launch UI removes the old module. */
-export const chat = {
-  title: 'CONTACT',
-  close: 'CLOSE',
-  intro: 'The fastest route is a direct email.',
-  prompts: ['OPEN EMAIL'],
-  note: '',
-  inputPlaceholder: 'TYPE YOUR MESSAGE',
 } as const;
