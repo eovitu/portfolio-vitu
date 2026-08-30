@@ -25,14 +25,14 @@ construção do pin-spacer) onde já houve regressão por palpite antes.
 
 **O que já está instrumentado.** `window.__introAudit()` reporta:
 
-| Campo | O que significa |
-| --- | --- |
+| Campo                     | O que significa                                     |
+| ------------------------- | --------------------------------------------------- |
 | `scrollGuard.corrections` | Quantas vezes a guarda puxou `scrollY` de volta a 0 |
-| `scrollGuard.worst` | O maior offset que ela precisou corrigir |
-| `scrollGuard.released` | Se a guarda chegou a ser liberada por gesto real |
-| `ghostLayer` | Se a camada de fantasmas existia neste carregamento |
-| `scrollY` | Onde a leitura efetivamente parou |
-| `duration` | Duração total da sequência de intro |
+| `scrollGuard.worst`       | O maior offset que ela precisou corrigir            |
+| `scrollGuard.released`    | Se a guarda chegou a ser liberada por gesto real    |
+| `ghostLayer`              | Se a camada de fantasmas existia neste carregamento |
+| `scrollY`                 | Onde a leitura efetivamente parou                   |
+| `duration`                | Duração total da sequência de intro                 |
 
 **Como capturar quando reproduzir.** Recarregar de dentro do WORK ou do
 CONTACT, repetidamente. Assim que um carregamento terminar fora da hero, rodar

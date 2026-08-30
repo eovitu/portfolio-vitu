@@ -266,7 +266,9 @@ function summarise(entries: Entry[]): Summary {
 
 /** Entries in chronological order, oldest first. */
 function ordered(): Entry[] {
-  return log.length < CAPACITY ? log.slice() : log.slice(cursor).concat(log.slice(0, cursor));
+  return log.length < CAPACITY
+    ? log.slice()
+    : log.slice(cursor).concat(log.slice(0, cursor));
 }
 
 export interface ScrollDebugApi {

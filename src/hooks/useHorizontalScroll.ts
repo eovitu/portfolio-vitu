@@ -34,12 +34,7 @@ interface Options {
  * recomputed on every refresh via `invalidateOnRefresh` + function-based `end`,
  * so no fixed width can desync the pin from the track on resize.
  */
-export function useHorizontalScroll({
-  wrapRef,
-  pinRef,
-  trackRef,
-  enabled,
-}: Options): void {
+export function useHorizontalScroll({ wrapRef, pinRef, trackRef, enabled }: Options): void {
   useLayoutEffect(() => {
     const wrap = wrapRef.current;
     const pin = pinRef.current;
