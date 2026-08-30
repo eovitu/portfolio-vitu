@@ -320,7 +320,7 @@ export const contact = {
   links: [
     {
       label: 'EMAIL',
-      href: 'mailto:eovitu7@gmail.com?subject=Opportunity%20for%20Victor%20Hugo&body=Hi%20Victor%2C%0A%0AI%20found%20your%20portfolio%20and%20would%20like%20to%20talk%20about...',
+      href: 'mailto:eovitu7@gmail.com?subject=Opportunity%20for%20Victor%20Hugo&body=Hi%20Victor%2C%0A%0AI%20found%20your%20portfolio%20and%20would%20like%20to%20talk%20about%E2%80%A6',
       external: false,
     },
     { label: 'GITHUB', href: 'https://github.com/eovitu', external: true },

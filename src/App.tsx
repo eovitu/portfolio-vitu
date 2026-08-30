@@ -120,13 +120,13 @@ function Site() {
 
   return (
     <>
-      <SkipLink href="#work">SKIP TO CONTENT</SkipLink>
+      <SkipLink href="#main-content">SKIP TO CONTENT</SkipLink>
       <Hud />
       <Cursor />
       <SingularityStage onReady={() => setSceneReady(true)} />
       <Header />
 
-      <Main>
+      <Main id="main-content" tabIndex={-1}>
         <Hero />
         <Work />
         {/* Crosses the WORK -> interlude boundary, which is the site's biggest
