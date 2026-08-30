@@ -377,20 +377,7 @@ export const Number = styled.div<{ $orbit: Orbit }>`
   opacity: ${({ $orbit }) => ($orbit === 0 ? 1 : $orbit === 1 ? 0.95 : 0.55)};
 `;
 
-/**
- * The project title, sized to leave the column.
- *
- * At the old scale the title sat obediently inside its grid cell, and a title
- * that fits its cell is a caption. These sizes are chosen so the word runs
- * past the text column and is cut by the panel's own edge — the crop is the
- * statement, and it is why `TitleClip` below has to stop clipping horizontally.
- *
- * The near/far grading survives: orbit 0 is crushed and enormous, orbit 2 is
- * still the smallest of the three. What changed is the floor, not the shape.
- *
- * Revert: restore 'clamp(42px, 6.6vw, 108px)' / 'clamp(34px, 5.4vw, 88px)' /
- * 'clamp(24px, 3.2vw, 52px)' and drop `TitleClip`'s width rules.
- */
+/** Project titles keep the orbital scale hierarchy without losing glyphs. */
 export const Title = styled.h3<{ $orbit: Orbit }>`
   margin: 0;
   display: inline-block;
@@ -400,9 +387,9 @@ export const Title = styled.h3<{ $orbit: Orbit }>`
   font-size: ${({ $orbit }) =>
     (
       [
-        'clamp(58px, 11.8vw, 208px)',
-        'clamp(48px, 9.6vw, 172px)',
-        'clamp(38px, 6.4vw, 116px)',
+        'clamp(48px, 7vw, 132px)',
+        'clamp(42px, 5.7vw, 108px)',
+        'clamp(34px, 4.2vw, 80px)',
       ] as const
     )[$orbit]};
   line-height: ${({ $orbit }) => (['0.84', '0.92', '1.04'] as const)[$orbit]};

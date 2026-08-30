@@ -141,7 +141,7 @@ export const layout = {
 
 export const breakpoints = {
   /** Below this the pinned horizontal chapter is replaced by a vertical stack. */
-  desktop: 860,
+  desktop: 1180,
   tablet: 1080,
   mobile: 560,
 } as const;

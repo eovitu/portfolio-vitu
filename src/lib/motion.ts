@@ -169,6 +169,13 @@ export type RevealKind = keyof typeof REVEAL;
 /** Project panel entrance inside the pinned horizontal chapter. */
 export const PANEL = {
   /**
+   * Vertical travel per pixel of horizontal overflow. A 1:1 mapping made the
+   * three-panel chapter consume almost five viewports on a wide desktop.
+   * Keeping the full track translation while shortening the trigger makes
+   * each wheel gesture advance the story without skipping a panel.
+   */
+  scrollRatio: 0.62,
+  /**
    * No opacity. The panel items sit inside overflow clips, so a translate is
    * already a mask — carrying a fade alongside it was the one place in the
    * chapter where an element appeared instead of arriving.

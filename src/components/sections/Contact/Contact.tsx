@@ -13,10 +13,12 @@ const email = contact.links.find((l) => l.label === 'EMAIL') ?? {
 
 const Section = styled.section`
   position: relative;
+  min-height: 150vh;
   padding: 200px ${({ theme }) => theme.space.gutter} 44px;
   overflow: hidden;
 
   ${({ theme }) => theme.media.mobile} {
+    min-height: auto;
     padding: 130px 20px 40px;
   }
 `;
@@ -53,6 +55,7 @@ const Survivor = styled.div`
   display: grid;
   gap: 14px;
   justify-items: start;
+  transform-origin: left center;
   will-change: transform;
 `;
 

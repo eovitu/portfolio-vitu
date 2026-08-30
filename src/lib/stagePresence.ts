@@ -52,6 +52,9 @@ const state = { presence: 0, scale: 1, offsetX: 0, offsetY: 0 };
  */
 const WORK_CORNER = { x: -1.05, y: 0.62 };
 
+/** Upper bound for the closing shot; larger values turn into fill-rate cost. */
+export const CONTACT_MAX_PRESENCE = 1.12;
+
 export function measureStage(): void {
   if (typeof document === 'undefined') return;
   const work = document.querySelector<HTMLElement>('#work');
@@ -103,7 +106,7 @@ function presenceAt(y: number): number {
 
   // CONTACT: returns and grows past full presence into the collapse.
   const span = Math.max(1, docEnd - (contactTop - vh * 0.6));
-  return ease(clamp01((y - (contactTop - vh * 0.6)) / span)) * 1.45;
+  return ease(clamp01((y - (contactTop - vh * 0.6)) / span)) * CONTACT_MAX_PRESENCE;
 }
 
 export function updateStage(y: number): void {

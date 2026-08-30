@@ -140,7 +140,7 @@ export function useHorizontalScroll({ wrapRef, pinRef, trackRef, enabled }: Opti
         scrollTrigger: {
           trigger: wrap,
           start: 'top top',
-          end: () => `+=${distance()}`,
+          end: () => `+=${distance() * PANEL.scrollRatio}`,
           pin,
           pinSpacing: true,
           scrub: true,
