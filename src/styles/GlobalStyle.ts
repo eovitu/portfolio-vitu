@@ -68,6 +68,7 @@ export const GlobalStyle = createGlobalStyle`
   html {
     /* Lenis owns scrolling — native smooth behaviour would fight it. */
     scroll-behavior: auto;
+    color-scheme: dark;
   }
 
   html, body {
@@ -88,6 +89,10 @@ export const GlobalStyle = createGlobalStyle`
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   .lenis.lenis-stopped { overflow: hidden; }
+
+  a, button { touch-action: manipulation; }
+
+  [id] { scroll-margin-top: 5rem; }
 
   a { color: ${({ theme }) => theme.colors.text}; text-decoration: none; }
   /* Hover brightens; it does not change hue. The accent is reserved for

@@ -313,6 +313,8 @@ export function About() {
               data-media-inner
               src="/victor-2010.jpg"
               alt={about.photoAlt}
+              width={960}
+              height={1280}
               loading="lazy"
             />
           </Frame>
