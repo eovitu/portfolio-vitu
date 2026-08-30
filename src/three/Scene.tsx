@@ -6,8 +6,9 @@ import { ModelBoundary } from './ModelBoundary';
 import { SingularityModel } from './SingularityModel';
 import { CAMERA, QUALITY, type QualityTier } from './renderQuality';
 import { setCoreScreen, setCoreWorld, setEnergy } from '../lib/gravityField';
-import { measureStage, stage, updateStage } from '../lib/stagePresence';
+import { measureStage, stage } from '../lib/stagePresence';
 import { heroSignal } from './heroSignal';
+import { gravityEnabled } from './stagePolicy';
 
 /**
  * Reused every frame — the rig is the field's producer and runs inside the
@@ -108,7 +109,6 @@ export function Scene({ reduced, tier }: Props) {
      * come from `lib/stagePresence`; the rig only applies them, so there is
      * still exactly one authority on where the object is.
      */
-    updateStage(window.scrollY);
     const st = stage();
     node.position.x = frame.x + st.offsetX;
     node.position.y = frame.y - scroll.current * SCROLL_DRIFT + st.offsetY;
@@ -129,7 +129,7 @@ export function Scene({ reduced, tier }: Props) {
     setCoreScreen(
       (projected.x * 0.5 + 0.5) * w,
       (-projected.y * 0.5 + 0.5) * h,
-      projected.z < 1,
+      gravityEnabled(st.presence, projected.z < 1),
     );
     setEnergy(heroSignal.energy);
   });

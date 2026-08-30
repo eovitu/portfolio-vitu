@@ -7,22 +7,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 import { CAMERA, QUALITY, RENDERER, detectTier } from './renderQuality';
 import { installRenderProbe } from '../lib/introAudit';
 import { stage, updateStage } from '../lib/stagePresence';
-
-/**
- * How present the object has to be before it earns a full-rate render.
- *
- * Below this the veil is at its cap and the object itself contributes nothing
- * to the composite, but the starfield still does. `lib/stagePresence` is
- * explicit that the field is the site's constant and survives every section,
- * so this is a cadence reduction and never a stop: the stars keep drifting at
- * roughly 12fps where nothing else is on screen.
- */
-const ABSENT = 0.02;
-/**
- * Ceiling on the cadence while the object is absent, in ms (~12fps). A device
- * already below that rate is never delayed further.
- */
-const ABSENT_INTERVAL = 83;
+import { frameInterval, stageMode, type StageMode } from './stagePolicy';
 
 /**
  * Drives R3F from the application's single frame loop instead of letting the
@@ -34,22 +19,22 @@ const ABSENT_INTERVAL = 83;
  * full 37 draw calls per frame in every section, including ABOUT and SKILLS
  * where the veil sits at 0.97 and the object is invisible.
  *
- * The honest gates are document visibility and the object's own presence,
- * which `lib/stagePresence` already computes from scroll. `updateStage` is
- * pure arithmetic over cached bounds and is idempotent.
+ * The honest gates are document visibility and the object's own presence.
+ * Ambient states render around 12fps and dormant states around 4fps; a mode
+ * transition always renders immediately so the object never wakes one beat late.
  */
 function FrameDriver({ active, reduced }: { active: boolean; reduced: boolean }) {
   const advance = useThree((s) => s.advance);
   const last = useRef(0);
+  const previousMode = useRef<StageMode | null>(null);
 
   useAnimationFrame((time) => {
-    // Under reduced motion the scene is static: a few frames a second is
-    // enough to cover resizes, and costs almost nothing.
-    if (reduced && time - last.current < 250) return;
-    if (!reduced) {
-      updateStage(window.scrollY);
-      if (stage().presence < ABSENT && time - last.current < ABSENT_INTERVAL) return;
-    }
+    updateStage(window.scrollY);
+    const mode = stageMode(stage().presence);
+    const interval = frameInterval(mode, reduced);
+    const changed = mode !== previousMode.current;
+    if (!changed && interval > 0 && time - last.current < interval) return;
+    previousMode.current = mode;
     last.current = time;
     advance(time / 1000);
   }, active);
