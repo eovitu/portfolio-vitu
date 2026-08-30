@@ -30,6 +30,8 @@
  */
 
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import type { QualityTier } from './renderQuality';
 
 /**
  * Range of motion — the one part of this file the direction reopened.
@@ -107,8 +109,19 @@ const scratchQuat = new THREE.Quaternion();
  */
 const VIEW_ELEVATION = Math.asin(0.2 / Math.hypot(1, 0.2, 1.25));
 
-export function buildSingularity(): SingularityScene {
+export function buildSingularity(detail: QualityTier = 'high'): SingularityScene {
   const t0 = performance.now();
+
+  const geometryBudget = {
+    high: { core: [112, 72], sheet: 1, ribbon: 112, strand: 64 },
+    balanced: { core: [88, 56], sheet: 0.82, ribbon: 88, strand: 52 },
+    low: { core: [64, 40], sheet: 0.62, ribbon: 64, strand: 36 },
+  }[detail] as {
+    core: [number, number];
+    sheet: number;
+    ribbon: number;
+    strand: number;
+  };
 
   const geometries: THREE.BufferGeometry[] = [];
   const materials: THREE.Material[] = [];
@@ -211,7 +224,11 @@ export function buildSingularity(): SingularityScene {
   }
 
   /* ---------- event horizon: an absorbing void, no texture ---------- */
-  const coreGeo = new THREE.SphereGeometry(0.88, 256, 160);
+  const coreGeo = new THREE.SphereGeometry(
+    0.88,
+    geometryBudget.core[0],
+    geometryBudget.core[1],
+  );
   coreGeo.computeVertexNormals();
   geometries.push(coreGeo);
   const core = new THREE.Mesh(coreGeo, mVoid);
@@ -316,7 +333,9 @@ export function buildSingularity(): SingularityScene {
     ],
   ];
   for (const [name, r0, r1, ri, se, o, spin] of shellSpec) {
-    const m = sheet(r0, r1, ri, se, o);
+    const rings = Math.max(12, Math.round(ri * geometryBudget.sheet));
+    const segments = Math.max(96, Math.round(se * geometryBudget.sheet));
+    const m = sheet(r0, r1, rings, segments, o);
     m.name = name;
     m.userData.spin = spin; // differential rotation
     shells.push(m);
@@ -340,7 +359,7 @@ export function buildSingularity(): SingularityScene {
     mat?: THREE.Material,
   ) {
     const g = new THREE.BufferGeometry();
-    const N = 140;
+    const N = geometryBudget.ribbon;
     const rows = [-1, -0.32, 0.32, 1];
     const rowL = [0, 1, 1, 0];
     const pos: number[] = [];
@@ -375,10 +394,30 @@ export function buildSingularity(): SingularityScene {
     return m;
   }
 
+  function mergeRibbons(
+    meshes: THREE.Mesh<THREE.BufferGeometry, THREE.Material>[],
+    name: string,
+    material: THREE.Material,
+  ) {
+    const source = meshes.map((mesh) => mesh.geometry);
+    const merged = mergeGeometries(source, false);
+    if (!merged) throw new Error(`Could not merge ${name}`);
+
+    for (const geometry of source) {
+      const index = geometries.indexOf(geometry);
+      if (index >= 0) geometries.splice(index, 1);
+      geometry.dispose();
+    }
+    geometries.push(merged);
+    const mesh = new THREE.Mesh(merged, material);
+    mesh.name = name;
+    return mesh;
+  }
+
   /* photon ring — a hairline of light, unevenly bright, fading under the void */
   const photon = (() => {
     const g = new THREE.BufferGeometry();
-    const N = 320;
+    const N = geometryBudget.ribbon * 2;
     const r0 = 0.8815;
     const r1 = 0.8925;
     const pos: number[] = [];
@@ -408,13 +447,31 @@ export function buildSingularity(): SingularityScene {
 
   /* the far side of the disc, bent OVER the pole, and its counterpart bent UNDER:
      together they close the halo around the silhouette */
-  lens.add(ribbon(1.015, 0.052, 0.16, Math.PI - 0.16, 3.1, 'lensed_far_side_over'));
   lens.add(
-    ribbon(1.01, 0.042, Math.PI + 0.16, Math.PI * 2 - 0.16, 2.1, 'lensed_far_side_under'),
-  );
-  lens.add(ribbon(1.075, 0.045, 0.55, Math.PI - 0.55, 1.6, 'lensed_secondary_over'));
-  lens.add(
-    ribbon(1.068, 0.038, Math.PI + 0.6, Math.PI * 2 - 0.6, 1.1, 'lensed_secondary_under'),
+    mergeRibbons(
+      [
+        ribbon(1.015, 0.052, 0.16, Math.PI - 0.16, 3.1, 'lensed_far_side_over'),
+        ribbon(
+          1.01,
+          0.042,
+          Math.PI + 0.16,
+          Math.PI * 2 - 0.16,
+          2.1,
+          'lensed_far_side_under',
+        ),
+        ribbon(1.075, 0.045, 0.55, Math.PI - 0.55, 1.6, 'lensed_secondary_over'),
+        ribbon(
+          1.068,
+          0.038,
+          Math.PI + 0.6,
+          Math.PI * 2 - 0.6,
+          1.1,
+          'lensed_secondary_under',
+        ),
+      ],
+      'lensed_ribbons',
+      mMatter,
+    ),
   );
 
   /* soft bloom — additive gradient sprites, no hard outline */
@@ -436,7 +493,6 @@ export function buildSingularity(): SingularityScene {
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-    side: THREE.DoubleSide,
     map: glowTex([
       [0, 'rgba(255,246,228,0.00)'],
       [0.34, 'rgba(255,240,214,0.00)'],
@@ -466,19 +522,17 @@ export function buildSingularity(): SingularityScene {
     opacity: 0.9,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-    side: THREE.DoubleSide,
   });
   materials.push(mBeam);
-  (
+  const beamMeshes = (
     [
       [1.16, 0.15, 1.35],
       [1.52, 0.19, 1.0],
       [1.98, 0.21, 0.62],
       [2.46, 0.19, 0.32],
     ] as [number, number, number][]
-  ).forEach(([R, w, g], i) =>
-    doppler.add(ribbon(R, w, -1.15, 1.15, g, 'beam_' + i, mBeam)),
-  );
+  ).map(([R, w, g], i) => ribbon(R, w, -1.15, 1.15, g, 'beam_' + i, mBeam));
+  doppler.add(mergeRibbons(beamMeshes, 'doppler_beams', mBeam));
   doppler.rotation.x = -Math.PI / 2;
   model.add(doppler);
 
@@ -498,13 +552,13 @@ export function buildSingularity(): SingularityScene {
     }
     const geo = new THREE.TubeGeometry(
       new THREE.CatmullRomCurve3(pts),
-      80,
+      geometryBudget.strand,
       0.007,
       6,
       false,
     );
     const p = geo.attributes.position;
-    const n = 80 + 1;
+    const n = geometryBudget.strand + 1;
     const ring = 7;
     const cols: number[] = [];
     for (let s = 0; s < n; s++) {
@@ -530,8 +584,9 @@ export function buildSingularity(): SingularityScene {
 
   const accents = new THREE.Group();
   accents.name = 'violet_accents';
+  const accentMeshes = [];
   for (let i = 0; i < 3; i++)
-    accents.add(
+    accentMeshes.push(
       ribbon(
         2.34 + i * 0.36,
         0.034,
@@ -542,6 +597,7 @@ export function buildSingularity(): SingularityScene {
         mViolet,
       ),
     );
+  accents.add(mergeRibbons(accentMeshes, 'violet_ribbons', mViolet));
   accents.rotation.x = -Math.PI / 2;
   model.add(accents);
 
@@ -552,12 +608,16 @@ export function buildSingularity(): SingularityScene {
    * makes bands pop in and out at the edges of the frame.
    */
   model.traverse((o) => {
-    o.frustumCulled = false;
     const mesh = o as THREE.Mesh;
     if (mesh.isMesh) {
       mesh.castShadow = false;
       mesh.receiveShadow = false;
     }
+  });
+  // Billboarded lens geometry can cross the camera frustum while its parent
+  // remains visible. Only that group opts out; the rest keeps normal culling.
+  lens.traverse((object) => {
+    object.frustumCulled = false;
   });
 
   /* ---------- motion: differential orbit, breathing, damped pointer ---------- */

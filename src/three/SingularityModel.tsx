@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { heroSignal } from './heroSignal';
 import { buildSingularity, type SingularityScene } from './singularityScene';
 import { reportSceneStats } from '../lib/introAudit';
+import type { QualityTier } from './renderQuality';
 
 /**
  * The singularity, mounted into the site's rig.
@@ -29,13 +30,14 @@ interface Props {
   targetSize: number;
   /** Raw pointer target, owned by the rig — damped inside the object. */
   pointerRef: MutableRefObject<{ x: number; y: number }>;
+  detail: QualityTier;
 }
 
-export function SingularityModel({ idle, targetSize, pointerRef }: Props) {
+export function SingularityModel({ idle, targetSize, pointerRef, detail }: Props) {
   const breath = useRef<THREE.Group>(null);
   const camera = useThree((s) => s.camera);
 
-  const scene = useMemo<SingularityScene>(() => buildSingularity(), []);
+  const scene = useMemo<SingularityScene>(() => buildSingularity(detail), [detail]);
 
   /**
    * Normalised exactly the way the GLB was: bounding-box diagonal scaled to

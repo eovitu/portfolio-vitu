@@ -7,14 +7,44 @@
  * preserves the composition rather than the frame rate at its expense.
  */
 
-export type QualityTier = 'high' | 'low';
+export type QualityTier = 'high' | 'balanced' | 'low';
 
-export function detectTier(): QualityTier {
-  if (typeof window === 'undefined') return 'high';
-  const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
-  const narrow = window.innerWidth < 860;
-  const cores = navigator.hardwareConcurrency ?? 8;
-  return coarse || narrow || cores <= 4 ? 'low' : 'high';
+export interface DeviceCapabilities {
+  width: number;
+  coarsePointer: boolean;
+  cores: number;
+  memoryGb?: number;
+}
+
+function browserCapabilities(): DeviceCapabilities {
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  return {
+    width: window.innerWidth,
+    coarsePointer: window.matchMedia?.('(pointer: coarse)').matches ?? false,
+    cores: navigator.hardwareConcurrency ?? 8,
+    memoryGb: memory,
+  };
+}
+
+export function detectTier(capabilities?: DeviceCapabilities): QualityTier {
+  if (!capabilities && typeof window === 'undefined') return 'high';
+  const device = capabilities ?? browserCapabilities();
+  if (
+    device.coarsePointer ||
+    device.width < 860 ||
+    device.cores <= 4 ||
+    (device.memoryGb !== undefined && device.memoryGb <= 4)
+  ) {
+    return 'low';
+  }
+  if (
+    device.width < 1280 ||
+    device.cores <= 8 ||
+    (device.memoryGb !== undefined && device.memoryGb <= 8)
+  ) {
+    return 'balanced';
+  }
+  return 'high';
 }
 
 interface TierSettings {
@@ -26,6 +56,8 @@ interface TierSettings {
   targetSize: number;
   /** World-space nudge that places the core in the hero composition. */
   frame: { x: number; y: number };
+  /** Geometry budget used when the procedural model is constructed. */
+  detail: QualityTier;
 }
 
 /**
@@ -40,9 +72,10 @@ interface TierSettings {
  */
 export const QUALITY: Record<QualityTier, TierSettings> = {
   high: {
-    dpr: [1, 2],
+    dpr: [1, 1.75],
     antialias: true,
     targetSize: 2.6,
+    detail: 'high',
     /**
      * Inside the lockup, not beside it.
      *
@@ -62,11 +95,19 @@ export const QUALITY: Record<QualityTier, TierSettings> = {
      */
     frame: { x: -0.31, y: -0.045 },
   },
+  balanced: {
+    dpr: [1, 1.4],
+    antialias: true,
+    targetSize: 2.4,
+    frame: { x: -0.2, y: 0.02 },
+    detail: 'balanced',
+  },
   low: {
-    dpr: [1, 1.5],
+    dpr: [1, 1.15],
     antialias: false,
-    targetSize: 2.6,
-    frame: { x: 0.05, y: 0.34 },
+    targetSize: 1.7,
+    frame: { x: 0.02, y: 0.34 },
+    detail: 'low',
   },
 };
 

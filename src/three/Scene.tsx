@@ -145,6 +145,7 @@ export function Scene({ reduced, tier }: Props) {
             idle={!reduced}
             targetSize={settings.targetSize}
             pointerRef={pointer}
+            detail={settings.detail}
           />
         </ModelBoundary>
       </group>
