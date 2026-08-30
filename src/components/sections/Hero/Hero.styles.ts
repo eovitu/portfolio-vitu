@@ -256,7 +256,8 @@ export const MicroLink = styled.a`
   transform: translateY(110%);
 `;
 
-export const Cta = styled.button`
+export const Cta = styled.a`
+  display: inline-flex;
   transform: translateY(115%);
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: transparent;

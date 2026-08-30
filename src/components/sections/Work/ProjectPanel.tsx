@@ -41,7 +41,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
         </S.TitleClip>
 
         <S.Clip>
-          <S.Desc data-p="3" $placeholder={project.descIsPlaceholder} $orbit={orbit}>
+          <S.Desc data-p="3" $orbit={orbit}>
             {project.desc}
           </S.Desc>
         </S.Clip>
@@ -60,6 +60,22 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
             <dd>{project.year}</dd>
           </div>
         </S.Meta>
+
+        <S.Highlights data-p="5" aria-label={`${project.name} highlights`}>
+          {project.highlights.map((highlight) => (
+            <li key={highlight}>{highlight}</li>
+          ))}
+        </S.Highlights>
+
+        <S.ProjectLinks data-p="6" aria-label={`${project.name} links`}>
+          {project.links.map((link) => (
+            <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer">
+              {link.label}
+              <span aria-hidden="true">↗</span>
+            </a>
+          ))}
+          <span>{project.status}</span>
+        </S.ProjectLinks>
       </S.Body>
 
       {/* The warp goes on the cell, never on `S.Media`: that element is a
@@ -67,7 +83,7 @@ export function ProjectPanel({ project, orbit }: { project: Project; orbit: S.Or
           systems writing the same opacity would fight. Without the cell the
           plate simply sat still while the rest of the panel was swallowed. */}
       <S.MediaCell data-panel-cell data-warp $orbit={orbit}>
-        <S.Media data-p="5" data-panel-media $orbit={orbit}>
+        <S.Media data-p="7" data-panel-media $orbit={orbit}>
           <S.MediaInner data-panel-image $orbit={orbit}>
             <MatterField kind={orbit} />
           </S.MediaInner>

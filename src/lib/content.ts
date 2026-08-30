@@ -6,69 +6,115 @@
  * choice — the voice is the same either way, so the language is the thing that
  * had to stop wavering.
  *
- * Strings wrapped in [ ... ] are placeholders, marked `descIsPlaceholder` so
- * they render with the placeholder treatment and are trivial to find later.
- * TODO(content): replace before launch.
+ * Product claims in this file are limited to evidence inspected in the source
+ * repositories and Figma flows before the v1 launch.
  */
+
+export interface ProjectLink {
+  label: 'LIVE' | 'SOURCE' | 'FIGMA';
+  href: string;
+}
 
 export interface Project {
   n: string;
+  slug: string;
   name: string;
   desc: string;
-  /** Designer placeholder copy — replace with the real case text. */
-  descIsPlaceholder?: boolean;
   role: string;
   tech: string;
   year: string;
-  /** Label of the image slot. TODO(assets): swap for a real capture. */
+  status: string;
+  highlights: readonly string[];
+  links: readonly ProjectLink[];
+  /** Editorial surface label. It never implies the surface is a screenshot. */
   slot: string;
 }
 
 export const projects: Project[] = [
   {
     n: '01',
+    slug: 'emprega-co',
     name: 'EMPREGA.CO',
-    desc: 'A marketplace for home services — search, booking and payment in a single flow. From the data model through to the interface.',
-    role: 'DESIGN · PRODUCT · FRONT-END',
+    desc: 'An employment platform shaped around two connected journeys: people finding work and companies finding the right people.',
+    role: 'BACKEND · PRODUCT · UI/UX',
     tech: 'JAVA · SPRING · REACT',
-    year: '2025',
-    slot: 'PLATE 01 · CLOSE TO THE HORIZON',
+    year: '2025 / 26',
+    status: 'PRIVATE PRODUCT',
+    highlights: [
+      'Separate candidate and employer journeys',
+      'Loading, empty, offline and recovery states',
+      'Privacy, subscription and payment flows',
+    ],
+    links: [
+      {
+        label: 'FIGMA',
+        href: 'https://www.figma.com/design/jUbSm99igNN5NcA1qXqM2A/Emprega.co?node-id=0-1&p=f',
+      },
+    ],
+    slot: 'PRODUCT FLOW · TWO-SIDED PLATFORM',
   },
   {
     n: '02',
-    name: 'PROJECT TWO',
-    desc: '[ One sentence on the problem, one on the solution, one on the result. Numbers help. ]',
-    descIsPlaceholder: true,
-    role: 'FULL-STACK',
-    tech: 'NEXT · TS · POSTGRES',
-    year: '2024',
-    slot: 'PLATE 02 · STABLE ORBIT',
+    slug: 'doces-da-pati',
+    name: 'DOCES DA PATI',
+    desc: 'A mobile-first storefront that turns a small local catalog into a clear, manageable ordering flow without adding paid infrastructure.',
+    role: 'BACKEND · FRONTEND · PRODUCT',
+    tech: 'NEXT.JS · FIREBASE · GSAP',
+    year: '2026',
+    status: 'LIVE COMMERCE',
+    highlights: [
+      'Catalog, featured products and stock managed in Firebase',
+      'Persistent cart with a guided WhatsApp checkout',
+      'Local SEO, structured data and consent-aware analytics',
+    ],
+    links: [
+      { label: 'LIVE', href: 'https://doces-da-pati.vercel.app/' },
+      { label: 'SOURCE', href: 'https://github.com/eovitu/doces-da-pati' },
+    ],
+    slot: 'LIVE SYSTEM · LOCAL COMMERCE',
   },
   {
     n: '03',
-    name: 'PROJECT THREE',
-    desc: '[ Replace with the real case. Prefer a project with a measurable result or a clear technical challenge. ]',
-    descIsPlaceholder: true,
-    role: 'MOBILE',
-    tech: 'FLUTTER · FIREBASE',
-    year: '2023',
-    slot: 'PLATE 03 · DISTANT FIELD',
+    slug: 'helppet',
+    name: 'HELPPET',
+    desc: 'A connected pet-care product explored across mobile and desktop, supported by a broad component language and end-to-end service flows.',
+    role: 'BACKEND · PRODUCT · DESIGN SYSTEM',
+    tech: 'JAVA · SPRING · FLUTTER',
+    year: '2025',
+    status: 'PRIVATE PRODUCT',
+    highlights: [
+      'Mobile and desktop journeys in one product language',
+      'Reusable components, variants and interaction states',
+      'Service discovery, care records and operational flows',
+    ],
+    links: [
+      {
+        label: 'FIGMA',
+        href: 'https://www.figma.com/design/7vKBl18lns0tSIQ21GU4tZ/HelpPet---Design-System?node-id=151-74&p=f',
+      },
+    ],
+    slot: 'DESIGN SYSTEM · CONNECTED CARE',
   },
 ];
 
+export function getProjectBySlug(slug: string): Project | undefined {
+  return projects.find((project) => project.slug === slug);
+}
+
 export const hero = {
-  metaLeft: 'SINGULARITY / 01',
-  metaRight: 'DESIGN × CODE × MATTER',
+  metaLeft: 'BACKEND / PRODUCT ENGINEERING',
+  metaRight: 'AVAILABLE WORLDWIDE',
   /** Split per line so each line gets its own overflow mask. */
   nameLines: [
     ['V', 'I', 'C', 'T', 'O', 'R'],
     ['H', 'U', 'G', 'O'],
   ],
-  role: 'CREATIVE DEVELOPER',
-  description: 'I turn ideas into digital experiences through code and design.',
-  location: 'SÃO PAULO · BRAZIL',
-  scroll: '↓ FALL',
-  cta: 'COME CLOSER →',
+  role: 'BACKEND DEVELOPER',
+  description:
+    'I build reliable systems and carry them through to a clear product experience.',
+  location: 'SÃO PAULO · REMOTE WORLDWIDE',
+  scroll: 'VIEW SELECTED WORK',
+  cta: 'START A CONVERSATION',
 } as const;
 
 /**
@@ -80,23 +126,19 @@ export const hero = {
  * do the arguing.
  */
 export const about = {
-  label: 'ABOUT / DILATION',
-  titleLines: [
-    'Close to enough mass',
-    'time runs slower.',
-    'That boy is still there.',
-  ],
-  body: 'Victor Hugo, developer and designer in São Paulo. I work where product, interface and engineering stop being departments — from a Java and Spring Boot backend through to an interface in React and Three.js.',
+  label: 'HOW I BUILD',
+  titleLines: ['Close to enough mass', 'time runs slower.', 'Good systems make room.'],
+  body: 'I am a backend developer in São Paulo who works across the product boundary: domain modelling, APIs, data, interfaces and the decisions connecting them.',
   bodySecond:
-    'The distance between that sandlot and this screen is twenty-odd years. Seen from here, it looks a good deal shorter than it was to cross.',
-  photoCaption: 'ARCHIVE · OBSERVER IN FREE FALL · SINGLE RECORD',
+    'I care about the quiet parts that make software trustworthy: explicit contracts, useful failure states, measured performance and an interface people can understand.',
+  photoCaption: 'ARCHIVE · THE START OF THE LONG ROUTE',
   photoAlt:
     'Victor Hugo as a child, in a yellow shirt, holding onto a roundabout in a playground with an empty sandlot behind him.',
-  meta: ['SÃO PAULO', 'DEVELOPER', 'DESIGNER', 'CREATIVE TECHNOLOGY'],
+  meta: ['BACKEND', 'PRODUCT ENGINEERING', 'SYSTEM DESIGN', 'CREATIVE TECHNOLOGY'],
 } as const;
 
 export const work = {
-  label: 'MATTER IN ORBIT',
+  label: 'SELECTED WORK',
 } as const;
 
 /**
@@ -271,12 +313,16 @@ export const interludes = {
 } as const;
 
 export const contact = {
-  label: 'FINAL ORBIT',
-  titleLines: ["LET'S BUILD", 'SOMETHING THAT', 'HAS GRAVITY.'],
+  label: 'OPEN TO OPPORTUNITIES',
+  titleLines: ["LET'S BUILD", 'SOMETHING', 'RELIABLE.'],
   /** Named in the section as the one thing the collapse does not take. */
-  survivorNote: 'THE ONE SIGNAL THAT ESCAPES',
+  survivorNote: 'THE DIRECT LINE',
   links: [
-    { label: 'EMAIL', href: 'mailto:eovitu7@gmail.com', external: false },
+    {
+      label: 'EMAIL',
+      href: 'mailto:eovitu7@gmail.com?subject=Opportunity%20for%20Victor%20Hugo&body=Hi%20Victor%2C%0A%0AI%20found%20your%20portfolio%20and%20would%20like%20to%20talk%20about...',
+      external: false,
+    },
     { label: 'GITHUB', href: 'https://github.com/eovitu', external: true },
     { label: 'LINKEDIN', href: 'https://www.linkedin.com/in/eovitu/', external: true },
   ],
@@ -297,20 +343,15 @@ export const nav = {
     { label: 'ABOUT', href: '#about' },
     { label: 'CONTACT', href: '#contact' },
   ],
-  cta: 'COME CLOSER',
+  cta: 'CONTACT',
 } as const;
 
+/** Legacy chat copy kept typed until the launch UI removes the old module. */
 export const chat = {
-  title: 'COME CLOSER',
-  close: 'PULL AWAY ✕',
-  intro:
-    'Ask anything about my work, my stack, or how I think a project through.',
-  prompts: [
-    'HOW DO YOU WORK?',
-    'WHAT IS YOUR MAIN STACK?',
-    'TELL ME ABOUT EMPREGA.CO',
-    'ARE YOU AVAILABLE FOR PROJECTS?',
-  ],
-  note: '[ MOCKUP — in the real implementation, answers are generated from a curated context about you. No coloured bubbles, no avatar: typography only. ]',
-  inputPlaceholder: 'TYPE YOUR QUESTION',
+  title: 'CONTACT',
+  close: 'CLOSE',
+  intro: 'The fastest route is a direct email.',
+  prompts: ['OPEN EMAIL'],
+  note: '',
+  inputPlaceholder: 'TYPE YOUR MESSAGE',
 } as const;

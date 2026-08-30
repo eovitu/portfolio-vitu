@@ -65,7 +65,7 @@ ScrollTrigger, Lenis, Three.js and React Three Fiber.
 - Modify: `src/components/sections/Skills/Skills.tsx`
 - Modify: `src/components/sections/Contact/Contact.tsx`
 - Modify: `src/components/navigation/Header.tsx`
-- Test: `src/lib/content.test.ts`
+- Test: `src/lib/content.test.mjs`
 
 **Interfaces:**
 

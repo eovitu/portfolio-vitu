@@ -20,8 +20,6 @@ import { Work } from './components/sections/Work/Work';
 import { About } from './components/sections/About/About';
 import { Skills } from './components/sections/Skills/Skills';
 import { Contact } from './components/sections/Contact/Contact';
-import { ChatWidget } from './components/chat/ChatWidget';
-import { useChat } from './hooks/useChat';
 import { useSingularityIntro } from './hooks/useSingularityIntro';
 import { interludes } from './lib/content';
 import { SingularityStage } from './components/layout/SingularityStage';
@@ -57,7 +55,6 @@ const Main = styled.main`
 `;
 
 function Site() {
-  const { open, openChat, closeChat } = useChat();
   const { stop, start } = useSmoothScroll();
   const [introReady, setIntroReady] = useState(false);
   useScrollSkew();
@@ -118,10 +115,10 @@ function Site() {
       <Hud />
       <Cursor />
       <SingularityStage />
-      <Header onOpenChat={openChat} chatOpen={open} />
+      <Header />
 
       <Main>
-        <Hero onOpenChat={openChat} />
+        <Hero />
         <Work />
         {/* Crosses the WORK -> interlude boundary, which is the site's biggest
             change of register and the one seam most in need of a stitch. */}
@@ -154,7 +151,6 @@ function Site() {
       <Grain />
 
       <SoundToggle />
-      <ChatWidget open={open} onClose={closeChat} />
     </>
   );
 }

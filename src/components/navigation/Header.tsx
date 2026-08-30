@@ -1,6 +1,6 @@
 import { useRef, type MouseEvent } from 'react';
 import styled from 'styled-components';
-import { nav } from '../../lib/content';
+import { contact, nav } from '../../lib/content';
 import { useSmoothScroll, useAnimationFrame } from '../../hooks/useSmoothScroll';
 import { EASE_CSS } from '../../lib/motion';
 
@@ -85,7 +85,7 @@ const NavLink = styled.a`
   }
 `;
 
-const ChatTrigger = styled.button`
+const ContactLink = styled.a`
   opacity: 0;
   border: 1px solid var(--chrome-border);
   background: transparent;
@@ -113,17 +113,14 @@ const ChatTrigger = styled.button`
   }
 `;
 
-interface Props {
-  onOpenChat: () => void;
-  chatOpen: boolean;
-}
+const emailHref = contact.links.find((link) => link.label === 'EMAIL')?.href ?? '#contact';
 
 /**
  * Fixed header. It slides in from the hero timeline (which targets
  * `[data-nav]` / `[data-nav-item]`), and its background opacity is driven
  * imperatively from the frame loop past half a viewport of scroll.
  */
-export function Header({ onOpenChat, chatOpen }: Props) {
+export function Header() {
   const barRef = useRef<HTMLElement>(null);
   const solid = useRef(false);
   const { scrollTo } = useSmoothScroll();
@@ -168,15 +165,9 @@ export function Header({ onOpenChat, chatOpen }: Props) {
             {link.label}
           </NavLink>
         ))}
-        <ChatTrigger
-          type="button"
-          data-nav-item
-          onClick={onOpenChat}
-          aria-haspopup="dialog"
-          aria-expanded={chatOpen}
-        >
+        <ContactLink href={emailHref} data-nav-item>
           {nav.cta}
-        </ChatTrigger>
+        </ContactLink>
       </Links>
     </Bar>
   );

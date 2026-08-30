@@ -429,22 +429,64 @@ export const Title = styled.h3<{ $orbit: Orbit }>`
   }
 `;
 
-export const Desc = styled.p<{ $placeholder?: boolean; $orbit: Orbit }>`
+export const Desc = styled.p<{ $orbit: Orbit }>`
   margin: 0;
   max-width: ${({ $orbit }) => (['34ch', '40ch', '46ch'] as const)[$orbit]};
   font-size: ${({ $orbit }) => (['18px', '18px', '15px'] as const)[$orbit]};
   line-height: ${({ $orbit }) => (['1.45', '1.55', '1.8'] as const)[$orbit]};
-  color: ${({ theme, $placeholder, $orbit }) =>
+  color: ${({ theme, $orbit }) =>
     isLight($orbit)
       ? theme.colors.inkMuted
       : $orbit === 2
         ? theme.colors.textGhost
-        : $placeholder
-          ? theme.colors.textDim
-          : theme.colors.textMuted};
+        : theme.colors.textMuted};
 
   ${({ theme }) => theme.media.mobile} {
     font-size: 16px;
+  }
+`;
+
+export const Highlights = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  max-width: 52ch;
+  font-size: 13px;
+  line-height: 1.45;
+  color: currentColor;
+
+  li {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  li::before {
+    content: '↳';
+    color: var(--accent);
+  }
+`;
+
+export const ProjectLinks = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-family: ${({ theme }) => theme.fonts.mono};
+  font-size: ${({ theme }) => theme.type.monoSm};
+  letter-spacing: 0.14em;
+
+  a {
+    display: inline-flex;
+    gap: 7px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid currentColor;
+  }
+
+  > span {
+    opacity: 0.58;
   }
 `;
 

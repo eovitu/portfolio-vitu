@@ -1,13 +1,11 @@
 import { useRef, type MouseEvent } from 'react';
 import * as S from './Hero.styles';
-import { hero } from '../../../lib/content';
+import { contact, hero } from '../../../lib/content';
 import { useSmoothScroll } from '../../../hooks/useSmoothScroll';
 import { useHeroExit } from '../../../hooks/useHeroExit';
 import { useGravityLetters } from '../../../hooks/useGravityLetters';
 
-interface Props {
-  onOpenChat: () => void;
-}
+const emailHref = contact.links.find((link) => link.label === 'EMAIL')?.href ?? '#contact';
 
 /**
  * The hero copy. The 3D lives in `layout/SingularityStage`, a fixed layer
@@ -16,7 +14,7 @@ interface Props {
  * The entrance is owned by `hooks/useSingularityIntro`, which reaches these
  * elements through their `data-*` hooks.
  */
-export function Hero({ onOpenChat }: Props) {
+export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollTo } = useSmoothScroll();
   useHeroExit(sectionRef);
@@ -104,7 +102,7 @@ export function Hero({ onOpenChat }: Props) {
           </S.InfoGrid>
 
           <S.Clip data-warp data-warp-mode="reload">
-            <S.Cta type="button" data-line onClick={onOpenChat} aria-haspopup="dialog">
+            <S.Cta href={emailHref} data-line>
               {hero.cta}
             </S.Cta>
           </S.Clip>
