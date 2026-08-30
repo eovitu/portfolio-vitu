@@ -5,14 +5,12 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { CURSOR, EASE_CSS } from '../../lib/motion';
 import { gain, isActive, sample, setPointer } from '../../lib/gravityField';
-
-/** Trail node positions. Module scope — written every frame, never allocated. */
-const trailPos = Array.from({ length: 5 }, () => ({ x: -9999, y: -9999 }));
+import { seedCursor } from '../../lib/cursorMotion';
 
 /** Peak attraction in px for a cursor sitting on the horizon. */
-const ATTRACT_PX = 34;
+const ATTRACT_PX = 16;
 /** Peak elongation along the axis pointing at the core. */
-const STRETCH = 0.55;
+const STRETCH = 0.22;
 /**
  * Screen radius of the event horizon in CSS px, measured off the shipped hero
  * framing. Inside it the cursor is consumed.
@@ -45,36 +43,6 @@ const Dot = styled.div`
   }
 `;
 
-/**
- * The trail — the cursor's own light being bent.
- *
- * Near the horizon the cursor stops being a point and starts leaving a wake:
- * a short chain of nodes, each lagging further behind the last, curving as
- * they are pulled toward the core. Away from the object the whole chain
- * collapses onto the cursor and fades out, so it costs nothing visually or
- * mentally anywhere else on the page.
- *
- * Rendered as a fixed number of nodes rather than as a canvas stroke: five
- * elements are cheaper than a per-frame path repaint, and they inherit the
- * same compositor treatment the cursor already gets.
- */
-const TRAIL_LENGTH = 5;
-
-const Trail = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
-  border-radius: 50%;
-  background: var(--accent);
-  z-index: ${({ theme }) => theme.z.cursor};
-  pointer-events: none;
-  opacity: 0;
-  will-change: transform, opacity;
-`;
-
 const INTERACTIVE = 'a, button, [role="button"], input, textarea';
 
 /**
@@ -94,7 +62,6 @@ export function Cursor() {
    * event handlers and the loop would have them overwrite each other.
    */
   const baseAlpha = useRef(0);
-  const trail = useRef<(HTMLDivElement | null)[]>([]);
   const enabled = useMediaQuery('(hover: hover) and (pointer: fine)');
   const reduced = useReducedMotion();
   const active = enabled && !reduced;
@@ -105,8 +72,14 @@ export function Cursor() {
     if (!el) return;
 
     const onMove = (e: PointerEvent) => {
-      target.current.x = e.clientX;
-      target.current.y = e.clientY;
+      if (!inside.current) {
+        const seeded = seedCursor(e.clientX, e.clientY);
+        position.current = seeded.position;
+        target.current = seeded.target;
+      } else {
+        target.current.x = e.clientX;
+        target.current.y = e.clientY;
+      }
       inside.current = true;
       baseAlpha.current = 1;
     };
@@ -117,6 +90,7 @@ export function Cursor() {
     const onLeave = () => {
       inside.current = false;
       baseAlpha.current = 0;
+      el.dataset.hovering = 'false';
     };
 
     window.addEventListener('pointermove', onMove, { passive: true });
@@ -187,36 +161,6 @@ export function Cursor() {
       if (s.dist < HORIZON_PX) alpha = Math.max(0, s.dist / HORIZON_PX);
     }
 
-    /**
-     * The wake. Each node chases the one before it at a progressively slower
-     * rate, so the chain stretches out with speed and curves as the field
-     * drags it. It only becomes visible inside the field's influence — a
-     * permanent trail would be a mouse gimmick rather than a statement about
-     * light near a mass.
-     */
-    for (let i = 0; i < trail.current.length; i++) {
-      const node = trail.current[i];
-      if (!node) continue;
-      const lead = i === 0 ? { x, y } : trailPos[i - 1];
-      const p = trailPos[i];
-      // Same time-based correction as the cursor itself, so the wake keeps its
-      // shape at any frame rate instead of collapsing onto the dot on a slow
-      // frame and stringing out on a fast one.
-      const rate = 1 - Math.pow(1 - (0.34 - i * 0.045), Math.min(4, deltaMs / (1000 / 60)));
-      p.x += (lead.x - p.x) * rate;
-      p.y += (lead.y - p.y) * rate;
-
-      let a = 0;
-      if (isActive()) {
-        const s = sample(p.x, p.y);
-        // Fades in with proximity, and each node further back is fainter.
-        a = s.strength * gain() * (1 - i / TRAIL_LENGTH) * 0.5 * baseAlpha.current;
-        if (s.dist < HORIZON_PX) a *= Math.max(0, s.dist / HORIZON_PX);
-      }
-      node.style.opacity = a < 0.004 ? '0' : a.toFixed(3);
-      node.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`;
-    }
-
     el.style.opacity =
       el.dataset.hovering === 'true'
         ? String(0.16 * alpha)
@@ -228,18 +172,5 @@ export function Cursor() {
   }, active);
 
   if (!active) return null;
-  return (
-    <>
-      {Array.from({ length: TRAIL_LENGTH }, (_, i) => (
-        <Trail
-          key={i}
-          aria-hidden="true"
-          ref={(node) => {
-            trail.current[i] = node;
-          }}
-        />
-      ))}
-      <Dot ref={ref} aria-hidden="true" data-hovering="false" />
-    </>
-  );
+  return <Dot ref={ref} aria-hidden="true" data-hovering="false" />;
 }
