@@ -24,6 +24,8 @@ import { ChatWidget } from './components/chat/ChatWidget';
 import { useChat } from './hooks/useChat';
 import { useSingularityIntro } from './hooks/useSingularityIntro';
 import { SingularityStage } from './components/layout/SingularityStage';
+import { applyMetadata } from './lib/metadata';
+import { resolveRoute } from './lib/routes';
 
 const SkipLink = styled.a`
   position: absolute;
@@ -60,6 +62,8 @@ function Site() {
   const { stop, start } = useSmoothScroll();
   const [introReady, setIntroReady] = useState(false);
   useScrollSkew();
+
+  useEffect(() => applyMetadata(resolveRoute(window.location.pathname)), []);
 
   const onLock = useCallback(() => stop(), [stop]);
   const onRelease = useCallback(() => start(), [start]);

@@ -51,7 +51,7 @@ export const projects: Project[] = [
   {
     slug: 'emprega-co',
     n: '01',
-    name: 'EMPREGA.CO',
+    name: 'Emprega.co',
     eyebrow: 'Two-sided employment platform',
     summary:
       'A connected candidate and employer experience designed around discovery, applications and hiring workflows.',
@@ -89,7 +89,7 @@ export const projects: Project[] = [
   {
     slug: 'doces-da-pati',
     n: '02',
-    name: 'DOCES DA PATI',
+    name: 'Doces da Pati',
     eyebrow: 'Mobile-first local storefront',
     summary:
       'A lightweight storefront that turns a small confectionery catalogue into a clear mobile ordering journey.',
@@ -130,7 +130,7 @@ export const projects: Project[] = [
   {
     slug: 'helppet',
     n: '03',
-    name: 'HELPPET',
+    name: 'HelpPet',
     eyebrow: 'Connected pet-care product system',
     summary:
       'A product and design-system study connecting pet owners, care information and service journeys.',
@@ -360,13 +360,14 @@ export const footer = {
 } as const;
 
 export const nav = {
-  brand: 'VITU / SINGULARITY',
+  brand: 'VITU / ENGINEERING',
   links: [
     { label: 'WORK', href: '#work' },
+    { label: 'PROFILE', href: '#profile' },
     { label: 'ABOUT', href: '#about' },
     { label: 'CONTACT', href: '#contact' },
   ],
-  cta: 'CHEGUE MAIS PERTO',
+  cta: 'START A CONVERSATION',
 } as const;
 
 export const chat = {

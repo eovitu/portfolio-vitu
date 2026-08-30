@@ -10,6 +10,7 @@ export const GlobalStyle = createGlobalStyle`
    * styled-components theme through. There is exactly one gold in the code.
    */
   :root {
+    color-scheme: dark;
     --accent: ${({ theme }) => theme.colors.accent};
     --accent-bright: ${({ theme }) => theme.colors.accentBright};
     --accent-muted: ${({ theme }) => theme.colors.accentMuted};
@@ -52,6 +53,8 @@ export const GlobalStyle = createGlobalStyle`
   button { font-family: inherit; }
 
   img, canvas, svg { display: block; max-width: 100%; }
+
+  section[id] { scroll-margin-top: 88px; }
 
   ::selection {
     background: ${({ theme }) => theme.colors.text};

@@ -84,7 +84,7 @@ export const type = {
   bodyAlt: '17px',
   skill: '22px',
   mono: '11px',
-  monoSm: '10px',
+  monoSm: '12px',
   monoLg: '12px',
 } as const;
 
