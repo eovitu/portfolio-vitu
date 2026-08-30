@@ -47,6 +47,28 @@ protótipo de origem está em [`reference/black-hole.html`](reference/black-hole
 mapping e blending. A amplitude de movimento é a única exceção, isolada na
 constante `MOTION`.
 
+### Qualidade adaptativa
+
+`src/three/renderQuality.ts` classifica o dispositivo em três tiers com base em
+viewport, ponteiro, núcleos lógicos e memória reportada quando disponível. A
+decisão é pura e coberta por testes; não depende de user-agent.
+
+| Tier       | DPR máx. | Núcleo   | Ribbon | Strand | Antialias |
+| ---------- | -------- | -------- | ------ | ------ | --------- |
+| high       | 1.75     | 112 × 72 | 112    | 64     | sim       |
+| balanced   | 1.40     | 88 × 56  | 88     | 52     | sim       |
+| low/mobile | 1.15     | 64 × 40  | 64     | 36     | não       |
+
+Ribbons, feixes Doppler e acentos violetas de mesmo material são mesclados por
+família para reduzir draw calls. As geometrias intermediárias são descartadas
+imediatamente, e o teardown final continua centralizado em `scene.dispose()`.
+Frustum culling só é desativado no rig de lensing, onde o billboard muda os
+bounds; o restante da cena usa o culling padrão.
+
+Quando a aba fica oculta, o driver do canvas para completamente. Quando o
+objeto está fora do palco, a cadência cai para aproximadamente 12 FPS. Nenhum
+desses caminhos cria um segundo relógio.
+
 ## Intro, reload e a continuidade
 
 O site nunca restaura a posição de scroll. **Todo carregamento termina na hero

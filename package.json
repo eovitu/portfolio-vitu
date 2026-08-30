@@ -2,8 +2,8 @@
   "name": "singularity-portfolio",
   "version": "1.0.0",
   "type": "module",
-  "description": "Portfólio pessoal de Victor Hugo — um buraco negro procedural em WebGL como personagem do site, com scroll dilatado pela gravidade, redshift progressivo e uma coreografia de reload que devolve a página ao topo.",
-  "author": "Victor Hugo <vhzzlk@gmail.com>",
+  "description": "Victor Hugo's backend and product engineering portfolio, built around a procedural WebGL singularity.",
+  "author": "Victor Hugo <eovitu7@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/eovitu/portfolio-vitu#readme",
   "repository": {

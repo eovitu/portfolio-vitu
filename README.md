@@ -1,17 +1,15 @@
-# Singularity — portfólio de Victor Hugo
+# Singularity — Victor Hugo's portfolio
 
-![A hero do site: o buraco negro procedural em WebGL atrás do nome VICTOR HUGO, com o HUD marcando 12,00 Rs até o horizonte de eventos.](docs/hero.png)
+![The hero: a procedural WebGL black hole behind the name VICTOR HUGO, with a HUD marking 12.00 Schwarzschild radii to the event horizon.](docs/hero.png)
 
-Portfólio pessoal construído em torno de um conceito só: **gravidade**. Um
-buraco negro renderizado em tempo real não é o plano de fundo do site — é o
-personagem. Ele consome a página no reload e a devolve, puxa a tipografia da
-hero, curva o campo estelar, deixa a cena quando cada seção precisa de mundo
-próprio, e volta no fim para engolir tudo menos um sinal.
+Personal portfolio built around one concept: **gravity**. A real-time black hole
+is not a background decoration; it is the site's main character. It bends the
+hero typography, shapes the star field, recedes while each case study gets its
+own visual world, and returns for the closing sequence.
 
-A leitura inteira é enquadrada como uma queda: um HUD permanente marca a
-distância até o horizonte de eventos em raios de Schwarzschild, o scroll fica
-progressivamente mais pesado conforme o leitor desce, e a temperatura de cor da
-página desloca para o vermelho no caminho.
+The portfolio presents three selected products: **Emprega.co**, **Doces da
+Pati**, and **HelpPet**. All public-facing copy is written in English for an
+international audience.
 
 ## Stack
 
@@ -21,97 +19,89 @@ página desloca para o vermelho no caminho.
 - **Lenis** — scroll suave, com um único frame loop para tudo
 - **styled-components**
 
-## Rodando localmente
+## Local development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build de produção e verificação:
+Production checks:
 
 ```bash
 npm run build      # tsc --noEmit + vite build
+npm test
 npm run typecheck
 npm run lint
+npm run format:check
 npm run preview
 ```
 
-## Estrutura
+## Structure
 
 ```
 src/
   components/
-    layout/       HUD, grão, redshift, cursor, palco 3D, toggle de som
+    layout/       HUD, grain, redshift, cursor, 3D stage, sound toggle
     navigation/   header
-    providers/    SmoothScrollProvider — o único frame loop da aplicação
+    providers/    SmoothScrollProvider — the application's single frame loop
     sections/     Hero, Work, About, Skills, Contact
-    chat/         widget de conversa (mock)
-  hooks/          scroll horizontal, intro, campo gravitacional, colapso
-  lib/            campo gravitacional, horizonte, presença do objeto,
-                  véu, snapshot de reload, fantasmas, auditoria
-  three/          cena procedural, qualidade de render, campo estelar
-  styles/         tokens e estilo global
+  hooks/          horizontal scroll, intro, gravity field, collapse
+  lib/            content and the shared interaction domains
+  three/          procedural scene, adaptive render quality, star field
+  styles/         design tokens and global styles
 docs/
-  ARCHITECTURE.md decisões técnicas e as descobertas por trás delas
-  BUGS-ABERTOS.md defeitos conhecidos e o que falta para fechar cada um
-  reference/      protótipo de origem da cena 3D
+  ARCHITECTURE.md technical decisions and their evidence
+  BUGS-ABERTOS.md known defects and the evidence needed to close them
+  V1-SPEC.md      approved launch scope and acceptance criteria
+  reference/      source prototype for the 3D scene
 public/
-  victor-2010.jpg a única fotografia do site
+  victor-2010.jpg portrait used in About
 ```
 
-## A cena 3D
+## The 3D scene
 
-O buraco negro é **gerado em código** por `src/three/singularityScene.ts`. Um
-GLB do mesmo objeto foi tentado e descartado: o formato glTF perde o blending
-aditivo, as cores de vértice em HDR, o billboard do halo de lente e o shader que
-mascara o núcleo — ou seja, tudo que faz o objeto funcionar. O importado parecia
-uma foto do objeto, não o objeto.
+The black hole is generated in `src/three/singularityScene.ts`. A GLB version
+was tested and rejected because glTF did not preserve the additive blending,
+HDR vertex colors, lens-halo billboard, and core mask that define the object.
 
-O protótipo de onde os valores foram transcritos está em
-[`docs/reference/black-hole.html`](docs/reference/black-hole.html). Ele é fonte
-de verdade, não histórico: se algum dia a cena precisar ser reconstruída, é dali
-que os números saem. A semente `1337` mantém a geometria determinística.
+The source prototype is
+[`docs/reference/black-hole.html`](docs/reference/black-hole.html), and seed
+`1337` keeps the geometry deterministic. Geometry density, DPR, antialiasing,
+and framing adapt across high, balanced, and low device tiers. The low tier is
+the mobile baseline rather than a degraded afterthought.
 
-Detalhes em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the invariants.
 
-## Trocando o conteúdo
+## Content model
 
-**Projetos.** Editar o array `projects` em `src/lib/content.ts`. Cada projeto
-recebe uma órbita pelo índice — `0` perto do horizonte (quente, comprimido),
-`1` órbita estável (neutro), `2` distante (frio, vazio) — e o layout, a paleta e
-o ambiente mudam junto. As placas de mídia são placeholders compostos por
-órbita; para colocar imagens reais, trocar o bloco de fundo em `MediaInner` por
-um `<img>`, mantendo `data-panel-image` para o parallax continuar funcionando.
+Project facts, links, highlights, and page copy live in `src/lib/content.ts`.
+The UI does not duplicate project claims. Branded case-study surfaces are
+deliberately presented as editorial compositions, not product screenshots.
 
-**A fotografia.** `public/victor-2010.jpg`. É a única imagem do site, e a
-escassez é o que dá peso a ela. Todo o tratamento (alto contraste, duotom,
-grão) é CSS em `src/components/sections/About/About.tsx` — o arquivo original
-nunca é editado. Para trocar, substituir o arquivo e ajustar o `alt` em
-`about.photoAlt`.
+The contact CTA opens a prefilled email to `eovitu7@gmail.com`; there is no
+mock chat or form pretending to submit data.
 
-**Textos.** Tudo em `src/lib/content.ts`.
+## Scroll and intro
 
-## Scroll e intro
+One clock drives the site: `Lenis → GSAP ticker → ScrollTrigger → animations →
+R3F`. The canvas uses `frameloop="never"` and does not create a second permanent
+render loop.
 
-Um relógio só governa o site: `Lenis → ticker do GSAP → ScrollTrigger →
-animações → R3F`. Não existe um segundo `requestAnimationFrame`.
+The launch gate waits for actual font and WebGL readiness, with a bounded safety
+timeout. Reload choreography still has a 3.2-second ceiling and returns the
+reader to the hero.
 
-Todo carregamento termina na hero com `scrollY` 0. No reload, a posição de cada
-palavra visível é capturada no `pagehide`, os fragmentos são remontados antes do
-React renderar, e o objeto os suga enquanto a câmera volta ao topo. A sequência
-tem teto de 3,2s.
+## Accessibility
 
-## Acessibilidade
+- Semantic landmarks and a keyboard-accessible skip link.
+- Visible focus treatment and keyboard navigation for interactive modules.
+- Complete `prefers-reduced-motion` paths for the intro and motion systems.
+- English metadata, descriptive labels, and touch-friendly controls.
 
-- WCAG AA verificado em todas as seções (4.5:1 texto normal, 3:1 texto grande).
-- `prefers-reduced-motion: reduce` desliga dilatação temporal, inércia das
-  letras, redshift, grão, a queda entre painéis, o colapso e o brinquedo da
-  hero — mantendo o site inteiro utilizável.
-- Estados de foco visíveis no acento dourado.
-- O espectro de habilidades é navegável por teclado, com o detalhe anunciado por
-  `aria-live` e uma lista agrupada como leitura alternativa.
+These are implemented safeguards, not a claim of formal accessibility
+certification.
 
-## Licença
+## License
 
-MIT — ver [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
