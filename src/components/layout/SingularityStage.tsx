@@ -1,4 +1,4 @@
-import { Suspense, lazy, useRef } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { veilValue } from '../../lib/veil';
@@ -24,7 +24,10 @@ const Layer = styled.div`
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0;
+  opacity: 1;
+  background:
+    radial-gradient(circle at 51% 48%, rgba(214, 159, 81, 0.14), transparent 16%),
+    radial-gradient(ellipse at 51% 51%, rgba(233, 231, 226, 0.08), transparent 30%);
 
   > div {
     position: absolute;
@@ -56,8 +59,18 @@ const Veil = styled.div`
 `;
 
 export function SingularityStage() {
+  const [hydrate, setHydrate] = useState(false);
   const veil = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
+
+  useEffect(() => {
+    const idle = window.requestIdleCallback?.(() => setHydrate(true), { timeout: 900 });
+    const timer = window.setTimeout(() => setHydrate(true), 900);
+    return () => {
+      if (idle !== undefined) window.cancelIdleCallback?.(idle);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   useAnimationFrame(() => {
     const el = veil.current;
@@ -72,9 +85,11 @@ export function SingularityStage() {
   return (
     <>
       <Layer data-gl aria-hidden="true">
-        <Suspense fallback={null}>
-          <SingularityCanvas />
-        </Suspense>
+        {hydrate && (
+          <Suspense fallback={null}>
+            <SingularityCanvas />
+          </Suspense>
+        )}
       </Layer>
       <Veil ref={veil} data-veil aria-hidden="true" />
     </>
