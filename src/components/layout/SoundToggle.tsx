@@ -47,6 +47,10 @@ const Button = styled.button`
   ${({ theme }) => theme.media.touch} {
     display: none;
   }
+
+  ${({ theme }) => theme.media.landscapeMobile} {
+    display: none;
+  }
 `;
 
 /** Three bars; they only animate while the sound is actually on. */
