@@ -1,5 +1,5 @@
 import Lenis from 'lenis';
-import { measureHorizon, timeDilation, updateHorizon } from '../../lib/horizon';
+import { measureHorizon, updateHorizon } from '../../lib/horizon';
 import { sampleHeight } from '../../lib/scrollDebug';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
@@ -35,56 +35,10 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       const delta = lastTime ? now - lastTime : 16.67;
       lastTime = now;
 
-      /**
-       * Time dilation.
-       *
-       * Close to a large mass, time runs slower for the distant observer. The
-       * site makes that literally true: Lenis's easing duration is stretched
-       * as the reader falls toward CONTACT, so the scroll grows heavy and
-       * resistant rather than staying uniformly light.
-       *
-       * Written here, on the one tick that already exists, and only when the
-       * value has actually moved — Lenis reads `options.duration` per frame,
-       * so this is a property write rather than a re-instantiation.
-       */
       updateHorizon();
       // Diagnostics only, and a single boolean test when the flag is off.
       sampleHeight();
       const lenis = lenisRef.current;
-      if (lenis) {
-        const d = timeDilation();
-
-        /**
-         * Two knobs, because only one of them is actually weight.
-         *
-         * Measured: stretching `duration` alone moved the page 2520px per
-         * gesture at the top and 2453px at 71% down — statistically the same
-         * distance. Duration governs how long the eased animation takes to
-         * settle, not how far the gesture carries, so on its own it produces
-         * latency, which reads as a laggy site rather than as gravity.
-         *
-         * Resistance is `wheelMultiplier`: dividing it means the same flick
-         * buys less ground, so approaching the horizon genuinely costs more
-         * input. Duration still stretches on top of it — together they are
-         * heavy and slow to settle, which is what mass feels like.
-         */
-        const nextDuration = LENIS_OPTIONS.duration * d;
-        if (
-          Math.abs((lenis.options.duration ?? LENIS_OPTIONS.duration) - nextDuration) >
-          0.001
-        ) {
-          lenis.options.duration = nextDuration;
-        }
-        const nextWheel = LENIS_OPTIONS.wheelMultiplier / d;
-        if (
-          Math.abs(
-            (lenis.options.wheelMultiplier ?? LENIS_OPTIONS.wheelMultiplier) - nextWheel,
-          ) > 0.001
-        ) {
-          lenis.options.wheelMultiplier = nextWheel;
-          lenis.options.touchMultiplier = LENIS_OPTIONS.touchMultiplier / d;
-        }
-      }
 
       frameCallbacks.current.forEach((cb) => cb(now, delta));
       lenis?.raf(now);

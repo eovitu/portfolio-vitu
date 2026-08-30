@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import styled from 'styled-components';
 import { useAnimationFrame } from '../../hooks/useSmoothScroll';
-import { START_RS, horizonProgress, horizonRs, timeDilation } from '../../lib/horizon';
+import { START_RS, horizonProgress, horizonRs } from '../../lib/horizon';
 
 /**
  * Distance to the event horizon — the site's permanent instrument.
@@ -22,9 +22,8 @@ import { START_RS, horizonProgress, horizonRs, timeDilation } from '../../lib/ho
  * where gold is unconditional: it is the concept made literal.
  */
 
-/* Distance, dilation and progress all come from `lib/horizon`, so the HUD, the
-   scroll's weight and the redshift can never disagree about where the reader
-   is. */
+/* Distance and progress come from `lib/horizon`, so the HUD and redshift share
+   one reading of where the reader is without changing scroll responsiveness. */
 
 const Frame = styled.div`
   position: fixed;
@@ -50,18 +49,6 @@ const Readout = styled.div`
   letter-spacing: 0.16em;
   color: var(--chrome-accent);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-`;
-
-/** Time-dilation readout. Hidden near the top, where the rate is still 1. */
-const Rate = styled.div`
-  font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: 8px;
-  letter-spacing: 0.16em;
-  color: var(--chrome-accent-muted);
-  font-variant-numeric: tabular-nums;
-  opacity: 0;
-  transition: opacity 0.5s ease;
   white-space: nowrap;
 `;
 
@@ -117,7 +104,6 @@ export function Hud() {
   const tick = useRef<HTMLDivElement>(null);
   const fallen = useRef<HTMLDivElement>(null);
   const rule = useRef<HTMLDivElement>(null);
-  const rate = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
 
   useAnimationFrame(() => {
@@ -131,19 +117,6 @@ export function Hud() {
     if (readout.current) {
       readout.current.textContent = `${horizonRs().toFixed(2)} Rs`;
     }
-    /**
-     * The instrument reports the dilation as well as the distance.
-     *
-     * The scroll going heavy is a felt effect with no explanation attached;
-     * without a readout the reader can only conclude the page is janky. The
-     * rate is shown as the observer's clock running slow — which is what is
-     * actually happening to the scroll.
-     */
-    if (rate.current) {
-      const d = timeDilation();
-      rate.current.textContent = `Δt ×${d.toFixed(2)}`;
-      rate.current.style.opacity = d > 1.04 ? '1' : '0';
-    }
     const h = rule.current?.clientHeight ?? 0;
     if (tick.current) tick.current.style.transform = `translateY(${(p * h).toFixed(1)}px)`;
     if (fallen.current) fallen.current.style.height = `${(p * h).toFixed(1)}px`;
@@ -156,7 +129,6 @@ export function Hud() {
         <Fallen ref={fallen} />
         <Tick ref={tick} />
       </Rule>
-      <Rate ref={rate} />
       <Caption>EVENT HORIZON</Caption>
     </Frame>
   );

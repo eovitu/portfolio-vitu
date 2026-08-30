@@ -229,11 +229,11 @@ export const LENIS_OPTIONS = {
  * acceleration deforms, and shear alone reads as a slide.
  */
 export const SKEW = {
-  factor: 0.115,
-  clamp: 6.5,
-  duration: 0.62,
-  stretch: 0.0011,
-  stretchClamp: 0.06,
+  factor: 0.045,
+  clamp: 2.2,
+  duration: 0.5,
+  stretch: 0.00035,
+  stretchClamp: 0.02,
 } as const;
 
-export const CURSOR = { lerp: 0.16, size: 10, hoverScale: 3.4 } as const;
+export const CURSOR = { lerp: 0.2, size: 10, hoverScale: 2.2 } as const;

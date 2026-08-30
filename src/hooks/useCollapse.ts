@@ -18,9 +18,8 @@ import { WARP, dropNested } from '../lib/warpTargets';
  * is absorbable on reload is absorbable here by construction — there is one
  * answer to "what can be consumed", not two that drift apart.
  *
- * It is scrubbed, not played: the reader controls the collapse with the
- * scroll, which is what makes the heavier scroll of the time dilation read as
- * resistance rather than as lag.
+ * It is scrubbed, not played: the reader controls the collapse directly with
+ * uniformly responsive scroll.
  */
 export function useCollapse(
   sectionRef: RefObject<HTMLElement>,
@@ -43,7 +42,7 @@ export function useCollapse(
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: 'top 40%',
+          start: 'top top',
           end: 'bottom bottom',
           scrub: true,
           invalidateOnRefresh: true,
