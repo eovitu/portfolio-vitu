@@ -24,6 +24,8 @@
 
 ### Task 1: Make stage activity explicit and testable
 
+**Status:** Complete in `b4e0479`.
+
 **Files:**
 
 - Create: `src/three/stagePolicy.ts`
@@ -55,6 +57,8 @@ assert.equal(frameInterval('dormant', false), 250);
 
 ### Task 2: Remove duplicate stage work and gate Three.js correctly
 
+**Status:** Complete in `dc82146` and `7d297ce`.
+
 **Files:**
 
 - Modify: `src/three/SingularityCanvas.tsx`
@@ -77,6 +81,8 @@ assert.equal(frameInterval('dormant', false), 250);
 
 ### Task 3: Stabilize and simplify the custom cursor
 
+**Status:** Complete in `16297d4`.
+
 **Files:**
 
 - Create: `src/lib/cursorMotion.ts`
@@ -97,6 +103,8 @@ assert.equal(frameInterval('dormant', false), 250);
 - [ ] **Step 7: Commit with `fix(cursor): prevent gravity jumps across sections`**
 
 ### Task 4: Remove artificial scroll latency and coordinate CONTACT
+
+**Status:** Complete in `91383e6`.
 
 **Files:**
 
@@ -119,6 +127,8 @@ assert.equal(frameInterval('dormant', false), 250);
 - [ ] **Step 7: Commit with `fix(motion): keep the closing transition responsive`**
 
 ### Task 5: Make Skills and fixed chrome responsive by capability
+
+**Status:** Complete in `ecfbc41` and `7eabc70`.
 
 **Files:**
 
@@ -143,6 +153,9 @@ assert.equal(frameInterval('dormant', false), 250);
 
 ### Task 6: Prepare the project media contract without shipping video
 
+**Status:** Deferred because the user explicitly paused all video work on
+2026-08-30. No speculative media contract was added.
+
 **Files:**
 
 - Modify: `src/lib/content.ts`
@@ -161,6 +174,8 @@ assert.equal(frameInterval('dormant', false), 250);
 - [ ] **Step 6: Commit with `refactor(work): prepare project media delivery`**
 
 ### Task 7: Browser performance and UX verification
+
+**Status:** Complete locally; push and pull-request update remain.
 
 **Files:**
 
