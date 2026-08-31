@@ -4,6 +4,11 @@ export type Route = { kind: 'home' } | { kind: 'case'; slug: ProjectSlug };
 
 const CASE_PATH = /^\/work\/(emprega-co|doces-da-pati|helppet)$/;
 
+export function isPublicPath(pathname: string): boolean {
+  const normalized = pathname !== '/' ? pathname.replace(/\/+$/, '') : pathname;
+  return normalized === '/' || CASE_PATH.test(normalized);
+}
+
 export function resolveRoute(pathname: string): Route {
   const normalized = pathname !== '/' ? pathname.replace(/\/+$/, '') : pathname;
   const match = normalized.match(CASE_PATH);
