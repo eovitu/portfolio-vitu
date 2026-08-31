@@ -12,9 +12,17 @@ export function CaseStudy({ project }: { project: Project }) {
     <S.Page id="case-content">
       <S.Hero>
         <S.Width>
-          <S.Back href="/#work">← Selected work</S.Back>
+          <S.Back
+            href="/#work"
+            data-transition-project={project.slug}
+            data-transition-cause="brand"
+          >
+            ← Selected work
+          </S.Back>
           <S.Eyebrow>{project.eyebrow}</S.Eyebrow>
-          <S.Title>{project.name}</S.Title>
+          <S.Title data-route-heading tabIndex={-1}>
+            {project.name}
+          </S.Title>
           <S.Thesis>
             <p>{project.summary}</p>
             <dl>
@@ -31,7 +39,7 @@ export function CaseStudy({ project }: { project: Project }) {
         </S.Width>
       </S.Hero>
 
-      <S.Media>
+      <S.Media data-case-media>
         <video
           muted
           playsInline
@@ -62,11 +70,19 @@ export function CaseStudy({ project }: { project: Project }) {
       </S.Body>
 
       <S.Nav aria-label="Case study navigation">
-        <a href={hrefForCase(previous.slug)}>
+        <a
+          href={hrefForCase(previous.slug)}
+          data-transition-project={previous.slug}
+          data-transition-cause="previous"
+        >
           <small>Previous case</small>
           <strong>{previous.name}</strong>
         </a>
-        <a href={hrefForCase(next.slug)}>
+        <a
+          href={hrefForCase(next.slug)}
+          data-transition-project={next.slug}
+          data-transition-cause="next"
+        >
           <small>Next case</small>
           <strong>{next.name}</strong>
         </a>

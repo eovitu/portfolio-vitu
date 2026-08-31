@@ -32,7 +32,7 @@ export function HomePage() {
         <S.HeroGrid>
           <div>
             <S.Kicker>Backend Developer · Product Engineer</S.Kicker>
-            <S.HeroTitle id="hero-title">
+            <S.HeroTitle id="hero-title" data-route-heading tabIndex={-1}>
               <span>Reliable</span>
               <span>systems.</span>
               <span>Expressive</span>
@@ -68,8 +68,8 @@ export function HomePage() {
           </S.SectionHead>
           <S.ProjectList>
             {projects.map((project) => (
-              <S.Project key={project.slug}>
-                <S.MediaFrame>
+              <S.Project key={project.slug} data-project={project.slug}>
+                <S.MediaFrame data-project-media>
                   <video
                     muted
                     playsInline
@@ -103,7 +103,12 @@ export function HomePage() {
                     </div>
                   </S.Meta>
                   <S.Actions>
-                    <S.Action $primary href={hrefForCase(project.slug)}>
+                    <S.Action
+                      $primary
+                      href={hrefForCase(project.slug)}
+                      data-project-link
+                      data-transition-project={project.slug}
+                    >
                       View case study
                     </S.Action>
                     {project.actions.map((action) => (

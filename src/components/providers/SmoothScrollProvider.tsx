@@ -29,6 +29,8 @@ type FrameCallback = (time: number, deltaMs: number) => void;
 interface SmoothScrollApi {
   /** Scroll to an element or offset, respecting Lenis (never window.scrollTo). */
   scrollTo: (target: string | HTMLElement | number, duration?: number) => void;
+  /** Jump without interpolation. Used after an occluded route swap. */
+  scrollToImmediate: (target: string | HTMLElement | number) => void;
   /** Lock the page scroll (used by the chat panel) without layout shift. */
   stop: () => void;
   start: () => void;
@@ -42,6 +44,7 @@ const noop = () => {};
 
 const SmoothScrollContext = createContext<SmoothScrollApi>({
   scrollTo: noop,
+  scrollToImmediate: noop,
   stop: noop,
   start: noop,
   onFrame: () => noop,
@@ -66,6 +69,7 @@ export function useAnimationFrame(cb: FrameCallback, enabled = true): void {
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
+  const lockCount = useRef(0);
   const frameCallbacks = useRef(new Set<FrameCallback>());
   const [smooth, setSmooth] = useState(false);
 
@@ -102,6 +106,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       gsap.ticker.remove(tick);
       lenisRef.current?.destroy();
       lenisRef.current = null;
+      lockCount.current = 0;
       setSmooth(false);
     };
   }, []);
@@ -125,8 +130,21 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     el?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }, []);
 
-  const stop = useCallback(() => lenisRef.current?.stop(), []);
-  const start = useCallback(() => lenisRef.current?.start(), []);
+  const scrollToImmediate = useCallback(
+    (target: string | HTMLElement | number) => scrollTo(target, 0),
+    [scrollTo],
+  );
+
+  const stop = useCallback(() => {
+    lockCount.current += 1;
+    if (lockCount.current === 1) lenisRef.current?.stop();
+  }, []);
+
+  const start = useCallback(() => {
+    if (lockCount.current === 0) return;
+    lockCount.current -= 1;
+    if (lockCount.current === 0) lenisRef.current?.start();
+  }, []);
 
   const onFrame = useCallback((cb: FrameCallback) => {
     frameCallbacks.current.add(cb);
@@ -136,8 +154,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const api = useMemo<SmoothScrollApi>(
-    () => ({ scrollTo, stop, start, onFrame, smooth }),
-    [scrollTo, stop, start, onFrame, smooth],
+    () => ({ scrollTo, scrollToImmediate, stop, start, onFrame, smooth }),
+    [scrollTo, scrollToImmediate, stop, start, onFrame, smooth],
   );
 
   return (

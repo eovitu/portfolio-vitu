@@ -1,7 +1,6 @@
-import { useCallback, useRef, useState, type MouseEvent } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { nav } from '../../lib/content';
-import { useSmoothScroll } from '../providers/SmoothScrollProvider';
 import { MobileMenu } from './MobileMenu';
 
 const Bar = styled.header`
@@ -74,25 +73,6 @@ const MenuButton = styled.button`
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const { scrollTo } = useSmoothScroll();
-
-  const navigate = useCallback(
-    (href: string) => {
-      if (href === '#top') {
-        scrollTo(0);
-        return;
-      }
-      const target = document.querySelector<HTMLElement>(href);
-      if (target) scrollTo(target);
-    },
-    [scrollTo],
-  );
-
-  const onAnchor = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (window.location.pathname !== '/') return;
-    event.preventDefault();
-    navigate(href);
-  };
 
   const closeMenu = useCallback(() => {
     setMenuOpen(false);
@@ -102,16 +82,12 @@ export function Header() {
   return (
     <>
       <Bar data-nav>
-        <Brand href="/#top" onClick={(event) => onAnchor(event, '#top')}>
+        <Brand href="/#top" data-transition-cause="brand">
           {nav.brand}
         </Brand>
         <DesktopNav aria-label="Primary navigation">
           {nav.links.map((link) => (
-            <a
-              key={link.href}
-              href={`/${link.href}`}
-              onClick={(event) => onAnchor(event, link.href)}
-            >
+            <a key={link.href} href={`/${link.href}`} data-transition-cause="hash">
               {link.label}
             </a>
           ))}
@@ -126,7 +102,7 @@ export function Header() {
           MENU
         </MenuButton>
       </Bar>
-      <MobileMenu open={menuOpen} onClose={closeMenu} onNavigate={navigate} />
+      <MobileMenu open={menuOpen} onClose={closeMenu} />
     </>
   );
 }

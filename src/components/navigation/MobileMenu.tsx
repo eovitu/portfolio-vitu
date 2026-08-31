@@ -44,10 +44,9 @@ const Links = styled.nav`
 interface Props {
   open: boolean;
   onClose: () => void;
-  onNavigate: (href: string) => void;
 }
 
-export function MobileMenu({ open, onClose, onNavigate }: Props) {
+export function MobileMenu({ open, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -79,12 +78,9 @@ export function MobileMenu({ open, onClose, onNavigate }: Props) {
         {nav.links.map((link) => (
           <a
             key={link.href}
-            href={link.href}
-            onClick={(event) => {
-              event.preventDefault();
-              onNavigate(link.href);
-              onClose();
-            }}
+            href={`/${link.href}`}
+            data-transition-cause="hash"
+            onClick={onClose}
           >
             {link.label}
           </a>
