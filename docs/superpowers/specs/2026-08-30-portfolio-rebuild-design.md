@@ -2,9 +2,9 @@
 
 ## Status
 
-Revised direction approved by Victor Hugo on 31 August 2026. This document supersedes the motion and route-transition decisions in the 30 August version while preserving its product, content, accessibility, and evidence requirements.
+Approved by Victor Hugo on 31 August 2026, including the explicit transition-state, scroll-restoration, and safe shared-media contracts. This document supersedes the motion and route-transition decisions in the 30 August version while preserving its product, content, accessibility, and evidence requirements.
 
-Implementation must remain on `codex/portfolio-rebuild`. This specification is the approval artifact; application code must not be edited until Victor confirms this consolidated architecture and choreography.
+Implementation must remain on `codex/portfolio-rebuild`. Application code may be edited only after the detailed implementation plan has been presented and Victor authorizes execution.
 
 ## Product objective
 
@@ -112,6 +112,38 @@ The Route Transition Director owns eligible internal navigation:
 - unlock scrolling and remove overlays on completion, interruption, timeout, or error.
 
 The View Transitions API may enhance supported browsers, but navigation correctness and the principal visual transition cannot depend on it.
+
+The director is an explicit finite-state machine:
+
+```text
+idle -> anticipating -> occluding -> swapping -> revealing -> idle
+```
+
+Only `idle` accepts an ordinary new transition. Double-clicks are deduplicated. A competing navigation or `popstate` is queued as the next valid intent or replaces the current intent only at a safe cancellation boundary. Every state has a bounded timeout and an `AbortController` owned by the active transition.
+
+One idempotent restoration path runs after success, cancellation, error, timeout, or application teardown. It must:
+
+- kill the active timeline and associated ScrollTriggers;
+- remove media representations, clones, masks, and eclipse overlays;
+- clear temporary inline styles and `will-change`;
+- unlock Lenis and body interaction;
+- settle on one valid route and URL;
+- apply the route's deterministic scroll target;
+- restore focus to a valid destination;
+- return the machine to `idle`.
+
+The director never leaves an intermediate route visually exposed or an invisible overlay intercepting input.
+
+### Deterministic scroll contract
+
+- Home -> Case: scroll to the top of the selected case.
+- Case -> Case: scroll to the top of the next case.
+- Case -> Home: scroll to the corresponding project chapter.
+- Hash or deep link: resolve the requested target after the route DOM is ready.
+- Back or forward: restore the registered position when it is finite and valid for the mounted document; otherwise use the route default.
+- Reload: retain native browser behavior and never force `scrollY = 0`.
+
+History entries store route identity and an optional finite scroll position. Positions are recorded before a route leaves and clamped against the mounted document before restoration.
 
 ### Persistent scene
 
@@ -303,7 +335,14 @@ The email is excluded from absorption targets and remains visible, selectable, c
    - title and supporting content arrive in layers.
    - scene settles into the selected project theme.
 
-A failed or unavailable shared media transition falls back to the same eclipse and case reveal without cloning.
+The shared-media representation must not depend on directly cloning or replaying an active `<video>`, because browsers may produce a black or unavailable frame. The source priority is:
+
+1. the project's poster image when loaded;
+2. a safe captured visual representation when the browser supports it and capture succeeds;
+3. a clone of the static media-frame surface without the live video node;
+4. no shared element.
+
+A failed or unavailable representation falls back immediately to the same eclipse and case reveal without shared media.
 
 ### Case to home
 
