@@ -20,4 +20,5 @@ test('owns popstate, history updates, abort cleanup and focus restoration', () =
 test('restores Lenis through an idempotent lock and supports immediate scrolling', () => {
   assert.match(scrollSource, /lockCount/);
   assert.match(scrollSource, /scrollToImmediate/);
+  assert.match(scrollSource, /immediate: true, force: true/);
 });

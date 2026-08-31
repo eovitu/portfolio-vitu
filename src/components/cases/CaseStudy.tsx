@@ -13,7 +13,7 @@ export function CaseStudy({ project }: { project: Project }) {
       <S.Hero>
         <S.Width>
           <S.Back
-            href="/#work"
+            href="/"
             data-transition-project={project.slug}
             data-transition-cause="brand"
           >
