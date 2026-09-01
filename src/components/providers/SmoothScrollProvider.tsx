@@ -116,7 +116,10 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     if (lenis) {
       // duration 0 means "be there now" — used by scroll restoration, which
       // must not animate the reader across the page on load.
-      if (duration === 0) lenis.scrollTo(target, { immediate: true, force: true });
+      if (duration === 0) {
+        lenis.resize();
+        lenis.scrollTo(target, { immediate: true, force: true });
+      }
       else lenis.scrollTo(target, { duration });
       return;
     }

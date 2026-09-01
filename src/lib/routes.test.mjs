@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { hrefForCase, resolveRoute } from './routes.ts';
+import { hrefForCase, isSameRoute, resolveRoute } from './routes.ts';
 
 test('resolves home and every public case path', () => {
   assert.deepEqual(resolveRoute('/'), { kind: 'home' });
@@ -17,4 +17,22 @@ test('resolves home and every public case path', () => {
 
 test('unknown paths fall back to home without inventing a route', () => {
   assert.deepEqual(resolveRoute('/missing'), { kind: 'home' });
+});
+
+test('distinguishes adjacent cases while treating equal routes as identical', () => {
+  assert.equal(isSameRoute({ kind: 'home' }, { kind: 'home' }), true);
+  assert.equal(
+    isSameRoute(
+      { kind: 'case', slug: 'emprega-co' },
+      { kind: 'case', slug: 'emprega-co' },
+    ),
+    true,
+  );
+  assert.equal(
+    isSameRoute(
+      { kind: 'case', slug: 'emprega-co' },
+      { kind: 'case', slug: 'doces-da-pati' },
+    ),
+    false,
+  );
 });

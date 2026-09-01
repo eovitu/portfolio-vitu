@@ -11,7 +11,7 @@ import {
 import type { ProjectSlug } from '../../lib/content';
 import { gsap } from '../../lib/gsap';
 import { applyMetadata } from '../../lib/metadata';
-import { resolveRoute, type Route } from '../../lib/routes';
+import { isSameRoute, resolveRoute, type Route } from '../../lib/routes';
 import { normalizeHistoryState } from '../../motion/historyState';
 import { scrollTargetFor } from '../../motion/routeIntent';
 import {
@@ -86,7 +86,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   const activePromiseRef = useRef<Promise<void> | null>(null);
   const intentId = useRef(0);
   const machineRef = useRef<TransitionMachine | null>(null);
-  const { scrollToImmediate, stop, start } = useSmoothScroll();
+  const { scrollToImmediate, smooth, stop, start } = useSmoothScroll();
 
   routeRef.current = route;
 
@@ -122,7 +122,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         await activePromiseRef.current.catch(() => undefined);
       }
 
-      if (url.pathname === window.location.pathname && targetRoute.kind === currentRoute.kind) {
+      if (isSameRoute(targetRoute, currentRoute)) {
         const currentHref = `${window.location.pathname}${window.location.hash}`;
         if (context.cause !== 'popstate' && targetHref !== currentHref) {
           history.replaceState(
@@ -225,25 +225,60 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         focusRouteTarget(targetRoute, url.hash, targetRoute.kind === 'home' ? projectSlug : undefined);
       })();
 
-      activePromiseRef.current = run;
-      try {
-        await run;
-      } catch (error) {
-        if (machine.phase() !== 'idle') machine.cancel(error instanceof Error ? error.message : 'transition failed');
-        await machineRun.catch(() => undefined);
-        if (context.cause === 'popstate') {
-          setRoute(resolveRoute(window.location.pathname));
+      const lifecycle = (async () => {
+        try {
+          await run;
+        } catch (error) {
+          if (machine.phase() !== 'idle') {
+            machine.cancel(error instanceof Error ? error.message : 'transition failed');
+          }
+          await machineRun.catch(() => undefined);
+          if (context.cause === 'popstate') {
+            setRoute(resolveRoute(window.location.pathname));
+          }
+          throw error;
+        } finally {
+          restoreInterface();
+          activePromiseRef.current = null;
         }
-        throw error;
-      } finally {
-        restoreInterface();
-        activePromiseRef.current = null;
-      }
+      })();
+      activePromiseRef.current = lifecycle;
+      await lifecycle;
     },
     [restoreInterface, scrollToImmediate, stop],
   );
 
   useInternalNavigation(navigate);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    let secondFrame = 0;
+    const restoreInitialHash = () => {
+      secondFrame = window.requestAnimationFrame(() => {
+        const target = document.querySelector<HTMLElement>(hash);
+        if (!target) return;
+        focusRouteTarget(routeRef.current, hash);
+        scrollToImmediate(target);
+      });
+    };
+    let firstFrame = 0;
+    let settleTimer = 0;
+    const scheduleRestore = () => {
+      settleTimer = window.setTimeout(() => {
+        firstFrame = window.requestAnimationFrame(restoreInitialHash);
+      }, 0);
+    };
+    if (document.readyState === 'complete') scheduleRestore();
+    else window.addEventListener('load', scheduleRestore, { once: true });
+    return () => {
+      window.removeEventListener('load', scheduleRestore);
+      window.clearTimeout(settleTimer);
+      if (firstFrame) window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+    };
+  }, [scrollToImmediate, smooth]);
 
   useEffect(() => {
     applyMetadata(routeRef.current);

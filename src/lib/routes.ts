@@ -15,6 +15,12 @@ export function resolveRoute(pathname: string): Route {
   return match ? { kind: 'case', slug: match[1] as ProjectSlug } : { kind: 'home' };
 }
 
+export function isSameRoute(left: Route, right: Route): boolean {
+  if (left.kind !== right.kind) return false;
+  if (left.kind === 'home' || right.kind === 'home') return true;
+  return left.slug === right.slug;
+}
+
 export function hrefForCase(slug: ProjectSlug): string {
   return `/work/${slug}`;
 }

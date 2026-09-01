@@ -9,11 +9,8 @@
  * `lib/ghosts`) which the singularity then swallows.
  *
  * NOTE ON SCROLL OWNERSHIP
- * This module used to also restore the previous scroll offset. It no longer
- * does, and nothing else does either: from now on **every reload lands on the
- * hero, at the top**. The saved offset survives only as the *starting point*
- * of the camera travel, never as a destination. `scrollRestoration` is still
- * forced to `manual` so the browser cannot re-introduce a second owner.
+ * This module records visual continuity only. The browser remains the owner of
+ * reload scroll restoration, while the route director owns SPA navigation.
  */
 
 import { dropNested, isOnScreen, WARP } from './warpTargets';
@@ -200,69 +197,14 @@ function isUsable(shot: WarpSnapshot | null): shot is WarpSnapshot {
   );
 }
 
-/**
- * Hold the top until the reader actually asks to leave it.
- *
- * Setting `scrollRestoration = 'manual'` early stops the *browser* from moving
- * us, but it is not the only thing that can. The document keeps growing after
- * mount — the WORK pin spacer alone adds ~1900px — and every party that
- * measures it (ScrollTrigger's refresh, Lenis syncing its virtual offset) is
- * capable of writing a scroll position while doing so. A single check right
- * after load cannot see any of that; it happens later.
- *
- * So the invariant is enforced continuously instead of asserted once: until
- * the reader produces genuine scroll intent, scrollY is 0, and anything that
- * says otherwise is undone on the spot. Real input releases the guard
- * immediately, so it can never fight the reader — including the skip link and
- * the nav anchors, which are all preceded by a key or pointer event.
- */
-/**
- * How many times the guard had to undo someone else's scroll, and how far.
- * Published for the verification harness: "it ended at 0" is a much weaker
- * claim than "nothing ever tried to move it", and only this can tell them
- * apart.
- */
-export const scrollGuard = { corrections: 0, worst: 0, released: false };
-
-function holdTop(): void {
-  let released = false;
-
-  const release = () => {
-    if (released) return;
-    released = true;
-    scrollGuard.released = true;
-    window.removeEventListener('scroll', onScroll);
-    for (const type of INTENT) window.removeEventListener(type, release);
-  };
-
-  const onScroll = () => {
-    if (released) return;
-    const y = window.scrollY;
-    if (y === 0) return;
-    scrollGuard.corrections += 1;
-    scrollGuard.worst = Math.max(scrollGuard.worst, Math.abs(y));
-    window.scrollTo(0, 0);
-  };
-
-  const INTENT = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
-  window.addEventListener('scroll', onScroll, { passive: true });
-  for (const type of INTENT) {
-    window.addEventListener(type, release, { passive: true, once: true });
-  }
-}
+/** Kept until the legacy intro audit is removed; native scroll has no guard. */
+export const scrollGuard = { corrections: 0, worst: 0, released: true };
 
 /**
- * Must run before React renders: it takes over scroll restoration and reads
- * (and consumes) the snapshot the previous page left behind.
+ * Must run before React renders so it can consume the previous visual snapshot.
  */
 export function initReloadSnapshot(): void {
   if (typeof window === 'undefined') return;
-
-  // Belt and braces — the authoritative write is the inline script in
-  // index.html, which runs before this module is even fetched.
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  window.scrollTo(0, 0);
-  holdTop();
 
   try {
     const raw = sessionStorage.getItem(KEY);
