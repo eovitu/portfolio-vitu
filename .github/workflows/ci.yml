@@ -15,7 +15,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 22+ is required: `npm test` runs Node's built-in TypeScript
+          # stripping (`--experimental-strip-types`), added in Node 22.6 and
+          # unavailable on 20.
+          node-version: 22
           cache: npm
 
       # The dependency tree has a few packages whose peer ranges have not
@@ -29,6 +32,12 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Format check
+        run: npm run format:check
 
       - name: Build
         run: npx vite build
