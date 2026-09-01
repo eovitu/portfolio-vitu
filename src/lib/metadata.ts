@@ -1,7 +1,7 @@
 import { projects } from './content.ts';
 import type { Route } from './routes.ts';
+import { SITE_ORIGIN as ORIGIN } from './site.ts';
 
-const ORIGIN = 'https://devitu.vercel.app';
 const HOME_TITLE = 'Victor Hugo — Backend Developer & Product Engineer';
 const HOME_DESCRIPTION =
   'Backend developer building reliable digital products from system architecture to expressive interfaces.';

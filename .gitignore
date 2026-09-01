@@ -71,6 +71,7 @@ $RECYCLE.BIN/
 # These are how the site got built, not what it is. The reference prototype
 # that the 3D scene was ported from lives in docs/reference/ and IS tracked.
 project/
+.tmp-video-review/
 
 # Agent tooling that is specific to one machine's setup.
 .claude/
