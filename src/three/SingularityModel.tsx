@@ -4,6 +4,9 @@ import * as THREE from 'three';
 import { heroSignal } from './heroSignal';
 import { buildSingularity, type SingularityScene } from './singularityScene';
 import { reportSceneStats } from '../lib/introAudit';
+import { sceneSignals } from '../motion/sceneSignals';
+
+const composedSignal = { energy: 0, swell: 0, flare: 0 };
 
 /**
  * The singularity, mounted into the site's rig.
@@ -63,10 +66,13 @@ export function SingularityModel({ idle, targetSize, pointerRef }: Props) {
   useFrame((state, delta) => {
     const now = state.clock.getElapsedTime() * 1000;
     const dt = Math.min(0.05, delta);
-    scene.update(dt, now, camera, idle ? pointerRef.current : still.current, heroSignal);
+    composedSignal.energy = Math.max(heroSignal.energy, sceneSignals.energy);
+    composedSignal.swell = heroSignal.swell;
+    composedSignal.flare = Math.max(heroSignal.flare, sceneSignals.flare);
+    scene.update(dt, now, camera, idle ? pointerRef.current : still.current, composedSignal);
 
     const node = breath.current;
-    if (node) node.scale.setScalar(1 + heroSignal.swell);
+    if (node) node.scale.setScalar(1 + composedSignal.swell);
   });
 
   return (

@@ -58,10 +58,14 @@ const Veil = styled.div`
   opacity: 0;
 `;
 
+let sceneInstanceCount = 0;
+
 export function SingularityStage() {
   const [hydrate, setHydrate] = useState(false);
   const veil = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
+  const instanceId = useRef<string | null>(null);
+  if (!instanceId.current) instanceId.current = `singularity-${++sceneInstanceCount}`;
 
   useEffect(() => {
     const idle = window.requestIdleCallback?.(() => setHydrate(true), { timeout: 900 });
@@ -84,7 +88,11 @@ export function SingularityStage() {
 
   return (
     <>
-      <Layer data-gl aria-hidden="true">
+      <Layer
+        data-gl
+        data-scene-instance={import.meta.env.DEV ? instanceId.current : undefined}
+        aria-hidden="true"
+      >
         {hydrate && (
           <Suspense fallback={null}>
             <SingularityCanvas />

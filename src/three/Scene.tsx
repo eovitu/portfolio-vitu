@@ -8,6 +8,7 @@ import { CAMERA, QUALITY, type QualityTier } from './renderQuality';
 import { setCoreScreen, setCoreWorld, setEnergy } from '../lib/gravityField';
 import { measureStage, stage, updateStage } from '../lib/stagePresence';
 import { heroSignal } from './heroSignal';
+import { sceneSignals } from '../motion/sceneSignals';
 
 /**
  * Reused every frame — the rig is the field's producer and runs inside the
@@ -45,6 +46,7 @@ export function Scene({ reduced, tier }: Props) {
   /** Damped inside the object; this is only the raw target. */
   const pointer = useRef({ x: 0, y: 0 });
   const scroll = useRef(0);
+  const current = useRef({ x: 0, y: 0, scale: 1, presence: 1, energy: 0 });
 
   const { camera } = useThree();
   const settings = QUALITY[tier];
@@ -92,7 +94,7 @@ export function Scene({ reduced, tier }: Props) {
 
   const frame = settings.frame;
 
-  useFrame(() => {
+  useFrame((_state, delta) => {
     const node = root.current;
     if (!node) return;
     /**
@@ -110,9 +112,17 @@ export function Scene({ reduced, tier }: Props) {
      */
     updateStage(window.scrollY);
     const st = stage();
-    node.position.x = frame.x + st.offsetX;
-    node.position.y = frame.y - scroll.current * SCROLL_DRIFT + st.offsetY;
-    node.scale.setScalar(st.scale);
+    const damping = 1 - Math.exp(-Math.min(delta, 0.05) * 7);
+    current.current.x += (sceneSignals.transformX - current.current.x) * damping;
+    current.current.y += (sceneSignals.transformY - current.current.y) * damping;
+    current.current.scale += (sceneSignals.transformScale - current.current.scale) * damping;
+    current.current.presence += (sceneSignals.presence - current.current.presence) * damping;
+    current.current.energy += (sceneSignals.energy - current.current.energy) * damping;
+    node.position.x = frame.x + st.offsetX + current.current.x;
+    node.position.y = frame.y - scroll.current * SCROLL_DRIFT + st.offsetY + current.current.y;
+    node.scale.setScalar(st.scale * current.current.scale * Math.max(0.06, current.current.presence));
+    camera.position.z +=
+      (CAMERA.distance - current.current.energy * 0.12 - camera.position.z) * damping;
 
     /**
      * Publish the core's screen position for `lib/gravityField`.
@@ -131,7 +141,7 @@ export function Scene({ reduced, tier }: Props) {
       (-projected.y * 0.5 + 0.5) * h,
       projected.z < 1,
     );
-    setEnergy(heroSignal.energy);
+    setEnergy(Math.max(heroSignal.energy, current.current.energy));
   });
 
   const dust = useMemo(() => !reduced, [reduced]);

@@ -14,6 +14,7 @@ import { applyMetadata } from '../../lib/metadata';
 import { isSameRoute, resolveRoute, type Route } from '../../lib/routes';
 import { normalizeHistoryState } from '../../motion/historyState';
 import { scrollTargetFor } from '../../motion/routeIntent';
+import { resetTransientSceneSignals, setSceneTarget } from '../../motion/sceneSignals';
 import {
   createTransitionMachine,
   type TransitionMachine,
@@ -99,6 +100,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     const overlay = overlayRef.current;
     if (overlay) gsap.set(overlay, { clearProps: 'display,transform,transformOrigin' });
     sharedMediaRef.current?.clear();
+    resetTransientSceneSignals();
     document.documentElement.removeAttribute('data-transition-phase');
     start();
   }, [start]);
@@ -269,6 +271,23 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   );
 
   useInternalNavigation(navigate);
+
+  useEffect(() => {
+    const progressByPhase: Record<TransitionPhase, number> = {
+      idle: 0,
+      anticipating: 0.18,
+      occluding: 0.52,
+      swapping: 0.76,
+      revealing: 1,
+    };
+    setSceneTarget({
+      route: route.kind,
+      projectTheme: route.kind === 'case' ? route.slug : null,
+      transitionProgress: progressByPhase[phase],
+      energy: phase === 'idle' ? 0 : 0.7,
+      flare: phase === 'occluding' || phase === 'revealing' ? 0.75 : 0,
+    });
+  }, [phase, route]);
 
   useEffect(() => {
     const hash = window.location.hash;
