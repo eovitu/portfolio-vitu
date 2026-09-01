@@ -70,6 +70,14 @@ export function HomePage() {
             {projects.map((project) => (
               <S.Project key={project.slug} data-project={project.slug}>
                 <S.MediaFrame data-project-media>
+                  <img
+                    data-project-poster
+                    src={project.media.poster}
+                    alt=""
+                    aria-hidden="true"
+                    width={project.media.width}
+                    height={project.media.height}
+                  />
                   <video
                     muted
                     playsInline

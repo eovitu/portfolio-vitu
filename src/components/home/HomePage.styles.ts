@@ -186,6 +186,16 @@ export const MediaFrame = styled.div`
     object-fit: cover;
   }
 
+  img {
+    position: absolute;
+    inset: 0;
+  }
+
+  video {
+    position: relative;
+    z-index: 1;
+  }
+
   &::after {
     content: '';
     position: absolute;

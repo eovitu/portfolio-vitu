@@ -40,6 +40,14 @@ export function CaseStudy({ project }: { project: Project }) {
       </S.Hero>
 
       <S.Media data-case-media>
+        <img
+          data-project-poster
+          src={project.media.poster}
+          alt=""
+          aria-hidden="true"
+          width={project.media.width}
+          height={project.media.height}
+        />
         <video
           muted
           playsInline

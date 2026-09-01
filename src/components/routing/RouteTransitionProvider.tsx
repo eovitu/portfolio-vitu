@@ -22,6 +22,7 @@ import {
 import { useInternalNavigation, type NavigationContext } from '../../hooks/useInternalNavigation';
 import { useSmoothScroll } from '../providers/SmoothScrollProvider';
 import { RouteTransitionOverlay } from './RouteTransitionOverlay';
+import { SharedMediaLayer, type SharedMediaHandle } from './SharedMediaLayer';
 
 interface RouteTransitionApi {
   route: Route;
@@ -81,6 +82,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<TransitionPhase>('idle');
   const routeRef = useRef(route);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const sharedMediaRef = useRef<SharedMediaHandle>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const activeHrefRef = useRef('');
   const activePromiseRef = useRef<Promise<void> | null>(null);
@@ -96,6 +98,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     activeHrefRef.current = '';
     const overlay = overlayRef.current;
     if (overlay) gsap.set(overlay, { clearProps: 'display,transform,transformOrigin' });
+    sharedMediaRef.current?.clear();
     document.documentElement.removeAttribute('data-transition-phase');
     start();
   }, [start]);
@@ -162,6 +165,13 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         const overlay = overlayRef.current;
         if (!overlay) throw new Error('transition overlay unavailable');
         stop();
+        const sourceMedia =
+          currentRoute.kind === 'case'
+            ? document.querySelector<HTMLElement>('[data-case-media]')
+            : context.trigger
+                ?.closest<HTMLElement>('[data-project]')
+                ?.querySelector<HTMLElement>('[data-project-media]') ?? null;
+        sharedMediaRef.current?.capture(sourceMedia, controller.signal);
         document.documentElement.dataset.transitionPhase = 'anticipating';
         if (context.cause !== 'popstate') {
           history.replaceState(
@@ -215,6 +225,16 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
           const element = document.querySelector<HTMLElement>(target.value);
           if (element) scrollToImmediate(element);
         }
+
+        const destinationMedia =
+          targetRoute.kind === 'case'
+            ? document.querySelector<HTMLElement>('[data-case-media]')
+            : projectSlug
+              ? document.querySelector<HTMLElement>(
+                  `[data-project="${projectSlug}"] [data-project-media]`,
+                )
+              : null;
+        await sharedMediaRef.current?.animateTo(destinationMedia, controller.signal);
 
         machine.advance('revealing');
         document.documentElement.dataset.transitionPhase = 'revealing';
@@ -330,6 +350,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     <RouteTransitionContext.Provider value={{ route, phase, navigate }}>
       {children}
       <RouteTransitionOverlay ref={overlayRef} />
+      <SharedMediaLayer ref={sharedMediaRef} />
     </RouteTransitionContext.Provider>
   );
 }

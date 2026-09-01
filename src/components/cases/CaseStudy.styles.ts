@@ -87,6 +87,7 @@ export const Thesis = styled.div`
 `;
 
 export const Media = styled.figure`
+  position: relative;
   width: min(calc(100% - 64px), 1500px);
   margin: clamp(72px, 10vw, 150px) auto 0;
   aspect-ratio: 16 / 10;
@@ -94,10 +95,19 @@ export const Media = styled.figure`
   background: ${({ theme }) => theme.colors.bgPanel};
   overflow: hidden;
 
-  video {
+  video,
+  img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+  img {
+    position: absolute;
+    inset: 0;
+  }
+  video {
+    position: relative;
+    z-index: 1;
   }
   ${({ theme }) => theme.media.mobile} {
     width: calc(100% - 40px);
