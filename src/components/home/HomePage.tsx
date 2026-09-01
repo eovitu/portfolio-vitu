@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { useHomeMotion } from '../../hooks/useHomeMotion';
 import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import * as S from './HomePage.styles';
@@ -37,9 +39,12 @@ const capabilities = [
 ] as const;
 
 export function HomePage() {
+  const heroRef = useRef<HTMLElement>(null);
+  useHomeMotion(heroRef);
+
   return (
     <>
-      <S.Hero id="top" aria-labelledby="hero-title">
+      <S.Hero id="top" ref={heroRef} aria-labelledby="hero-title">
         <S.HeroGrid>
           <div>
             <S.Kicker>Backend Developer · Product Engineer</S.Kicker>

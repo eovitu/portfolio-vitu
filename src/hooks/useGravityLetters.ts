@@ -1,19 +1,36 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
+import { useMediaQuery } from './useMediaQuery';
 import { useReducedMotion } from './useReducedMotion';
-import { DAMPING, damp, gain, getPointer, isActive, sample } from '../lib/gravityField';
+import {
+  DAMPING,
+  damp,
+  gain,
+  getPointer,
+  isActive,
+  sample,
+  setActive,
+  setPointer,
+} from '../lib/gravityField';
+import { sceneMode } from '../three/scenePolicy';
 
 /**
- * The letters as matter — first consumer of `lib/gravityField`.
+ * The glyphs as matter.
  *
- * Writes only to `[data-glyph]`, the inner wrapper the intro and the warp
- * never touch. See `Hero.styles.LetterGlyph` for why the channels are split at
- * the DOM instead of composed on one node.
+ * Writes only to `[data-hero-glyph]`, the inner wrapper. The outer
+ * `[data-hero-word]` belongs to the entrance and the exit, and the two never
+ * meet: one node, one author, which is what makes a stranded transform
+ * impossible rather than merely unlikely.
  *
- * Everything here is damped toward a target rather than set outright: the
- * field is meant to read as mass under strain, and mass does not snap. The
- * rate is the shared `DAMPING` so the letters settle with the same weight as
- * the cursor and the dust.
+ * Everything is damped toward a target rather than set outright, because the
+ * field is meant to read as mass under strain and mass does not snap. The rate
+ * is the shared `DAMPING`, so glyphs settle with the same weight as the rest of
+ * the field's consumers.
+ *
+ * This hook is also the field's producer. `lib/gravityField` needs someone to
+ * say when it is live and where the pointer is; both used to come from the
+ * intro and the custom cursor, and both were removed as dead weight. Ownership
+ * lives here now, with the only consumer that is left.
  */
 
 interface Glyph {
@@ -24,9 +41,9 @@ interface Glyph {
   /**
    * Relative mass, from the glyph's rendered area.
    *
-   * Positional distortion alone does not read as "in space" — a shape that
+   * Positional distortion alone does not read as "in space": a shape that
    * tracks the pointer exactly reads as a UI effect however far it moves. What
-   * communicates mass is lag: the letter arriving late and settling. Wider
+   * communicates mass is lag — the glyph arriving late and settling. Wider
    * glyphs get more of it, so a `W` visibly trails an `I` and the line stops
    * moving as one rigid object.
    */
@@ -39,22 +56,6 @@ interface Glyph {
   /** Inertial drift, integrated separately from the field's pull. */
   dx: number;
   dy: number;
-  /**
-   * The toy's state machine.
-   *
-   * `idle` — the field and the inertia own it.
-   * `drag` — the reader has hold of it; nothing else writes it.
-   * `falling` — released, being consumed by the object.
-   * `returning` — reconstituted at its origin, fading back in.
-   *
-   * It lives here, in the same record the field uses, for the same reason the
-   * field lives on `[data-glyph]` at all: this node has exactly one writer. A
-   * separate drag hook would be a second system writing the same transform,
-   * which is how the stranded-transform bugs started.
-   */
-  mode: 'idle' | 'drag' | 'falling' | 'returning';
-  /** Progress through `falling` / `returning`, 0 → 1. */
-  phase: number;
 }
 
 /** Module-scope scratch: this runs per glyph per frame and must not allocate. */
@@ -64,7 +65,7 @@ const glyphs: Glyph[] = [];
 const PULL_PX = 30;
 /** Peak lean in degrees. Negative so a glyph left of the core tips right. */
 const LEAN_DEG = -8;
-/** Peak stretch. Kept small — legibility of the name is not negotiable. */
+/** Peak stretch. Kept small — legibility of the heading is not negotiable. */
 const STRETCH = 0.11;
 /** How far a glyph is thrown by a fast pointer sweep, per px of movement. */
 const DRIFT_POINTER = 0.5;
@@ -75,241 +76,206 @@ const DRIFT_SCROLL = 0.85;
 const lastPointer = { x: 0, y: 0 };
 const lastScrollY = { v: 0 };
 
-/** The letter currently held, and where the grab started. */
-const dragging: {
-  g: Glyph | null;
-  originX: number;
-  originY: number;
-  baseX: number;
-  baseY: number;
-  x: number;
-  y: number;
-} = { g: null, originX: 0, originY: 0, baseX: 0, baseY: 0, x: 0, y: 0 };
+/**
+ * A moderate pointer response is a fine-pointer affordance. Touch gets the
+ * cheaper non-pointer treatment: the glyphs simply sit where they are laid out.
+ */
+const FINE_POINTER = '(hover: hover) and (pointer: fine)';
 
-/** Seconds-ish per frame step for the consume / reconstitute phases. */
-const FALL_RATE = 0.028;
-const RETURN_RATE = 0.02;
+/** Probed once. Creating a context is cheap enough at mount, not per call. */
+let webglSupport: boolean | null = null;
 
-export function useGravityLetters(enabled: boolean): void {
+function supportsWebGL(): boolean {
+  if (webglSupport !== null) return webglSupport;
+  try {
+    const canvas = document.createElement('canvas');
+    webglSupport = !!(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
+  } catch {
+    webglSupport = false;
+  }
+  return webglSupport;
+}
+
+function isFullScene(): boolean {
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
+    .connection;
+  return (
+    sceneMode({
+      webgl: supportsWebGL(),
+      coarse: window.matchMedia?.('(pointer: coarse)').matches ?? false,
+      width: window.innerWidth,
+      saveData: connection?.saveData ?? false,
+    }) === 'full'
+  );
+}
+
+export function useGravityLetters(
+  scopeRef: RefObject<HTMLElement>,
+  enabled: boolean,
+): void {
   const reduced = useReducedMotion();
-  const measured = useRef(false);
+  const fine = useMediaQuery(FINE_POINTER);
+  const [heroVisible, setHeroVisible] = useState(false);
+  const [full, setFull] = useState(() =>
+    typeof window === 'undefined' ? false : isFullScene(),
+  );
+
+  // The hero leaving the viewport is the cheapest possible reason to stop:
+  // there is nothing to attract once the composition is behind the reader.
+  useEffect(() => {
+    const scope = scopeRef.current;
+    if (!scope) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(scope);
+    return () => observer.disconnect();
+  }, [scopeRef]);
 
   useEffect(() => {
-    if (!enabled || reduced) return;
+    const onResize = () => setFull(isFullScene());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  /** Every condition must hold. Any one of them failing costs nothing. */
+  const live = enabled && !reduced && fine && heroVisible && full;
+
+  useEffect(() => {
+    const scope = scopeRef.current;
+    if (!live || !scope) return;
 
     const measure = () => {
       glyphs.length = 0;
-      const nodes = document.querySelectorAll<HTMLElement>('[data-letter] [data-glyph]');
+      const nodes = scope.querySelectorAll<HTMLElement>('[data-hero-glyph]');
       for (const el of nodes) {
         // Measured with the field at rest, so the cached centre is the
         // element's true layout position and not a mid-tween one.
         el.style.transform = '';
-        const r = el.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
         glyphs.push({
           el,
-          cx: r.left + r.width / 2,
-          cy: r.top + r.height / 2,
-          // Normalised against a nominal glyph box so the constant below is
+          cx: rect.left + rect.width / 2,
+          cy: rect.top + rect.height / 2,
+          // Normalised against a nominal glyph box so the constant above is
           // independent of the viewport's fluid type scale.
-          mass: Math.max(0.55, Math.min(1.8, (r.width * r.height) / 14000)),
+          mass: Math.max(0.55, Math.min(1.8, (rect.width * rect.height) / 14000)),
           tx: 0,
           ty: 0,
           rot: 0,
           scale: 1,
           dx: 0,
           dy: 0,
-          mode: 'idle',
-          phase: 0,
         });
+        // Temporary, and released together with the field below.
+        el.style.willChange = 'transform';
       }
-      measured.current = glyphs.length > 0;
     };
 
     measure();
+    if (!glyphs.length) return;
+
+    const onPointerMove = (event: PointerEvent) => {
+      setPointer(event.clientX, event.clientY, true);
+    };
+    const onPointerLeave = () => {
+      const pointer = getPointer();
+      setPointer(pointer.x, pointer.y, false);
+    };
+
     window.addEventListener('resize', measure);
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    document.addEventListener('pointerleave', onPointerLeave);
 
-    /**
-     * The toy: a letter can be pulled out of the word.
-     *
-     * Nothing announces it. Released, the letter is taken by the object,
-     * consumed, and reconstituted where it started — matter going through and
-     * coming out the other side.
-     *
-     * Only live once the field is active, which is after the intro's `land`:
-     * the intro owns these nodes until then and has priority.
-     */
-    const onDown = (e: PointerEvent) => {
-      if (!isActive()) return;
-      const el = (e.target as HTMLElement | null)?.closest?.('[data-glyph]');
-      if (!el) return;
-      const g = glyphs.find((c) => c.el === el);
-      if (!g || g.mode !== 'idle') return;
-      // Without this the browser starts a text selection and the letter
-      // "sticks" to the cursor as a drag image instead of moving.
-      e.preventDefault();
-      g.mode = 'drag';
-      g.phase = 0;
-      dragging.g = g;
-      dragging.originX = e.clientX;
-      dragging.originY = e.clientY;
-      dragging.baseX = g.tx;
-      dragging.baseY = g.ty;
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    };
-
-    const onUp = () => {
-      const g = dragging.g;
-      if (!g) return;
-      dragging.g = null;
-      // Released into the field: from here the object has it.
-      g.mode = 'falling';
-      g.phase = 0;
-    };
-
-    const onMove = (e: PointerEvent) => {
-      if (!dragging.g) return;
-      dragging.x = e.clientX;
-      dragging.y = e.clientY;
-    };
-
-    document.addEventListener('pointerdown', onDown);
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onUp);
+    // The field is inert until someone claims it. This hook is that someone.
+    setActive(true);
 
     return () => {
+      setActive(false);
+      setPointer(-9999, -9999, false);
       window.removeEventListener('resize', measure);
-      document.removeEventListener('pointerdown', onDown);
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-      for (const g of glyphs) {
-        g.el.style.transform = '';
-        g.el.style.opacity = '';
+      window.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerleave', onPointerLeave);
+      for (const glyph of glyphs) {
+        glyph.el.style.transform = '';
+        glyph.el.style.willChange = '';
       }
-      dragging.g = null;
       glyphs.length = 0;
-      measured.current = false;
     };
-  }, [enabled, reduced]);
+  }, [live, scopeRef]);
 
   useAnimationFrame(() => {
-    if (!measured.current) return;
+    if (!glyphs.length) return;
     const g0 = isActive() ? gain() : 0;
 
     /**
-     * Velocities of the two things the reader actually drives. The letters lag
-     * behind both, which is the whole effect: it is the gap between the
-     * gesture and the response that reads as floating mass.
+     * Velocities of the two things the reader actually drives. The glyphs lag
+     * behind both, which is the whole effect: it is the gap between the gesture
+     * and the response that reads as floating mass.
      */
-    const p = getPointer();
-    const pvx = p.x - lastPointer.x;
-    const pvy = p.y - lastPointer.y;
-    lastPointer.x = p.x;
-    lastPointer.y = p.y;
+    const pointer = getPointer();
+    const pvx = pointer.x - lastPointer.x;
+    const pvy = pointer.y - lastPointer.y;
+    lastPointer.x = pointer.x;
+    lastPointer.y = pointer.y;
     const svy = window.scrollY - lastScrollY.v;
     lastScrollY.v = window.scrollY;
 
-    for (const g of glyphs) {
-      /**
-       * The toy's three non-idle states short-circuit the field entirely.
-       * While a letter is held, falling or coming back, it has exactly one
-       * author — mixing the field's pull into a released letter made the
-       * consume read as a glitch rather than as gravity taking it.
-       */
-      if (g.mode === 'drag') {
-        g.tx = dragging.baseX + (dragging.x - dragging.originX);
-        g.ty = dragging.baseY + (dragging.y - dragging.originY);
-        g.el.style.opacity = '';
-        g.el.style.transform = `translate(${g.tx.toFixed(2)}px, ${g.ty.toFixed(2)}px) scale(1.06)`;
-        continue;
-      }
-
-      if (g.mode === 'falling') {
-        g.phase = Math.min(1, g.phase + FALL_RATE);
-        const core = sample(g.cx + g.tx, g.cy + g.ty);
-        const t = g.phase * g.phase; // accelerating inward
-        g.tx += core.ux * core.dist * t * 0.16;
-        g.ty += core.uy * core.dist * t * 0.16;
-        const s = Math.max(0.02, 1 - g.phase);
-        g.el.style.opacity = String(Math.max(0, 1 - g.phase * 1.15));
-        g.el.style.transform = `translate(${g.tx.toFixed(2)}px, ${g.ty.toFixed(2)}px) scale(${s.toFixed(3)})`;
-        if (g.phase >= 1) {
-          // Consumed. It comes back where it belongs, not where it fell.
-          g.mode = 'returning';
-          g.phase = 0;
-          g.tx = 0;
-          g.ty = 0;
-          g.dx = 0;
-          g.dy = 0;
-        }
-        continue;
-      }
-
-      if (g.mode === 'returning') {
-        g.phase = Math.min(1, g.phase + RETURN_RATE);
-        const s = 0.6 + 0.4 * g.phase;
-        g.el.style.opacity = String(g.phase);
-        g.el.style.transform = `translate(0px, 0px) scale(${s.toFixed(3)})`;
-        if (g.phase >= 1) {
-          g.mode = 'idle';
-          g.el.style.opacity = '';
-        }
-        continue;
-      }
-
+    for (const glyph of glyphs) {
       let targetX = 0;
       let targetY = 0;
       let targetRot = 0;
       let targetScale = 1;
 
       if (g0 > 0) {
-        const s = sample(g.cx, g.cy);
-        const pull = s.strength * g0;
-        targetX = s.ux * pull * PULL_PX;
-        targetY = s.uy * pull * PULL_PX;
-        targetRot = s.ux * pull * LEAN_DEG;
+        const field = sample(glyph.cx, glyph.cy);
+        const pull = field.strength * g0;
+        targetX = field.ux * pull * PULL_PX;
+        targetY = field.uy * pull * PULL_PX;
+        targetRot = field.ux * pull * LEAN_DEG;
         targetScale = 1 + pull * STRETCH;
       }
 
       /**
-       * Inertia, integrated on its own channel and then added to the field's
+       * Inertia is integrated on its own channel and then added to the field's
        * pull — the two compose, they do not replace each other. The field says
-       * where the letter is drawn; the inertia says how late it gets there.
+       * where the glyph is drawn; the inertia says how late it gets there.
        *
        * Heavier glyphs are impulsed harder and released more slowly, so the
-       * line breaks up into a spread of arrival times instead of shifting as
-       * one block. `DAMPING / mass` is what makes a wide letter feel wide.
+       * line breaks into a spread of arrival times instead of shifting as one
+       * block. `DAMPING / mass` is what makes a wide letter feel wide.
        */
-      const rate = DAMPING / g.mass;
-      g.dx += (-pvx * DRIFT_POINTER * g.mass - g.dx) * rate;
-      g.dy += (-(pvy * DRIFT_POINTER + svy * DRIFT_SCROLL) * g.mass - g.dy) * rate;
-      if (Math.abs(g.dx) < 0.01) g.dx = 0;
-      if (Math.abs(g.dy) < 0.01) g.dy = 0;
+      const rate = DAMPING / glyph.mass;
+      glyph.dx += (-pvx * DRIFT_POINTER * glyph.mass - glyph.dx) * rate;
+      glyph.dy +=
+        (-(pvy * DRIFT_POINTER + svy * DRIFT_SCROLL) * glyph.mass - glyph.dy) * rate;
+      if (Math.abs(glyph.dx) < 0.01) glyph.dx = 0;
+      if (Math.abs(glyph.dy) < 0.01) glyph.dy = 0;
 
-      g.tx = damp(g.tx, targetX + g.dx, rate);
-      g.ty = damp(g.ty, targetY + g.dy, rate);
-      g.rot = damp(g.rot, targetRot, rate);
-      g.scale = damp(g.scale, targetScale, rate);
+      glyph.tx = damp(glyph.tx, targetX + glyph.dx, rate);
+      glyph.ty = damp(glyph.ty, targetY + glyph.dy, rate);
+      glyph.rot = damp(glyph.rot, targetRot, rate);
+      glyph.scale = damp(glyph.scale, targetScale, rate);
 
-      // Exact identity when at rest, so the intro audit's stranded-transform
-      // sweep stays honest instead of reporting a permanent near-zero matrix.
+      // Exact identity when at rest, so a settled glyph carries no transform
+      // at all rather than a permanent near-zero matrix.
       if (
-        g.tx === 0 &&
-        g.ty === 0 &&
-        g.rot === 0 &&
-        g.scale === 1 &&
-        g.dx === 0 &&
-        g.dy === 0
+        glyph.tx === 0 &&
+        glyph.ty === 0 &&
+        glyph.rot === 0 &&
+        glyph.scale === 1 &&
+        glyph.dx === 0 &&
+        glyph.dy === 0
       ) {
-        if (g.el.style.transform) g.el.style.transform = '';
+        if (glyph.el.style.transform) glyph.el.style.transform = '';
         continue;
       }
 
-      g.el.style.transform =
-        `translate(${g.tx.toFixed(2)}px, ${g.ty.toFixed(2)}px)` +
-        ` rotate(${g.rot.toFixed(3)}deg)` +
-        ` scale(${g.scale.toFixed(4)})`;
+      glyph.el.style.transform =
+        `translate(${glyph.tx.toFixed(2)}px, ${glyph.ty.toFixed(2)}px)` +
+        ` rotate(${glyph.rot.toFixed(3)}deg)` +
+        ` scale(${glyph.scale.toFixed(4)})`;
     }
-  }, enabled && !reduced);
+  }, live);
 }

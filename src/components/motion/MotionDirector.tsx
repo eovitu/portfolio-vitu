@@ -43,11 +43,21 @@ import { EntrySequence } from './EntrySequence';
 interface MotionState {
   /** Frozen at mount: the entry a reader gets does not change under them. */
   mode: VisitMode;
-  /** True once the entry layer has handed the screen over. The hero's baton. */
+  /**
+   * The expulsion has begun. This is the hero's cue — its entrance runs
+   * against the entry layer clearing, not after it, so the composition is
+   * arrived at rather than cut to.
+   */
+  revealing: boolean;
+  /** True once the entry layer is gone and the interface is fully released. */
   released: boolean;
 }
 
-const MotionContext = createContext<MotionState>({ mode: 'static', released: true });
+const MotionContext = createContext<MotionState>({
+  mode: 'static',
+  revealing: true,
+  released: true,
+});
 
 export function useMotionState(): MotionState {
   return useContext(MotionContext);
@@ -61,7 +71,9 @@ export function MotionDirector({ children }: { children: ReactNode }) {
       reduced: prefersReducedMotion(),
     }),
   );
+  const [revealing, setRevealing] = useState(false);
   const [released, setReleased] = useState(false);
+  const onReveal = useCallback(() => setRevealing(true), []);
   const onRelease = useCallback(() => setReleased(true), []);
 
   const reduced = mode === 'static';
@@ -100,12 +112,15 @@ export function MotionDirector({ children }: { children: ReactNode }) {
     for (let index = 0; index < setters.length; index += 1) setters[index](skew);
   }, !reduced);
 
-  const value = useMemo<MotionState>(() => ({ mode, released }), [mode, released]);
+  const value = useMemo<MotionState>(
+    () => ({ mode, revealing, released }),
+    [mode, revealing, released],
+  );
 
   return (
     <MotionContext.Provider value={value}>
       {children}
-      {!released && <EntrySequence mode={mode} onRelease={onRelease} />}
+      {!released && <EntrySequence mode={mode} onReveal={onReveal} onRelease={onRelease} />}
     </MotionContext.Provider>
   );
 }

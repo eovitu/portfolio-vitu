@@ -28,6 +28,14 @@ import * as S from './EntrySequence.styles';
 
 interface Props {
   mode: VisitMode;
+  /**
+   * The expulsion has begun. The hero's own entrance runs against this, not
+   * against `onRelease`: the spec's beat is "expelled energy reveals navigation
+   * and hero typography", so the type has to arrive while this layer is still
+   * clearing. Waiting for the release would show the settled hero and then
+   * animate it in — the cut the sequence exists to avoid.
+   */
+  onReveal: () => void;
   onRelease: () => void;
 }
 
@@ -44,17 +52,27 @@ const FRAGMENTS = Array.from({ length: FRAGMENT_COUNT }, (_, index) => {
   return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
 });
 
-export function EntrySequence({ mode, onRelease }: Props) {
+export function EntrySequence({ mode, onReveal, onRelease }: Props) {
   const overlay = useRef<HTMLDivElement>(null);
+  const onRevealRef = useRef(onReveal);
+  onRevealRef.current = onReveal;
   const onReleaseRef = useRef(onRelease);
   onReleaseRef.current = onRelease;
 
   useLayoutEffect(() => {
     let settled = false;
+    let revealed = false;
     let ctx: ReturnType<typeof gsap.context> | null = null;
     let observer: MutationObserver | null = null;
     const timers: number[] = [];
     const detach: Array<() => void> = [];
+
+    /** Idempotent, and always ordered before the release. */
+    const reveal = () => {
+      if (revealed) return;
+      revealed = true;
+      onRevealRef.current();
+    };
 
     const finish = (notify: boolean) => {
       if (settled) return;
@@ -69,6 +87,9 @@ export function EntrySequence({ mode, onRelease }: Props) {
       ctx = null;
       resetHeroSignal();
       if (notify) {
+        // A release that somehow outran the expulsion still has to hand the
+        // hero its cue, or the heading would stay in its pre-entrance state.
+        reveal();
         markVisitSeen();
         onReleaseRef.current();
       }
@@ -111,7 +132,7 @@ export function EntrySequence({ mode, onRelease }: Props) {
         if (mode === 'repeat') {
           gsap.set(core, { scale: 0.4, opacity: 1 });
           gsap
-            .timeline({ onComplete: release })
+            .timeline({ onStart: reveal, onComplete: release })
             .to(core, {
               scale: 1.6,
               opacity: 0,
@@ -160,6 +181,8 @@ export function EntrySequence({ mode, onRelease }: Props) {
         const expel = () => {
           if (expelling || settled) return;
           expelling = true;
+          // The hero's entrance starts with this beat, not after it.
+          reveal();
           const tl = gsap.timeline({ onComplete: release });
           tl.to(
             flare,
