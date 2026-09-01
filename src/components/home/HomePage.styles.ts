@@ -57,10 +57,29 @@ export const HeroTitle = styled.h1`
   line-height: 0.82;
   letter-spacing: -0.075em;
   font-weight: 500;
+`;
 
-  span {
-    display: block;
-  }
+export const HeroLines = styled.span`
+  display: block;
+`;
+
+/**
+ * The outer transform channel.
+ *
+ * Entrance and exit write here — and nothing else ever does. The inner glyph
+ * carries the gravity field on its own node, so the two forces compose through
+ * the DOM instead of fighting over one matrix. Splitting them here rather than
+ * multiplying them in JavaScript is what keeps a stranded transform impossible:
+ * each node has exactly one author.
+ */
+export const HeroWord = styled.span`
+  display: block;
+  transform-origin: 0% 50%;
+`;
+
+/** The inner transform channel: `hooks/useGravityLetters` and no one else. */
+export const HeroGlyph = styled.span`
+  display: inline-block;
 `;
 
 export const HeroAside = styled.div`

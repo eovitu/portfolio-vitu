@@ -2,6 +2,17 @@ import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import * as S from './HomePage.styles';
 
+/**
+ * The heading, twice.
+ *
+ * `HERO_TITLE_TEXT` is what a screen reader announces: one intact string, in a
+ * visually hidden span. The split below it is decoration and is `aria-hidden`,
+ * because a heading spelled out one glyph per element is announced one glyph at
+ * a time. The two must stay in sync — they are the same sentence.
+ */
+const HERO_TITLE_TEXT = 'Reliable systems. Expressive products.';
+const HERO_TITLE_WORDS = ['Reliable', 'systems.', 'Expressive', 'products.'] as const;
+
 const capabilities = [
   {
     title: 'Backend Systems',
@@ -32,14 +43,24 @@ export function HomePage() {
         <S.HeroGrid>
           <div>
             <S.Kicker>Backend Developer · Product Engineer</S.Kicker>
+            {/* `id`, `data-route-heading` and `tabIndex` are the route
+                transition director's focus target. They stay. */}
             <S.HeroTitle id="hero-title" data-route-heading tabIndex={-1}>
-              <span>Reliable</span>
-              <span>systems.</span>
-              <span>Expressive</span>
-              <span>products.</span>
+              <span className="visually-hidden">{HERO_TITLE_TEXT}</span>
+              <S.HeroLines aria-hidden="true">
+                {HERO_TITLE_WORDS.map((word) => (
+                  <S.HeroWord key={word} data-hero-word>
+                    {Array.from(word).map((glyph, index) => (
+                      <S.HeroGlyph key={`${word}-${index}`} data-hero-glyph>
+                        {glyph}
+                      </S.HeroGlyph>
+                    ))}
+                  </S.HeroWord>
+                ))}
+              </S.HeroLines>
             </S.HeroTitle>
           </div>
-          <S.HeroAside>
+          <S.HeroAside data-hero-fade>
             <S.HeroCopy>
               I build digital products from backend architecture to the interface people
               actually use.
@@ -59,7 +80,9 @@ export function HomePage() {
           <S.SectionHead>
             <div>
               <S.Kicker>Selected work</S.Kicker>
-              <h2 id="work-title">Products with a system behind them.</h2>
+              <h2 id="work-title" data-skew>
+                Products with a system behind them.
+              </h2>
             </div>
             <p>
               Three projects across platform architecture, local commerce and connected
@@ -142,7 +165,9 @@ export function HomePage() {
           <S.SectionHead>
             <div>
               <S.Kicker>Engineering profile</S.Kicker>
-              <h2 id="profile-title">Depth where the product needs it.</h2>
+              <h2 id="profile-title" data-skew>
+                Depth where the product needs it.
+              </h2>
             </div>
             <p>
               Backend is the center of gravity. Product thinking, interface architecture and
@@ -172,7 +197,9 @@ export function HomePage() {
             />
             <div>
               <S.Kicker>About</S.Kicker>
-              <h2 id="about-title">Curiosity became a way of building.</h2>
+              <h2 id="about-title" data-skew>
+                Curiosity became a way of building.
+              </h2>
               <p>
                 I am Victor Hugo, a backend developer in São Paulo working across system
                 architecture, product decisions and expressive interfaces. I care about the
@@ -190,7 +217,7 @@ export function HomePage() {
       <S.Contact id="contact" aria-labelledby="contact-title">
         <S.SectionInner>
           <S.Kicker>Available worldwide</S.Kicker>
-          <S.ContactTitle id="contact-title">
+          <S.ContactTitle id="contact-title" data-skew>
             Build something people can trust.
           </S.ContactTitle>
           <S.ContactGrid>
