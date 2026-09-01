@@ -81,13 +81,22 @@ export function Header() {
 
   return (
     <>
+      {/* `data-nav` and `data-nav-item` are the entry sequence's only hold on
+          this component: it reveals the bar and staggers its items as the
+          expulsion clears. The hidden state is set from JavaScript and never in
+          CSS, so navigation stays visible when scripts do not run. */}
       <Bar data-nav>
-        <Brand href="/#top" data-transition-cause="brand">
+        <Brand href="/#top" data-transition-cause="brand" data-nav-item>
           {nav.brand}
         </Brand>
         <DesktopNav aria-label="Primary navigation">
           {nav.links.map((link) => (
-            <a key={link.href} href={`/${link.href}`} data-transition-cause="hash">
+            <a
+              key={link.href}
+              href={`/${link.href}`}
+              data-transition-cause="hash"
+              data-nav-item
+            >
               {link.label}
             </a>
           ))}
@@ -97,6 +106,7 @@ export function Header() {
           type="button"
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
+          data-nav-item
           onClick={() => setMenuOpen(true)}
         >
           MENU

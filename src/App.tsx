@@ -3,6 +3,7 @@ import { CaseStudy } from './components/cases/CaseStudy';
 import { HomePage } from './components/home/HomePage';
 import { SingularityStage } from './components/layout/SingularityStage';
 import { Header } from './components/navigation/Header';
+import { MotionDirector } from './components/motion/MotionDirector';
 import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider';
 import {
   RouteTransitionProvider,
@@ -52,7 +53,9 @@ export default function App() {
       <GlobalStyle />
       <SmoothScrollProvider>
         <RouteTransitionProvider>
-          <Site />
+          <MotionDirector>
+            <Site />
+          </MotionDirector>
         </RouteTransitionProvider>
       </SmoothScrollProvider>
     </ThemeProvider>
