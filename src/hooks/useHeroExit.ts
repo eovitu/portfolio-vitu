@@ -32,8 +32,12 @@ export function useHeroExit(sectionRef: RefObject<HTMLElement>, enabled: boolean
     if (!section || !enabled || prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
-      const words = gsap.utils.toArray<HTMLElement>('[data-hero-word]');
-      const aside = gsap.utils.toArray<HTMLElement>('[data-hero-fade]');
+      // Queried from the section rather than through scoped selector text: the
+      // scope is then a property of this code instead of a property of how
+      // GSAP happens to resolve strings, and a later route that reuses these
+      // attribute names cannot be picked up by the homepage's exit.
+      const words = Array.from(section.querySelectorAll<HTMLElement>('[data-hero-word]'));
+      const aside = Array.from(section.querySelectorAll<HTMLElement>('[data-hero-fade]'));
       if (!words.length) return;
 
       /**
