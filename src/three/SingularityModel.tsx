@@ -3,7 +3,6 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { heroSignal } from './heroSignal';
 import { buildSingularity, type SingularityScene } from './singularityScene';
-import { reportSceneStats } from '../lib/introAudit';
 import { sceneSignals } from '../motion/sceneSignals';
 
 const composedSignal = { energy: 0, swell: 0, flare: 0 };
@@ -57,7 +56,6 @@ export function SingularityModel({ idle, targetSize, pointerRef }: Props) {
   }, [scene, targetSize]);
 
   useEffect(() => {
-    reportSceneStats(scene.stats);
     return () => scene.dispose();
   }, [scene]);
 

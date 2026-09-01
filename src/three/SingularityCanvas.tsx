@@ -5,7 +5,6 @@ import { Scene } from './Scene';
 import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { CAMERA, QUALITY, RENDERER, detectTier } from './renderQuality';
-import { installRenderProbe } from '../lib/introAudit';
 import { shouldRenderScene } from './scenePolicy';
 
 /**
@@ -73,11 +72,10 @@ export default function SingularityCanvas({ className }: { className?: string })
           far: CAMERA.far,
           position: [0, 0, CAMERA.distance],
         }}
-        onCreated={({ gl, scene, camera }) => {
+        onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = RENDERER.exposure;
           gl.outputColorSpace = THREE.SRGBColorSpace;
-          installRenderProbe({ gl, scene, camera });
         }}
       >
         <FrameDriver

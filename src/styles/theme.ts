@@ -118,8 +118,6 @@ export const z = {
   content: 1,
   nav: 60,
   progress: 70,
-  chat: 80,
-  cursor: 90,
 } as const;
 
 export const theme = { colors, fonts, type, space, layout, breakpoints, media, z } as const;
