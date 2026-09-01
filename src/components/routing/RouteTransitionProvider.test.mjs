@@ -10,10 +10,7 @@ const scrollSource = readFileSync(
   new URL('../providers/SmoothScrollProvider.tsx', import.meta.url),
   'utf8',
 );
-const reloadSource = readFileSync(
-  new URL('../../lib/reloadSnapshot.ts', import.meta.url),
-  'utf8',
-);
+const mainSource = readFileSync(new URL('../../main.tsx', import.meta.url), 'utf8');
 
 test('owns popstate, history updates, abort cleanup and focus restoration', () => {
   assert.match(source, /popstate/);
@@ -34,6 +31,6 @@ test('restores Lenis through an idempotent lock and supports immediate scrolling
 });
 
 test('leaves native reload and deep-link scroll ownership intact', () => {
-  assert.doesNotMatch(reloadSource, /scrollRestoration\s*=\s*['"]manual['"]/);
-  assert.doesNotMatch(reloadSource, /window\.scrollTo\(0, 0\)/);
+  assert.doesNotMatch(mainSource, /scrollRestoration\s*=\s*['"]manual['"]/);
+  assert.doesNotMatch(mainSource, /window\.scrollTo\(0, 0\)/);
 });
