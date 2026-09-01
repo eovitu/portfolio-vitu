@@ -22,10 +22,7 @@ test('unknown paths fall back to home without inventing a route', () => {
 test('distinguishes adjacent cases while treating equal routes as identical', () => {
   assert.equal(isSameRoute({ kind: 'home' }, { kind: 'home' }), true);
   assert.equal(
-    isSameRoute(
-      { kind: 'case', slug: 'emprega-co' },
-      { kind: 'case', slug: 'emprega-co' },
-    ),
+    isSameRoute({ kind: 'case', slug: 'emprega-co' }, { kind: 'case', slug: 'emprega-co' }),
     true,
   );
   assert.equal(

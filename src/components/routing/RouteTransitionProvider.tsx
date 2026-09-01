@@ -20,7 +20,10 @@ import {
   type TransitionMachine,
   type TransitionPhase,
 } from '../../motion/routeTransitionMachine';
-import { useInternalNavigation, type NavigationContext } from '../../hooks/useInternalNavigation';
+import {
+  useInternalNavigation,
+  type NavigationContext,
+} from '../../hooks/useInternalNavigation';
 import { useSmoothScroll } from '../providers/SmoothScrollProvider';
 import { RouteTransitionOverlay } from './RouteTransitionOverlay';
 import { SharedMediaLayer, type SharedMediaHandle } from './SharedMediaLayer';
@@ -35,7 +38,8 @@ const RouteTransitionContext = createContext<RouteTransitionApi | null>(null);
 
 export function useRouteTransition(): RouteTransitionApi {
   const value = useContext(RouteTransitionContext);
-  if (!value) throw new Error('useRouteTransition must be used inside RouteTransitionProvider');
+  if (!value)
+    throw new Error('useRouteTransition must be used inside RouteTransitionProvider');
   return value;
 }
 
@@ -160,7 +164,11 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
       activeHrefRef.current = targetHref;
       const projectSlug =
         context.projectSlug ??
-        (currentRoute.kind === 'case' ? currentRoute.slug : targetRoute.kind === 'case' ? targetRoute.slug : undefined);
+        (currentRoute.kind === 'case'
+          ? currentRoute.slug
+          : targetRoute.kind === 'case'
+            ? targetRoute.slug
+            : undefined);
       const machineRun = machine.begin({ id: ++intentId.current });
 
       const run = (async () => {
@@ -170,9 +178,9 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         const sourceMedia =
           currentRoute.kind === 'case'
             ? document.querySelector<HTMLElement>('[data-case-media]')
-            : context.trigger
+            : (context.trigger
                 ?.closest<HTMLElement>('[data-project]')
-                ?.querySelector<HTMLElement>('[data-project-media]') ?? null;
+                ?.querySelector<HTMLElement>('[data-project-media]') ?? null);
         sharedMediaRef.current?.capture(sourceMedia, controller.signal);
         document.documentElement.dataset.transitionPhase = 'anticipating';
         if (context.cause !== 'popstate') {
@@ -194,13 +202,21 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         );
         gsap.set(overlay, { display: 'block', scaleY: 0, transformOrigin: '50% 100%' });
         if (context.trigger) {
-          await tween(context.trigger, { scale: 0.97, duration: 0.12, ease: 'power2.out' }, controller.signal);
+          await tween(
+            context.trigger,
+            { scale: 0.97, duration: 0.12, ease: 'power2.out' },
+            controller.signal,
+          );
           gsap.set(context.trigger, { clearProps: 'transform' });
         }
 
         machine.advance('occluding');
         document.documentElement.dataset.transitionPhase = 'occluding';
-        await tween(overlay, { scaleY: 1, duration: 0.28, ease: 'power3.in' }, controller.signal);
+        await tween(
+          overlay,
+          { scaleY: 1, duration: 0.28, ease: 'power3.in' },
+          controller.signal,
+        );
 
         machine.advance('swapping');
         document.documentElement.dataset.transitionPhase = 'swapping';
@@ -241,10 +257,18 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         machine.advance('revealing');
         document.documentElement.dataset.transitionPhase = 'revealing';
         gsap.set(overlay, { transformOrigin: '50% 0%' });
-        await tween(overlay, { scaleY: 0, duration: 0.42, ease: 'power3.out' }, controller.signal);
+        await tween(
+          overlay,
+          { scaleY: 0, duration: 0.42, ease: 'power3.out' },
+          controller.signal,
+        );
         machine.complete();
         await machineRun;
-        focusRouteTarget(targetRoute, url.hash, targetRoute.kind === 'home' ? projectSlug : undefined);
+        focusRouteTarget(
+          targetRoute,
+          url.hash,
+          targetRoute.kind === 'home' ? projectSlug : undefined,
+        );
       })();
 
       const lifecycle = (async () => {

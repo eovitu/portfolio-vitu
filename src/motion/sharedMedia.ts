@@ -4,9 +4,7 @@ export interface SharedMediaCandidate {
   frameReady: boolean;
 }
 
-export type SharedMediaSource =
-  | { kind: 'poster'; src: string }
-  | { kind: 'frame-surface' };
+export type SharedMediaSource = { kind: 'poster'; src: string } | { kind: 'frame-surface' };
 
 export interface MediaRect {
   left: number;
@@ -61,7 +59,9 @@ export function createSharedMediaRepresentation(
   if (signal.aborted || typeof document === 'undefined') return null;
 
   const representation =
-    source.kind === 'poster' ? document.createElement('img') : document.createElement('div');
+    source.kind === 'poster'
+      ? document.createElement('img')
+      : document.createElement('div');
   representation.dataset.sharedMediaRepresentation = source.kind;
   representation.setAttribute('aria-hidden', 'true');
 

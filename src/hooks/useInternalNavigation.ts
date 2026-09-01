@@ -26,7 +26,8 @@ export function useInternalNavigation(navigate: Navigate): void {
       const target = event.target;
       if (!(target instanceof Element)) return;
       const anchor = target.closest<HTMLAnchorElement>('a[href]');
-      if (!anchor || !isEligibleInternalClick(event, anchor, window.location.origin)) return;
+      if (!anchor || !isEligibleInternalClick(event, anchor, window.location.origin))
+        return;
 
       const url = new URL(anchor.href);
       if (!isPublicPath(url.pathname)) return;
@@ -34,9 +35,9 @@ export function useInternalNavigation(navigate: Navigate): void {
       void navigate(url.href, {
         cause: causeFor(anchor),
         trigger: anchor,
-        mediaFrame: anchor.closest<HTMLElement>('[data-project]')?.querySelector(
-          '[data-project-media]',
-        ) as HTMLElement | undefined,
+        mediaFrame: anchor
+          .closest<HTMLElement>('[data-project]')
+          ?.querySelector('[data-project-media]') as HTMLElement | undefined,
         projectSlug: anchor.dataset.transitionProject as NavigationContext['projectSlug'],
       }).catch(() => undefined);
     };

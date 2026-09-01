@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const source = readFileSync(new URL('./RouteTransitionProvider.tsx', import.meta.url), 'utf8');
+const source = readFileSync(
+  new URL('./RouteTransitionProvider.tsx', import.meta.url),
+  'utf8',
+);
 const scrollSource = readFileSync(
   new URL('../providers/SmoothScrollProvider.tsx', import.meta.url),
   'utf8',

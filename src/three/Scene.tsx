@@ -115,12 +115,17 @@ export function Scene({ reduced, tier }: Props) {
     const damping = 1 - Math.exp(-Math.min(delta, 0.05) * 7);
     current.current.x += (sceneSignals.transformX - current.current.x) * damping;
     current.current.y += (sceneSignals.transformY - current.current.y) * damping;
-    current.current.scale += (sceneSignals.transformScale - current.current.scale) * damping;
-    current.current.presence += (sceneSignals.presence - current.current.presence) * damping;
+    current.current.scale +=
+      (sceneSignals.transformScale - current.current.scale) * damping;
+    current.current.presence +=
+      (sceneSignals.presence - current.current.presence) * damping;
     current.current.energy += (sceneSignals.energy - current.current.energy) * damping;
     node.position.x = frame.x + st.offsetX + current.current.x;
-    node.position.y = frame.y - scroll.current * SCROLL_DRIFT + st.offsetY + current.current.y;
-    node.scale.setScalar(st.scale * current.current.scale * Math.max(0.06, current.current.presence));
+    node.position.y =
+      frame.y - scroll.current * SCROLL_DRIFT + st.offsetY + current.current.y;
+    node.scale.setScalar(
+      st.scale * current.current.scale * Math.max(0.06, current.current.presence),
+    );
     camera.position.z +=
       (CAMERA.distance - current.current.energy * 0.12 - camera.position.z) * damping;
 

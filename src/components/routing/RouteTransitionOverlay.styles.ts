@@ -8,7 +8,11 @@ export const Overlay = styled.div`
   transform: scaleY(0);
   transform-origin: 50% 100%;
   background:
-    radial-gradient(circle at var(--transition-x, 50%) var(--transition-y, 50%), #000 0 14%, transparent 48%),
+    radial-gradient(
+      circle at var(--transition-x, 50%) var(--transition-y, 50%),
+      #000 0 14%,
+      transparent 48%
+    ),
     #08080a;
   pointer-events: none;
   will-change: transform;

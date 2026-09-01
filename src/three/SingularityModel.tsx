@@ -69,7 +69,13 @@ export function SingularityModel({ idle, targetSize, pointerRef }: Props) {
     composedSignal.energy = Math.max(heroSignal.energy, sceneSignals.energy);
     composedSignal.swell = heroSignal.swell;
     composedSignal.flare = Math.max(heroSignal.flare, sceneSignals.flare);
-    scene.update(dt, now, camera, idle ? pointerRef.current : still.current, composedSignal);
+    scene.update(
+      dt,
+      now,
+      camera,
+      idle ? pointerRef.current : still.current,
+      composedSignal,
+    );
 
     const node = breath.current;
     if (node) node.scale.setScalar(1 + composedSignal.swell);

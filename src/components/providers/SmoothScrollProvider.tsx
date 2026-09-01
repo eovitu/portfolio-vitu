@@ -119,8 +119,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       if (duration === 0) {
         lenis.resize();
         lenis.scrollTo(target, { immediate: true, force: true });
-      }
-      else lenis.scrollTo(target, { duration });
+      } else lenis.scrollTo(target, { duration });
       return;
     }
     // Reduced motion: no Lenis instance exists, so nothing can be fought with.
