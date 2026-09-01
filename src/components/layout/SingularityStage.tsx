@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { veilValue } from '../../lib/veil';
+import { ModelBoundary } from '../../three/ModelBoundary';
 
 // The 3D bundle is the heaviest asset on the page — keep it out of the
 // critical path so the typography paints first.
@@ -58,6 +59,30 @@ const Veil = styled.div`
   opacity: 0;
 `;
 
+/**
+ * What the singularity looks like when there is no singularity.
+ *
+ * The spec makes WebGL a progressive enhancement, so the scene failing has to
+ * be a composition rather than an absence. This is the light the `Layer`
+ * already paints, held a little more present: the field the page shows during
+ * the ~900 ms before the 3D chunk hydrates, kept permanently instead of being
+ * replaced. The failure therefore has no cut — it is the page arriving and
+ * then stopping where it was.
+ *
+ * Deliberately not the first project's poster. That asset is a 1440x900
+ * screenshot of a web application, already on screen inside Selected Work;
+ * stretched fixed behind every route it would compete with body copy, which is
+ * the exact problem `lib/veil` exists to solve. It stays a light field.
+ *
+ * Static by construction — no transform, no transition — so reduced motion and
+ * the `sceneMode('poster')` path need no separate branch here.
+ */
+const StaticField = styled.div`
+  background:
+    radial-gradient(circle at 51% 48%, rgba(214, 159, 81, 0.2), transparent 22%),
+    radial-gradient(ellipse at 51% 51%, rgba(233, 231, 226, 0.1), transparent 38%);
+`;
+
 let sceneInstanceCount = 0;
 
 export function SingularityStage() {
@@ -94,9 +119,14 @@ export function SingularityStage() {
         aria-hidden="true"
       >
         {hydrate && (
-          <Suspense fallback={null}>
-            <SingularityCanvas />
-          </Suspense>
+          // Outside the Suspense on purpose: a rejected lazy import throws
+          // during render rather than suspending, so only a boundary above it
+          // ever sees the chunk failing to load.
+          <ModelBoundary label="scene" fallback={<StaticField data-scene-fallback />}>
+            <Suspense fallback={null}>
+              <SingularityCanvas />
+            </Suspense>
+          </ModelBoundary>
         )}
       </Layer>
       <Veil ref={veil} data-veil aria-hidden="true" />
