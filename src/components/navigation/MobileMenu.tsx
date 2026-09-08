@@ -6,6 +6,7 @@ import { nav } from '../../lib/content';
 import { useDialogSurface } from '../../hooks/useDialogSurface';
 import { TalkToMeButton } from '../conversation/TalkToMeButton';
 import { useRouteTransition } from '../routing/RouteTransitionProvider';
+import { useSmoothScroll } from '../providers/SmoothScrollProvider';
 
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -94,6 +95,7 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const { navigate } = useRouteTransition();
+  const { start } = useSmoothScroll();
   const reduced = useReducedMotion();
 
   const surfaceMotion: Variants = {
@@ -148,12 +150,32 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
 
       event.preventDefault();
       const trigger = event.currentTarget;
+      /*
+       * Release the scroll lock synchronously, before the target is
+       * requested.
+       *
+       * `useDialogSurface`'s own cleanup effect also releases it, via
+       * `start()`, but only once React commits the `onClose()` state
+       * update, a tick or two after this handler returns. Lenis's
+       * `start()` resets ANY in-flight scroll animation as a side effect
+       * (see its `internalStart` -> `reset`), so if the `navigate()` call
+       * below has already armed the smooth-scroll to the section, that
+       * later, delayed `start()` lands mid-flight and kills it, silently:
+       * the URL changes, the menu closes, but the page never moves.
+       *
+       * Calling `start()` here first front-runs that: `scrollTo` then runs
+       * against a lock that is already released, so nothing arrives
+       * afterward to reset what it just armed. The lock is reference
+       * counted, so the effect's own later `start()` call is a no-op by
+       * then, not a second unlock.
+       */
+      start();
       onClose();
       void navigate(event.currentTarget.href, { cause: 'hash', trigger }).catch(
         () => undefined,
       );
     },
-    [navigate, onClose],
+    [navigate, onClose, start],
   );
 
   // Same dialog contract as the conversation drawer, same implementation.
