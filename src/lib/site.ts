@@ -2,7 +2,7 @@
  * The production origin. Every canonical URL and Open Graph tag reads from
  * here so the value is never declared twice.
  *
- * Planned final value: `https://eovitu.com.br`, once the domain is bought and
- * DNS is switched — see `docs/handoff/2026-09-01-phase-0-and-task-5.md`.
+ * The production domain is the source of truth for canonical URLs even while
+ * the site is being previewed locally or on a temporary Vercel URL.
  */
-export const SITE_ORIGIN = 'https://devitu.vercel.app';
+export const SITE_ORIGIN = 'https://eovitu.com.br';
