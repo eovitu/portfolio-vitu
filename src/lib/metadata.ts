@@ -36,6 +36,16 @@ export function personJsonLd() {
   } as const;
 }
 
+export function websiteJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Vitu',
+    alternateName: ['eovitu', 'Victor Hugo'],
+    url: `${ORIGIN}/`,
+  } as const;
+}
+
 export function metadataFor(route: Route): PageMetadata {
   if (route.kind === 'home') {
     return {
@@ -112,4 +122,13 @@ export function applyMetadata(route: Route): void {
     document.head.append(structuredData);
   }
   structuredData.text = JSON.stringify(personJsonLd());
+
+  let websiteData = document.head.querySelector<HTMLScriptElement>('#website-jsonld');
+  if (!websiteData) {
+    websiteData = document.createElement('script');
+    websiteData.id = 'website-jsonld';
+    websiteData.type = 'application/ld+json';
+    document.head.append(websiteData);
+  }
+  websiteData.text = JSON.stringify(websiteJsonLd());
 }
