@@ -109,7 +109,10 @@ const MenuButton = styled.button`
   border: 0;
   background: transparent;
   color: inherit;
-  padding: 10px 0 10px 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  min-width: 76px;
   min-height: 48px;
   font: inherit;
   letter-spacing: inherit;

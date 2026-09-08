@@ -24,16 +24,14 @@ const Overlay = styled.div`
     radial-gradient(circle at 82% 8%, rgba(214, 159, 81, 0.18), transparent 28%), #08080a;
   padding: max(18px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
     max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
-  animation: menu-arrive 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: menu-arrive 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes menu-arrive {
     from {
       opacity: 0;
-      clip-path: circle(0% at 92% 7%);
     }
     to {
       opacity: 1;
-      clip-path: circle(150% at 92% 7%);
     }
   }
 `;
@@ -72,50 +70,19 @@ const Links = styled.nav`
   align-self: center;
   display: grid;
   gap: 18px;
-
   a {
+    display: block;
     font-size: clamp(38px, min(15vw, 9dvh), 74px);
     min-height: 44px;
     line-height: 0.95;
     letter-spacing: -0.05em;
-    opacity: 0;
-    transform: translateY(28px);
-    animation: menu-link-in 680ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    transition:
-      color 180ms ease,
-      transform 180ms ease;
-
-    &:hover {
-      color: ${({ theme }) => theme.colors.accent};
-      translate: 8px 0;
-    }
-
-    @keyframes menu-link-in {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    &:nth-child(2) {
-      animation-delay: 70ms;
-    }
-    &:nth-child(3) {
-      animation-delay: 140ms;
-    }
-    &:nth-child(4) {
-      animation-delay: 210ms;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    a {
-      opacity: 1;
-      transform: none;
-      animation: none;
+    color: var(--ink);
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
     }
   }
 `;
-
 const MenuTalk = styled(TalkToMeButton)`
   justify-self: start;
   align-self: end;
