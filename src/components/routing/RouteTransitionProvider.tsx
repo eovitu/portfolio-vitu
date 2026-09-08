@@ -19,7 +19,6 @@ import {
   shouldFallbackToDocumentNavigation,
 } from '../../motion/routeIntent';
 import { resetTransientSceneSignals, setSceneTarget } from '../../motion/sceneSignals';
-import { coreOrigin } from '../../lib/warpTargets';
 import {
   createTransitionMachine,
   type TransitionMachine,
@@ -31,7 +30,6 @@ import {
 } from '../../hooks/useInternalNavigation';
 import { useSmoothScroll } from '../providers/SmoothScrollProvider';
 import { RouteTransitionOverlay } from './RouteTransitionOverlay';
-import { SharedMediaLayer, type SharedMediaHandle } from './SharedMediaLayer';
 
 interface RouteTransitionApi {
   route: Route;
@@ -67,33 +65,6 @@ export function useRouteTransition(): RouteTransitionApi {
 
 function nextFrame(): Promise<void> {
   return new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
-}
-
-function waitForSelector(
-  selector: string | null,
-  signal: AbortSignal,
-  timeoutMs = 760,
-): Promise<void> {
-  if (!selector || document.querySelector(selector) || signal.aborted)
-    return Promise.resolve();
-
-  return new Promise((resolve) => {
-    let raf = 0;
-    let timeout = 0;
-    const finish = () => {
-      window.cancelAnimationFrame(raf);
-      window.clearTimeout(timeout);
-      signal.removeEventListener('abort', finish);
-      resolve();
-    };
-    const poll = () => {
-      if (document.querySelector(selector)) finish();
-      else raf = window.requestAnimationFrame(poll);
-    };
-    signal.addEventListener('abort', finish, { once: true });
-    timeout = window.setTimeout(finish, timeoutMs);
-    poll();
-  });
 }
 
 /**
@@ -183,7 +154,6 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<TransitionPhase>('idle');
   const routeRef = useRef(route);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const sharedMediaRef = useRef<SharedMediaHandle>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const activeHrefRef = useRef('');
   const activePromiseRef = useRef<Promise<void> | null>(null);
@@ -217,8 +187,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     activeHrefRef.current = '';
     routeMountedRef.current = null;
     const overlay = overlayRef.current;
-    if (overlay) gsap.set(overlay, { clearProps: 'display,transform,transformOrigin' });
-    sharedMediaRef.current?.clear();
+    if (overlay) gsap.set(overlay, { clearProps: 'display,opacity' });
     resetTransientSceneSignals();
     document.documentElement.removeAttribute('data-transition-phase');
     start();
@@ -302,14 +271,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         const overlay = overlayRef.current;
         if (!overlay) throw new Error('transition overlay unavailable');
         stop();
-        const sourceMedia = reduced
-          ? null
-          : currentRoute.kind === 'case'
-            ? document.querySelector<HTMLElement>('[data-case-media]')
-            : (context.trigger
-                ?.closest<HTMLElement>('[data-project]')
-                ?.querySelector<HTMLElement>('[data-project-media]') ?? null);
-        sharedMediaRef.current?.capture(sourceMedia, controller.signal);
+
         document.documentElement.dataset.transitionPhase = 'anticipating';
         if (context.cause !== 'popstate') {
           history.replaceState(
@@ -319,29 +281,12 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
           );
         }
 
-        // The singularity is the stable spatial anchor for every route. The
-        // clicked card still travels through SharedMediaLayer, but the black
-        // hole itself must never jump to the button that initiated the route.
-        const origin = coreOrigin();
-        overlay.style.setProperty('--transition-x', `${origin.x}px`);
-        overlay.style.setProperty('--transition-y', `${origin.y}px`);
-        gsap.set(overlay, { display: 'block', scaleY: 0, transformOrigin: '50% 100%' });
-        /*
-         * The trigger's press is NOT animated here.
-         *
-         * `useMagneticElements` already owns `scale` on every `a` and
-         * `button`, and it writes with `overwrite: true`. A second tween on
-         * the same node was being killed the moment the magnetic pointerup
-         * rendered, silently, taking the transition's promise with it. One
-         * node, one author: the press belongs to the magnetic layer, which
-         * responds on pointerdown and is therefore faster anyway.
-         */
-
+        gsap.set(overlay, { display: 'block', opacity: 0 });
         machine.advance('occluding');
         document.documentElement.dataset.transitionPhase = 'occluding';
         await tween(
           overlay,
-          { scaleY: 1, duration: beat(0.28), ease: 'power3.in' },
+          { opacity: 1, duration: beat(0.18), ease: 'none' },
           controller.signal,
         );
 
@@ -377,24 +322,12 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
           if (element) scrollToImmediate(element);
         }
 
-        const destinationSelector =
-          targetRoute.kind === 'case'
-            ? '[data-case-media]'
-            : projectSlug
-              ? `[data-project="${projectSlug}"] [data-project-media]`
-              : null;
-        await waitForSelector(destinationSelector, controller.signal);
-        const destinationMedia = destinationSelector
-          ? document.querySelector<HTMLElement>(destinationSelector)
-          : null;
-        await sharedMediaRef.current?.animateTo(destinationMedia, controller.signal);
-
         machine.advance('revealing');
         document.documentElement.dataset.transitionPhase = 'revealing';
-        gsap.set(overlay, { transformOrigin: '50% 0%' });
+
         await tween(
           overlay,
-          { scaleY: 0, duration: beat(0.42), ease: 'power3.out' },
+          { opacity: 0, duration: beat(0.24), ease: 'none' },
           controller.signal,
         );
         machine.complete();
@@ -540,7 +473,6 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     >
       {children}
       <RouteTransitionOverlay ref={overlayRef} />
-      <SharedMediaLayer ref={sharedMediaRef} />
     </RouteTransitionContext.Provider>
   );
 }

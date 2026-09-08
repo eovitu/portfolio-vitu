@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useSectionGravity } from '../../hooks/useSectionGravity';
+import { useRouteScrollRefresh } from '../../hooks/useRouteScrollRefresh';
 import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import { prefersReducedMotion } from '../../lib/prefersReducedMotion';
@@ -22,7 +22,7 @@ import * as S from './NotFound.styles';
  */
 export function NotFound({ path }: { path: string }) {
   const heldRef = useRef<HTMLElement>(null);
-  useSectionGravity();
+  useRouteScrollRefresh();
 
   /**
    * The object flares while the reader is here.

@@ -1,7 +1,7 @@
 import type { Project } from '../../lib/content';
 import { lazy, Suspense } from 'react';
 import { PROJECT_THEMES } from '../../motion/projectThemes';
-import { useSectionGravity } from '../../hooks/useSectionGravity';
+import { useRouteScrollRefresh } from '../../hooks/useRouteScrollRefresh';
 import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import { CaseMedia } from './CaseMedia';
@@ -13,7 +13,7 @@ const IntegrationStory = lazy(() => import('./IntegrationStory'));
 export function CaseStudy({ project }: { project: Project }) {
   // A case study enters and leaves through the same gravitational field as the
   // home page. Without this it was the one route that faded generically.
-  useSectionGravity();
+  useRouteScrollRefresh();
   const index = projects.findIndex((item) => item.slug === project.slug);
   const previous = projects[(index + projects.length - 1) % projects.length];
   const next = projects[(index + 1) % projects.length];

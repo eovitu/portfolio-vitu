@@ -5,7 +5,7 @@ import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 import { MOTION_DURATION, MOTION_EASE, MOTION_STAGGER } from '../motion/tokens';
 import { useGravityLetters } from './useGravityLetters';
 import { useHeroExit } from './useHeroExit';
-import { useSectionGravity } from './useSectionGravity';
+import { useRouteScrollRefresh } from './useRouteScrollRefresh';
 
 /**
  * The homepage's motion, and the baton that keeps it single-authored.
@@ -26,8 +26,8 @@ export function useHomeMotion(heroRef: RefObject<HTMLElement>): void {
   const { mode, revealing, released } = useMotionState();
   const [entranceDone, setEntranceDone] = useState(false);
 
-  // The same gravitational system every route uses. See `useSectionGravity`.
-  useSectionGravity();
+  // The same gravitational system every route uses. See `useRouteScrollRefresh`.
+  useRouteScrollRefresh();
 
   /**
    * The pre-entrance state is written from JavaScript, never from CSS.
