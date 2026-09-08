@@ -64,3 +64,15 @@ test('the mobile surface stays mounted for both entrance and exit motion', () =>
   assert.match(menu, /animate="open"/);
   assert.match(menu, /exit="closed"/);
 });
+
+test('a mobile link releases the scroll lock before it navigates', () => {
+  // `useDialogSurface`'s own cleanup releases the lock too, but only once
+  // React commits the `onClose()` state update, a tick or two after the
+  // click handler already returned. Lenis's `start()` resets any in-flight
+  // scroll animation as a side effect, so if that release lands after
+  // `navigate()` has armed the smooth-scroll to a section, it kills it in
+  // flight, silently: the URL changes, the menu closes, the page never
+  // moves. `start()` has to run before `navigate()`, in the same handler.
+  assert.match(menu, /const \{ start \} = useSmoothScroll\(\);/);
+  assert.match(menu, /start\(\);\s*onClose\(\);\s*void navigate\(/);
+});
