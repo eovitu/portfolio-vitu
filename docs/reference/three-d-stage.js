@@ -2,7 +2,7 @@
 // Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
 /* BEGIN USAGE */
 /**
- * <three-d-stage> — 3D object viewer + exporter shell (three.js).
+ * <three-d-stage>, 3D object viewer + exporter shell (three.js).
  *
  * The stage owns the whole scene: WebGL renderer, neutral studio lighting
  * with a soft ground shadow, orbit controls (drag to orbit, wheel to zoom,
@@ -12,7 +12,7 @@
  * GLB is the interchange format every modern 3D tool imports.
  *
  * three.js loads through the page's import map. Include this EXACT pinned
- * map in <head>, before any module runs — versions and integrity hashes
+ * map in <head>, before any module runs, versions and integrity hashes
  * stay together (same map the "3D object" skill mandates):
  *
  *   <script type="importmap">
@@ -41,22 +41,22 @@
  *     const stage = document.querySelector('three-d-stage');
  *     const { THREE } = await stage.ready;
  *     const model = new THREE.Group();
- *     // …build the model out of named meshes with named materials —
+ *     // …build the model out of named meshes with named materials,
  *     // the names become the o / usemtl entries in the exported OBJ…
  *     stage.setObject(model);
  *   </script>
  *
  * Attributes:
- *   name       — export file basename (default "model")
- *   background — CSS color behind the scene (default a warm paper tone)
- *   autorotate — when present, a slow turntable until the user interacts
+ *   name, export file basename (default "model")
+ *   background, CSS color behind the scene (default a warm paper tone)
+ *   autorotate, when present, a slow turntable until the user interacts
  *
- * Model in real-world meters, centered on the origin, y-up — exports
+ * Model in real-world meters, centered on the origin, y-up, exports
  * inherit the scene's units and orientation. The stage fills its own box;
  * size it with ordinary CSS (default 100vw/100vh page hero).
  *
  * Default setup: neutral studio lighting (hemisphere + key + fill), a
- * soft ground shadow, and NO environment map — so high metalness has
+ * soft ground shadow, and NO environment map, so high metalness has
  * nothing to reflect and renders near-black. Cap metalness around
  * 0.3–0.4 and carry a metal look with a brighter base color. The copied
  * file is yours: adjust the lights, shadow, or background in _boot()
@@ -133,7 +133,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
-  /** Tell the host an export attempt settled — telemetry only. The host
+  /** Tell the host an export attempt settled, telemetry only. The host
    *  (HTMLViewer) verifies the source and re-reads these fields defensively
    *  before counting; nothing else crosses the frame boundary. Guarded so
    *  telemetry can never break the download path. */
@@ -174,7 +174,7 @@
       this._toolbar.appendChild(this._glbBtn);
       root.appendChild(this._toolbar);
       this._setButtonsEnabled(false);
-      /** Resolves with { THREE } once the scene is live — build the model
+      /** Resolves with { THREE } once the scene is live, build the model
        *  in `await stage.ready` so nothing races the library load. */
       this.ready = new Promise((resolve, reject) => {
         this._readyResolve = resolve;
@@ -184,7 +184,7 @@
 
     connectedCallback() {
       if (this._booted) {
-        // Re-attached after a removal — resume what disconnected stopped.
+        // Re-attached after a removal, resume what disconnected stopped.
         if (this._renderer) {
           this._renderer.setAnimationLoop(this._loop);
           this._ro && this._ro.observe(this);
@@ -212,7 +212,7 @@
       ]);
       this._THREE = THREE;
       // preserveDrawingBuffer keeps the last frame readable after
-      // compositing (toDataURL / drawImage) — it's what lets the
+      // compositing (toDataURL / drawImage), it's what lets the
       // screenshot tools capture the scene instead of a blank canvas.
       const renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -280,7 +280,7 @@
         controls.update();
         renderer.render(scene, camera);
       };
-      // Detached while three.js was fetching? Stay idle — the
+      // Detached while three.js was fetching? Stay idle, the
       // connectedCallback resume starts the loop and observer on
       // reattach.
       if (this.isConnected) {
@@ -293,7 +293,7 @@
 
     disconnectedCallback() {
       // Stop rendering and observing while detached; connectedCallback
-      // resumes both. (The renderer itself is kept — a move within the
+      // resumes both. (The renderer itself is kept, a move within the
       // document must not rebuild the scene.)
       if (this._renderer) this._renderer.setAnimationLoop(null);
       if (this._ro) this._ro.disconnect();
@@ -304,7 +304,7 @@
      *  the camera to its bounds. */
     setObject(object) {
       const THREE = this._THREE;
-      if (!THREE) throw new Error('three-d-stage: not ready — await stage.ready first');
+      if (!THREE) throw new Error('three-d-stage: not ready, await stage.ready first');
       if (this._object) this._scene.remove(this._object);
       this._object = object;
       object.traverse((o) => {
@@ -349,7 +349,7 @@
       this._glbBtn.disabled = !on;
     }
 
-    /** Every mesh and material needs a unique name for o/usemtl lines —
+    /** Every mesh and material needs a unique name for o/usemtl lines,
      *  fill in stable fallbacks, and return the unique material list. */
     _nameParts() {
       const mats = [];
