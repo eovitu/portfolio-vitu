@@ -2,22 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://eovitu.com.br/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-09-08</lastmod>
   </url>
   <url>
     <loc>https://eovitu.com.br/work/emprega-co</loc>
-    <changefreq>quarterly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-09-08</lastmod>
   </url>
   <url>
     <loc>https://eovitu.com.br/work/doces-da-pati</loc>
-    <changefreq>quarterly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-09-08</lastmod>
   </url>
   <url>
     <loc>https://eovitu.com.br/work/helppet</loc>
-    <changefreq>quarterly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-09-08</lastmod>
   </url>
 </urlset>
