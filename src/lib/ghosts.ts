@@ -185,7 +185,7 @@ export function mountGhosts(snapshot: WarpSnapshot): GhostLayer | null {
   for (const target of snapshot.targets) {
     if (fragments.length >= MAX_FRAGMENTS) break;
 
-    if (!target.words.length) {
+    if (!target.words.length && !target.media?.length) {
       if (target.rect.w < 24 || target.rect.h < 24) continue;
       emit({ ...target.rect, t: '', s: -1 }, null, target);
       continue;
@@ -199,6 +199,14 @@ export function mountGhosts(snapshot: WarpSnapshot): GhostLayer | null {
     for (const piece of pieces) {
       if (fragments.length >= MAX_FRAGMENTS) break;
       emit(piece, snapshot.styles[piece.s] ?? null, target);
+    }
+
+    // Media inside the target (a photo beside its caption, an icon next to a
+    // line of copy) has no words of its own, so it needs its own plate or it
+    // never leaves the page at all, just its neighbouring text does.
+    for (const box of target.media ?? []) {
+      if (fragments.length >= MAX_FRAGMENTS) break;
+      emit({ ...box, t: '', s: -1 }, null, target);
     }
   }
 

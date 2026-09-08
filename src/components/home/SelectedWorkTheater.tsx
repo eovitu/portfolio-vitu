@@ -9,6 +9,7 @@ import { useProjectTheaterMotion } from '../../hooks/useProjectTheaterMotion';
 import { chapterScrollTarget } from '../../motion/theaterChapters';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useSmoothScroll } from '../providers/SmoothScrollProvider';
+import { useReloadColorReveal } from '../../hooks/useReloadColorReveal';
 import { ProjectMediaSurface } from './ProjectMediaSurface';
 import * as S from './SelectedWorkTheater.styles';
 import * as Base from './HomePage.styles';
@@ -23,6 +24,7 @@ export function SelectedWorkTheater() {
   const { scrollTo } = useSmoothScroll();
   useProjectTheaterMotion(sectionRef, setActive);
   useReveal(sectionRef);
+  useReloadColorReveal(sectionRef, '#08080a');
 
   /**
    * The numbered navigation moves the scroll, never the active index.
@@ -60,7 +62,7 @@ export function SelectedWorkTheater() {
 
   return (
     <S.Theater id="work" ref={sectionRef} aria-labelledby="work-title" data-gravity-section>
-      <S.Intro data-warp>
+      <S.Intro>
         <div>
           <Base.Kicker data-reveal="line">Selected work</Base.Kicker>
           <h2 id="work-title" data-skew data-reveal="soft">

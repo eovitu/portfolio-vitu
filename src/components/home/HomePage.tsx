@@ -9,6 +9,7 @@ import {
   Sparkle,
 } from '@phosphor-icons/react';
 import { useHomeMotion } from '../../hooks/useHomeMotion';
+import { useReloadColorReveal } from '../../hooks/useReloadColorReveal';
 import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { stage } from '../../lib/stagePresence';
 import { coreOrigin } from '../../lib/warpTargets';
@@ -62,6 +63,8 @@ export function HomePage() {
   const aboutRef = useRef<HTMLElement>(null);
   useEditorialMotion(profileRef, aboutRef);
   useHomeMotion(heroRef);
+  useReloadColorReveal(profileRef, '#243cce');
+  useReloadColorReveal(aboutRef, '#f2b7a3');
   useAnimationFrame(() => {
     const el = contactRef.current;
     if (!el) return;
@@ -103,8 +106,23 @@ export function HomePage() {
             Engineer. Curious human. <ArrowDownRight aria-hidden="true" weight="regular" />
           </span>
         </S.HeroNote>
-        <S.HeroGrid data-warp>
-          <div>
+        <S.HeroGrid>
+          {/*
+            `data-warp` sits on the title wrapper only, not on the whole
+            grid. It used to sit on `S.HeroGrid`, which also wraps
+            `S.HeroAside` below, the copy and the "View selected work" /
+            "Start a conversation" CTAs. The first-visit entry sequence
+            collapses every `[data-warp]` element to `scale: 0` and holds it
+            there through the gather phase before releasing it, roughly 1 to
+            1.5 seconds. With the CTAs inside that same node, their hit area
+            was genuinely zero for that whole window even though they read
+            as fully opaque, `opacity` is an element's own CSS property and
+            does not reflect an ancestor's transform, so a first-time reader
+            clicking the moment the button looked ready would just miss it.
+            Scoping the attribute to the title keeps its gather-and-release
+            entrance and frees the CTAs to be clickable from first paint.
+          */}
+          <div data-warp>
             <S.Kicker>Backend developer. Product-minded.</S.Kicker>
             {/* `id`, `data-route-heading` and `tabIndex` are the route
                 transition director's focus target. They stay. */}
@@ -154,7 +172,7 @@ export function HomePage() {
         data-gravity-section
       >
         <S.SectionInner>
-          <S.SectionHead data-warp>
+          <S.SectionHead>
             <div>
               <S.Kicker>Engineering profile</S.Kicker>
               <h2 id="profile-title" data-skew>
@@ -168,7 +186,7 @@ export function HomePage() {
               real-time visuals extend the same engineering discipline.
             </p>
           </S.SectionHead>
-          <S.CapabilityGrid data-warp>
+          <S.CapabilityGrid>
             {capabilities.map((item) => (
               <S.Capability key={item.title}>
                 <item.icon aria-hidden="true" weight="regular" />
@@ -183,7 +201,7 @@ export function HomePage() {
 
       <S.About ref={aboutRef} id="about" aria-labelledby="about-title" data-gravity-section>
         <S.SectionInner>
-          <S.AboutGrid data-warp>
+          <S.AboutGrid>
             <figure>
               <img
                 src="/victor-2010.jpg"

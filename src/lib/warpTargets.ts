@@ -37,9 +37,19 @@ export function dropNested(els: HTMLElement[]): HTMLElement[] {
 export function isOnScreen(el: HTMLElement): boolean {
   const r = el.getBoundingClientRect();
   if (r.width <= 0 || r.height <= 0) return false;
-  return (
-    r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth
-  );
+  if (!(
+    r.bottom > 0 &&
+    r.top < window.innerHeight &&
+    r.right > 0 &&
+    r.left < window.innerWidth
+  ))
+    return false;
+  // The bounding rect alone lies for anything hidden with CSS rather than
+  // removed from flow, the Work theater keeps its inactive chapters stacked
+  // at the same rect as the active one and only toggles `visibility`. Without
+  // this check every stacked chapter reads as "on screen" at once.
+  const style = getComputedStyle(el);
+  return style.visibility !== 'hidden' && style.display !== 'none';
 }
 
 export interface Point {

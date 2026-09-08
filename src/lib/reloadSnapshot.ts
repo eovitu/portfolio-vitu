@@ -64,6 +64,8 @@ export interface WarpWord {
 interface WarpTarget {
   rect: WarpRect;
   words: WarpWord[];
+  /** Media boxes inside the target: images, video, canvas, inline SVG. */
+  media: WarpRect[];
 }
 
 export interface WarpSnapshot {
@@ -99,8 +101,33 @@ function readType(el: Element): WarpType {
 /** Beyond these the reconstruction stops being worth its bytes. */
 const MAX_WORDS_TOTAL = 240;
 const MAX_WORDS_PER_TARGET = 60;
+const MAX_MEDIA_TOTAL = 24;
+const MAX_MEDIA_PER_TARGET = 6;
 
 const round = (n: number) => Math.round(n * 10) / 10;
+
+/**
+ * Boxes for the images, video and canvases sitting inside a target.
+ *
+ * A target with words gets one fragment per word and nothing else, a media
+ * element next to that copy (a photo beside an "About" paragraph, a poster
+ * behind a card's text) has no words of its own, so it was falling through
+ * entirely: neither the whole-target plate (only used when a target has zero
+ * words) nor any word fragment ever represented it. It has to be measured
+ * separately and swallowed as its own plate alongside the text.
+ */
+function measureMedia(el: HTMLElement, remaining: number): WarpRect[] {
+  const out: WarpRect[] = [];
+  // `picture` only ever wraps an `img`, which this query already reaches.
+  const nodes = el.querySelectorAll<HTMLElement>('img, video, canvas, svg');
+  for (const node of nodes) {
+    if (out.length >= MAX_MEDIA_PER_TARGET || out.length >= remaining) break;
+    const r = node.getBoundingClientRect();
+    if (r.width <= 0 || r.height <= 0) continue;
+    out.push({ x: round(r.left), y: round(r.top), w: round(r.width), h: round(r.height) });
+  }
+  return out;
+}
 
 /**
  * Measure every visible word inside a target, exactly where it is painted.
@@ -165,15 +192,19 @@ function capture(): WarpSnapshot | null {
 
   const styles: WarpType[] = [];
   const styleIndex = new Map<Element, number>();
-  let budget = MAX_WORDS_TOTAL;
+  let wordBudget = MAX_WORDS_TOTAL;
+  let mediaBudget = MAX_MEDIA_TOTAL;
 
   const captured: WarpTarget[] = targets.map((el) => {
     const r = el.getBoundingClientRect();
-    const words = measureWords(el, styles, styleIndex, budget);
-    budget -= words.length;
+    const words = measureWords(el, styles, styleIndex, wordBudget);
+    wordBudget -= words.length;
+    const media = measureMedia(el, mediaBudget);
+    mediaBudget -= media.length;
     return {
       rect: { x: round(r.left), y: round(r.top), w: round(r.width), h: round(r.height) },
       words,
+      media,
     };
   });
 
@@ -213,7 +244,8 @@ function isUsable(shot: WarpSnapshot | null): shot is WarpSnapshot {
         target.rect.w > 0 &&
         finite(target.rect.h) &&
         target.rect.h > 0 &&
-        Array.isArray(target.words),
+        Array.isArray(target.words) &&
+        Array.isArray(target.media),
     )
   );
 }
