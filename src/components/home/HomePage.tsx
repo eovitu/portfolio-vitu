@@ -103,8 +103,23 @@ export function HomePage() {
             Engineer. Curious human. <ArrowDownRight aria-hidden="true" weight="regular" />
           </span>
         </S.HeroNote>
-        <S.HeroGrid data-warp>
-          <div>
+        <S.HeroGrid>
+          {/*
+            `data-warp` sits on the title wrapper only, not on the whole
+            grid. It used to sit on `S.HeroGrid`, which also wraps
+            `S.HeroAside` below, the copy and the "View selected work" /
+            "Start a conversation" CTAs. The first-visit entry sequence
+            collapses every `[data-warp]` element to `scale: 0` and holds it
+            there through the gather phase before releasing it, roughly 1 to
+            1.5 seconds. With the CTAs inside that same node, their hit area
+            was genuinely zero for that whole window even though they read
+            as fully opaque, `opacity` is an element's own CSS property and
+            does not reflect an ancestor's transform, so a first-time reader
+            clicking the moment the button looked ready would just miss it.
+            Scoping the attribute to the title keeps its gather-and-release
+            entrance and frees the CTAs to be clickable from first paint.
+          */}
+          <div data-warp>
             <S.Kicker>Backend developer. Product-minded.</S.Kicker>
             {/* `id`, `data-route-heading` and `tabIndex` are the route
                 transition director's focus target. They stay. */}
