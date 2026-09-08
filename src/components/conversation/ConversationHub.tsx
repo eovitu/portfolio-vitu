@@ -6,6 +6,7 @@ import {
   type FormEvent,
   type RefObject,
 } from 'react';
+import { ArrowLeft, ArrowUpRight } from '@phosphor-icons/react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, useReducedMotion } from 'motion/react';
 import { chat } from '../../lib/content';
@@ -142,7 +143,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                 <S.Top>
                   <span>{chat.title}</span>
                   <S.Close ref={closeRef} type="button" onClick={close}>
-                    ← {chat.close}
+                    <ArrowLeft aria-hidden="true" weight="regular" /> {chat.close}
                   </S.Close>
                 </S.Top>
 
@@ -160,6 +161,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                       onClick={() => choosePrompt(prompt)}
                     >
                       {prompt.question}
+                      <ArrowUpRight aria-hidden="true" weight="regular" />
                     </button>
                   ))}
                 </S.Prompts>
@@ -209,7 +211,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                     onChange={(event) => setInput(event.target.value)}
                   />
                   <button type="submit" disabled={!input.trim() || pending}>
-                    Send ↗
+                    Send <ArrowUpRight aria-hidden="true" weight="regular" />
                   </button>
                   <S.Meta>
                     {chat.note} · <a href="mailto:eovitu7@gmail.com">eovitu7@gmail.com</a>

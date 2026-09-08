@@ -5,6 +5,7 @@ import {
   type ButtonHTMLAttributes,
   type MouseEvent,
 } from 'react';
+import { ArrowUpRight } from '@phosphor-icons/react';
 import { useConversation } from './ConversationProvider';
 import * as S from './ConversationHub.styles';
 
@@ -41,7 +42,7 @@ export const TalkToMeButton = forwardRef<HTMLButtonElement, Props>(function Talk
       onClick={handleClick}
       {...props}
     >
-      Talk to me ↗
+      Talk to me <ArrowUpRight aria-hidden="true" weight="regular" />
     </S.Trigger>
   );
 });

@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState, type MouseEvent } from 'react';
+import { ArrowBendDownRight, ArrowUpRight } from '@phosphor-icons/react';
 import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import { PROJECT_THEMES } from '../../motion/projectThemes';
@@ -113,7 +114,10 @@ export function SelectedWorkTheater() {
                   <p>{project.summary}</p>
                   <ul>
                     {project.ownership.map((item) => (
-                      <li key={item}>{item}</li>
+                      <li key={item}>
+                        <ArrowBendDownRight aria-hidden="true" weight="regular" />
+                        {item}
+                      </li>
                     ))}
                   </ul>
                   <div data-project-meta>
@@ -133,7 +137,7 @@ export function SelectedWorkTheater() {
                       data-project-link
                       data-transition-project={project.slug}
                     >
-                      View case study
+                      View case study <ArrowUpRight aria-hidden="true" weight="regular" />
                     </Base.Action>
                     {project.actions.map((action) => (
                       <Base.Action
@@ -142,7 +146,7 @@ export function SelectedWorkTheater() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {action.label}
+                        {action.label} <ArrowUpRight aria-hidden="true" weight="regular" />
                       </Base.Action>
                     ))}
                   </Base.Actions>

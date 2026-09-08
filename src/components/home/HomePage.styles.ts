@@ -46,9 +46,18 @@ export const HeroNote = styled.a`
   font-size: 22px;
   letter-spacing: -0.04em;
   span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
     color: #b7b7ae;
     font-size: 13px;
     letter-spacing: 0;
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.75;
+    }
   }
   &:hover span {
     color: #d7ef92;
@@ -134,11 +143,9 @@ export const HeroAside = styled.div`
   gap: 28px;
   padding-bottom: 8px;
   position: relative;
-  &::before {
-    content: '↳';
+  > svg {
     color: #d7ef92;
-    font-size: 60px;
-    line-height: 1;
+    stroke-width: 1.75;
   }
 `;
 
@@ -177,9 +184,9 @@ export const Action = styled.a<{ $primary?: boolean }>`
     border-color 180ms ease,
     box-shadow 180ms ease;
 
-  &::after {
-    content: '↗';
-    display: inline-block;
+  svg {
+    width: 16px;
+    height: 16px;
     margin-left: 10px;
     transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -190,7 +197,7 @@ export const Action = styled.a<{ $primary?: boolean }>`
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
   }
 
-  &:hover::after {
+  &:hover svg {
     transform: translate(3px, -3px);
   }
   &:active {
@@ -277,9 +284,11 @@ export const Capability = styled.article`
   padding: 32px;
   background: #1d30a7;
   border-radius: 8px;
-  > span {
+  > svg {
     display: block;
-    font-size: 50px;
+    width: 50px;
+    height: 50px;
+    stroke-width: 1.75;
     color: #d7ef92;
     margin-bottom: 44px;
   }
@@ -290,9 +299,10 @@ export const Capability = styled.article`
     background: #d7ef92;
     color: #172014;
   }
-  &:first-child > span {
+  &:first-child > svg {
     color: #172014;
-    font-size: 100px;
+    width: 100px;
+    height: 100px;
     margin-bottom: auto;
     padding-bottom: 60px;
   }
@@ -328,9 +338,10 @@ export const Capability = styled.article`
     padding: 28px;
     grid-column: 1 / -1 !important;
     grid-row: auto !important;
-    > span,
-    &:first-child > span {
-      font-size: 42px;
+    > svg,
+    &:first-child > svg {
+      width: 42px;
+      height: 42px;
       margin-bottom: 24px;
       padding: 0;
     }
@@ -408,10 +419,12 @@ export const ContactEmail = styled.a`
   &:hover {
     color: #ff9b6a;
   }
-  span {
+  svg {
+    width: 0.85em;
+    height: 0.85em;
     transition: transform 240ms ease;
   }
-  &:hover span {
+  &:hover svg {
     transform: rotate(45deg);
   }
 `;

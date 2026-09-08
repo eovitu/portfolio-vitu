@@ -1,4 +1,13 @@
 import { useRef } from 'react';
+import {
+  ArrowBendDownRight,
+  ArrowDownRight,
+  ArrowUpRight,
+  Code,
+  Command,
+  FlowArrow,
+  Sparkle,
+} from '@phosphor-icons/react';
 import { useHomeMotion } from '../../hooks/useHomeMotion';
 import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { stage } from '../../lib/stagePresence';
@@ -21,21 +30,25 @@ const HERO_TITLE_WORDS = ['Code with', 'a human', 'pulse.'] as const;
 
 const capabilities = [
   {
+    icon: Code,
     title: 'Backend Systems',
     body: 'Domain models, APIs and persistence shaped around product behavior instead of framework defaults.',
     stack: 'Java · Spring Boot · PostgreSQL · REST',
   },
   {
+    icon: FlowArrow,
     title: 'Product Engineering',
     body: 'From ambiguous product flows to explicit states, contracts and implementation decisions.',
     stack: 'System design · Product flows · Delivery',
   },
   {
+    icon: Command,
     title: 'Interface Architecture',
     body: 'Typed React interfaces with accessible states, clear ownership and maintainable motion boundaries.',
     stack: 'TypeScript · React · Next.js · Design systems',
   },
   {
+    icon: Sparkle,
     title: '3D & Motion',
     body: 'Real-time visual systems used when they clarify the experience, with a measured performance budget.',
     stack: 'Three.js · R3F · GSAP · GLSL',
@@ -85,7 +98,10 @@ export function HomePage() {
     <>
       <S.Hero id="top" ref={heroRef} aria-labelledby="hero-title" data-gravity-section>
         <S.HeroNote href="#about">
-          Victor Hugo <span>Engineer. Curious human. ↘</span>
+          Victor Hugo
+          <span>
+            Engineer. Curious human. <ArrowDownRight aria-hidden="true" weight="regular" />
+          </span>
         </S.HeroNote>
         <S.HeroGrid data-warp>
           <div>
@@ -112,15 +128,18 @@ export function HomePage() {
             </S.HeroTitle>
           </div>
           <S.HeroAside data-hero-fade>
+            <ArrowBendDownRight aria-hidden="true" size={60} weight="regular" />
             <S.HeroCopy>
               Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a
               product and the details that make it feel alive.
             </S.HeroCopy>
             <S.Actions>
               <S.Action $primary href="#work">
-                View selected work
+                View selected work <ArrowUpRight aria-hidden="true" />
               </S.Action>
-              <S.Action href="mailto:eovitu7@gmail.com">Start a conversation</S.Action>
+              <S.Action href="mailto:eovitu7@gmail.com">
+                Start a conversation <ArrowUpRight aria-hidden="true" />
+              </S.Action>
             </S.Actions>
           </S.HeroAside>
         </S.HeroGrid>
@@ -150,9 +169,9 @@ export function HomePage() {
             </p>
           </S.SectionHead>
           <S.CapabilityGrid data-warp>
-            {capabilities.map((item, index) => (
+            {capabilities.map((item) => (
               <S.Capability key={item.title}>
-                <span aria-hidden="true">{['{ }', '↗', '⌘', '✳'][index]}</span>
+                <item.icon aria-hidden="true" weight="regular" />
                 <h3>{item.title}</h3>
                 <p>{item.body}</p>
                 <small>{item.stack}</small>
@@ -211,7 +230,7 @@ export function HomePage() {
             <S.ContactWord data-contact-word>people can trust.</S.ContactWord>
           </S.ContactTitle>
           <S.ContactEmail href="mailto:eovitu7@gmail.com" data-contact-survivor>
-            eovitu7@gmail.com <span aria-hidden="true">↗</span>
+            eovitu7@gmail.com <ArrowUpRight aria-hidden="true" weight="regular" />
           </S.ContactEmail>
         </S.SectionInner>
       </S.Contact>

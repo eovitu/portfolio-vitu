@@ -37,6 +37,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@react-three/fiber": "^8.17.10",
     "@vercel/analytics": "^2.0.1",
     "gsap": "^3.12.5",
