@@ -132,6 +132,24 @@ function tween(
   });
 }
 
+/**
+ * Drop `#hash` from the address bar once it has done its job (landed the
+ * scroll). A hash that survives becomes a trap on hard reload: the browser
+ * jumps straight to that anchor before any app code runs, skipping the
+ * normal top-of-page entrance and letting the reader land mid-section with
+ * whatever depends on scroll position (the singularity occlusion included)
+ * replaying against the wrong starting point. Anchor links still work for
+ * the moment they're used; they just don't linger in the URL afterwards.
+ */
+function scheduleHashStrip(hash: string, delayMs = 1800): void {
+  if (!hash) return;
+  window.setTimeout(() => {
+    if (window.location.hash !== hash) return;
+    const { pathname, search } = window.location;
+    history.replaceState(history.state, '', `${pathname}${search}`);
+  }, delayMs);
+}
+
 function focusRouteTarget(route: Route, hash: string, projectSlug?: ProjectSlug): void {
   let target: HTMLElement | null = null;
   if (hash) target = document.querySelector<HTMLElement>(hash);
@@ -239,6 +257,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
           if (element) scrollTo(element, context.cause === 'popstate' ? 0 : 1.65);
         }
         focusRouteTarget(targetRoute, url.hash);
+        scheduleHashStrip(url.hash);
         return;
       }
 
@@ -337,6 +356,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
           url.hash,
           targetRoute.kind === 'home' ? projectSlug : undefined,
         );
+        scheduleHashStrip(url.hash);
       })();
 
       const lifecycle = (async () => {
@@ -402,6 +422,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         if (!target) return;
         focusRouteTarget(routeRef.current, hash);
         scrollToImmediate(target);
+        scheduleHashStrip(hash);
       });
     };
     let firstFrame = 0;

@@ -9,6 +9,7 @@ import {
   Sparkle,
 } from '@phosphor-icons/react';
 import { useHomeMotion } from '../../hooks/useHomeMotion';
+import { useReloadColorReveal } from '../../hooks/useReloadColorReveal';
 import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { stage } from '../../lib/stagePresence';
 import { coreOrigin } from '../../lib/warpTargets';
@@ -62,6 +63,8 @@ export function HomePage() {
   const aboutRef = useRef<HTMLElement>(null);
   useEditorialMotion(profileRef, aboutRef);
   useHomeMotion(heroRef);
+  useReloadColorReveal(profileRef, '#243cce');
+  useReloadColorReveal(aboutRef, '#f2b7a3');
   useAnimationFrame(() => {
     const el = contactRef.current;
     if (!el) return;
@@ -169,7 +172,7 @@ export function HomePage() {
         data-gravity-section
       >
         <S.SectionInner>
-          <S.SectionHead data-warp>
+          <S.SectionHead>
             <div>
               <S.Kicker>Engineering profile</S.Kicker>
               <h2 id="profile-title" data-skew>
@@ -183,7 +186,7 @@ export function HomePage() {
               real-time visuals extend the same engineering discipline.
             </p>
           </S.SectionHead>
-          <S.CapabilityGrid data-warp>
+          <S.CapabilityGrid>
             {capabilities.map((item) => (
               <S.Capability key={item.title}>
                 <item.icon aria-hidden="true" weight="regular" />
@@ -198,7 +201,7 @@ export function HomePage() {
 
       <S.About ref={aboutRef} id="about" aria-labelledby="about-title" data-gravity-section>
         <S.SectionInner>
-          <S.AboutGrid data-warp>
+          <S.AboutGrid>
             <figure>
               <img
                 src="/victor-2010.jpg"
