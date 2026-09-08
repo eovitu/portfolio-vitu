@@ -178,7 +178,7 @@ export function Header() {
               data-transition-cause="brand"
               data-nav-item
             >
-              devitu<span>*</span>
+              vitu<span>*</span>
             </Brand>
           </BrandPosition>
           <DesktopNav aria-label="Primary navigation">
