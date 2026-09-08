@@ -51,3 +51,16 @@ test('the scroll lock is restored to what it was, not to a guess', () => {
   assert.match(surface, /stop\(\)/);
   assert.match(surface, /start\(\)/);
 });
+
+test('mobile links own navigation before the closing menu can unmount them', () => {
+  assert.match(menu, /event\.preventDefault\(\)/);
+  assert.match(menu, /navigate\(event\.currentTarget\.href/);
+  assert.doesNotMatch(menu, /data-transition-cause="hash"\s+onClick=\{onClose\}/);
+});
+
+test('the mobile surface stays mounted for both entrance and exit motion', () => {
+  assert.match(menu, /<AnimatePresence initial=\{false\}>/);
+  assert.match(menu, /initial="closed"/);
+  assert.match(menu, /animate="open"/);
+  assert.match(menu, /exit="closed"/);
+});

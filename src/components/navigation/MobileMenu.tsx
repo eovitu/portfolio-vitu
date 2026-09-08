@@ -1,11 +1,13 @@
-import { useRef, type RefObject } from 'react';
+import { useCallback, useRef, type MouseEvent, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
+import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
 import styled from 'styled-components';
 import { nav } from '../../lib/content';
 import { useDialogSurface } from '../../hooks/useDialogSurface';
 import { TalkToMeButton } from '../conversation/TalkToMeButton';
+import { useRouteTransition } from '../routing/RouteTransitionProvider';
 
-const Overlay = styled.div`
+const Overlay = styled(motion.div)`
   position: fixed;
   inset: 0;
   z-index: ${({ theme }) => theme.z.nav + 1};
@@ -24,16 +26,7 @@ const Overlay = styled.div`
     radial-gradient(circle at 82% 8%, rgba(214, 159, 81, 0.18), transparent 28%), #08080a;
   padding: max(18px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
     max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
-  animation: menu-arrive 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
-
-  @keyframes menu-arrive {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
+  transform-origin: 88% 5%;
 `;
 
 const Top = styled.div`
@@ -70,17 +63,18 @@ const Links = styled.nav`
   align-self: center;
   display: grid;
   gap: 18px;
-  a {
-    display: block;
-    font-size: clamp(38px, min(15vw, 9dvh), 74px);
-    min-height: 44px;
-    line-height: 0.95;
-    letter-spacing: -0.05em;
-    color: var(--ink);
-    &:hover,
-    &:focus-visible {
-      color: var(--accent);
-    }
+`;
+
+const MenuLink = styled(motion.a)`
+  display: block;
+  font-size: clamp(38px, min(15vw, 9dvh), 74px);
+  min-height: 44px;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  &:hover,
+  &:focus-visible {
+    color: var(--accent);
   }
 `;
 const MenuTalk = styled(TalkToMeButton)`
@@ -99,6 +93,68 @@ interface Props {
 export function MobileMenu({ open, onClose, triggerRef }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const { navigate } = useRouteTransition();
+  const reduced = useReducedMotion();
+
+  const surfaceMotion: Variants = {
+    closed: {
+      opacity: 0,
+      scale: reduced ? 1 : 0.985,
+      transition: {
+        duration: reduced ? 0 : 0.2,
+        ease: [0.4, 0, 1, 1],
+        when: 'afterChildren',
+        staggerChildren: reduced ? 0 : 0.025,
+        staggerDirection: -1,
+      },
+    },
+    open: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: reduced ? 0 : 0.34,
+        ease: [0.16, 1, 0.3, 1],
+        when: 'beforeChildren',
+        delayChildren: reduced ? 0 : 0.06,
+        staggerChildren: reduced ? 0 : 0.045,
+      },
+    },
+  };
+
+  const linkMotion: Variants = {
+    closed: {
+      opacity: 0,
+      y: reduced ? 0 : 18,
+      transition: { duration: reduced ? 0 : 0.12, ease: [0.4, 0, 1, 1] },
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: reduced ? 0 : 0.28, ease: [0.16, 1, 0.3, 1] },
+    },
+  };
+
+  const handleNavigation = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      const trigger = event.currentTarget;
+      onClose();
+      void navigate(event.currentTarget.href, { cause: 'hash', trigger }).catch(
+        () => undefined,
+      );
+    },
+    [navigate, onClose],
+  );
 
   // Same dialog contract as the conversation drawer, same implementation.
   useDialogSurface({
@@ -109,8 +165,6 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
     returnFocusRef: triggerRef,
   });
 
-  if (!open) return null;
-
   /*
    * Rendered into `document.body`, not into the header.
    *
@@ -119,36 +173,44 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
    * conversation drawer does, for the same reason.
    */
   return createPortal(
-    <Overlay
-      ref={panelRef}
-      id="mobile-menu"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Site menu"
-    >
-      <Top>
-        <span>VITU</span>
-        <Close ref={closeRef} type="button" onClick={onClose}>
-          CLOSE
-        </Close>
-      </Top>
-      <Links aria-label="Mobile navigation">
-        {nav.links.map((link) => (
-          <a
-            key={link.href}
-            href={`/${link.href}`}
-            data-transition-cause="hash"
-            onClick={onClose}
-          >
-            {link.label}
-          </a>
-        ))}
-      </Links>
-      {/* Closes the menu and opens the drawer in one commit: React runs the
-          menu's teardown before the drawer's effect, so the scroll lock and
-          the inert background hand over rather than fight. */}
-      <MenuTalk aria-label="Talk to me" onClick={onClose} />
-    </Overlay>,
+    <AnimatePresence initial={false}>
+      {open && (
+        <Overlay
+          ref={panelRef}
+          id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site menu"
+          variants={surfaceMotion}
+          initial="closed"
+          animate="open"
+          exit="closed"
+        >
+          <Top>
+            <span>VITU</span>
+            <Close ref={closeRef} type="button" onClick={onClose}>
+              CLOSE
+            </Close>
+          </Top>
+          <Links aria-label="Mobile navigation">
+            {nav.links.map((link) => (
+              <MenuLink
+                key={link.href}
+                href={`/${link.href}`}
+                variants={linkMotion}
+                onClick={handleNavigation}
+              >
+                {link.label}
+              </MenuLink>
+            ))}
+          </Links>
+          {/* Closes the menu and opens the drawer in one commit: React runs the
+              menu's teardown before the drawer's effect, so the scroll lock and
+              the inert background hand over rather than fight. */}
+          <MenuTalk aria-label="Talk to me" onClick={onClose} />
+        </Overlay>
+      )}
+    </AnimatePresence>,
     document.body,
   );
 }
