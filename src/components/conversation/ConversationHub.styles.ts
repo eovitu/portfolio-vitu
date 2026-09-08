@@ -11,6 +11,15 @@ export const Trigger = styled.button`
   letter-spacing: 0.16em;
   text-transform: uppercase;
   touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 1.75;
+  }
   transition:
     color 180ms ease,
     border-color 180ms ease,
@@ -98,6 +107,9 @@ export const Top = styled.header`
 `;
 
 export const Close = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   min-height: 44px;
   margin-left: auto;
   padding: 8px 0 8px 14px;
@@ -108,6 +120,11 @@ export const Close = styled.button`
   letter-spacing: inherit;
   text-transform: uppercase;
   touch-action: manipulation;
+  svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 1.75;
+  }
   transition:
     color 160ms ease,
     transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -158,6 +175,9 @@ export const Prompts = styled.div`
   border-bottom: 1px solid var(--line);
 
   button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     min-height: 50px;
     padding: 14px 0;
     display: flex;
@@ -173,12 +193,20 @@ export const Prompts = styled.div`
     letter-spacing: 0.12em;
     text-transform: uppercase;
     touch-action: manipulation;
+    svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 1.75;
+    }
     transition:
       color 160ms ease,
       padding-left 200ms cubic-bezier(0.22, 1, 0.36, 1);
 
-    &::after {
-      content: '↗';
+    svg {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+      stroke-width: 1.75;
       color: var(--accent);
     }
 

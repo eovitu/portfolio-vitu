@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { metadataFor, personJsonLd } from './metadata.ts';
 
@@ -31,4 +32,11 @@ test('a missing page is titled honestly and kept out of the index', () => {
     metadataFor({ kind: 'home' }).robots,
     'index, follow, max-image-preview:large',
   );
+});
+
+test('publishes the Search Console verification token in the static document', () => {
+  const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+
+  assert.match(html, /name="google-site-verification"/);
+  assert.match(html, /OkT1hO5kPhsCp6MqJnKpXjNYbMIKQSmUIFZXUrp34Ks/);
 });

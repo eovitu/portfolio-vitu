@@ -1,5 +1,6 @@
 import type { Project } from '../../lib/content';
 import { lazy, Suspense } from 'react';
+import { ArrowLeft, ArrowUpRight } from '@phosphor-icons/react';
 import { PROJECT_THEMES } from '../../motion/projectThemes';
 import { useRouteScrollRefresh } from '../../hooks/useRouteScrollRefresh';
 import { projects } from '../../lib/content';
@@ -27,7 +28,7 @@ export function CaseStudy({ project }: { project: Project }) {
             data-transition-project={project.slug}
             data-transition-cause="brand"
           >
-            ← Selected work
+            <ArrowLeft aria-hidden="true" weight="regular" /> Selected work
           </S.Back>
           <S.Eyebrow>
             {project.eyebrow} <span>{project.status}</span>
@@ -90,7 +91,7 @@ export function CaseStudy({ project }: { project: Project }) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {action.label} ↗
+                {action.label} <ArrowUpRight aria-hidden="true" weight="regular" />
               </a>
             ))}
           </S.ExternalActions>

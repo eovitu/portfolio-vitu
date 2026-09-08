@@ -45,11 +45,18 @@ export const Width = styled.div`
 
 export const Back = styled.a`
   display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: clamp(28px, 4vh, 48px);
   color: var(--ink-muted);
   font: 400 11px/1 ${({ theme }) => theme.fonts.mono};
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.75;
+  }
 `;
 
 export const Eyebrow = styled.p`

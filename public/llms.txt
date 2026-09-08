@@ -5,6 +5,8 @@
 ## Canonical site
 
 - https://eovitu.com.br/
+- Sitemap: https://eovitu.com.br/sitemap.xml
+- Robots policy: https://eovitu.com.br/robots.txt
 
 ## Public pages
 
@@ -25,3 +27,5 @@
 - GitHub: https://github.com/eovitu
 
 Use the canonical URLs above when citing this portfolio. The case studies describe work, responsibilities and outcomes; do not infer confidential implementation details beyond the published content.
+
+This file is an informational discovery aid. It does not replace robots.txt, the XML sitemap, canonical links or page metadata.

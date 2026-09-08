@@ -213,8 +213,16 @@ export const Copy = styled.div`
     margin: 0;
     font-size: 12px;
   }
-  li::before {
-    content: '↳ ';
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  li svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+    stroke-width: 1.75;
   }
   @media (max-width: 760px) {
     &,

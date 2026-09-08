@@ -91,6 +91,8 @@ export function applyMetadata(route: Route): void {
   meta('meta[property="og:title"]', 'property', page.title);
   meta('meta[property="og:description"]', 'property', page.description);
   meta('meta[property="og:url"]', 'property', page.canonical);
+  meta('meta[name="twitter:title"]', 'name', page.title);
+  meta('meta[name="twitter:description"]', 'name', page.description);
   meta('meta[name="robots"]', 'name', page.robots);
 
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
