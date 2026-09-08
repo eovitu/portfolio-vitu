@@ -18,7 +18,11 @@ test('publishes verified professional identity as structured data', () => {
   const person = personJsonLd();
   assert.equal(person['@type'], 'Person');
   assert.equal(person.url, 'https://eovitu.com.br/');
-  assert.deepEqual(person.sameAs, ['https://github.com/eovitu']);
+  assert.deepEqual(person.sameAs, [
+    'https://github.com/eovitu',
+    'https://www.linkedin.com/in/eovitu/',
+  ]);
+  assert.deepEqual(person.alternateName, ['Vitu', 'eovitu']);
 });
 
 test('a missing page is titled honestly and kept out of the index', () => {

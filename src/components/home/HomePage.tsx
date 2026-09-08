@@ -247,8 +247,13 @@ export function HomePage() {
             <S.ContactWord data-contact-word>something</S.ContactWord>
             <S.ContactWord data-contact-word>people can trust.</S.ContactWord>
           </S.ContactTitle>
-          <S.ContactEmail href="mailto:eovitu7@gmail.com" data-contact-survivor>
-            eovitu7@gmail.com <ArrowUpRight aria-hidden="true" weight="regular" />
+          <S.ContactEmail
+            href="https://www.linkedin.com/in/eovitu/"
+            target="_blank"
+            rel="noreferrer"
+            data-contact-survivor
+          >
+            linkedin.com/in/eovitu <ArrowUpRight aria-hidden="true" weight="regular" />
           </S.ContactEmail>
         </S.SectionInner>
       </S.Contact>

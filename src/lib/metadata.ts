@@ -2,9 +2,9 @@ import { projects } from './content.ts';
 import type { Route } from './routes.ts';
 import { SITE_ORIGIN as ORIGIN } from './site.ts';
 
-const HOME_TITLE = 'Victor Hugo, Backend Developer & Product Engineer';
+const HOME_TITLE = 'Vitu (Victor Hugo) — Backend Developer & Product Engineer';
 const HOME_DESCRIPTION =
-  'Backend developer building reliable digital products from system architecture to expressive interfaces.';
+  'Vitu, aka Victor Hugo, is a backend developer building reliable digital products from system architecture to expressive interfaces.';
 
 interface PageMetadata {
   lang: 'en';
@@ -28,10 +28,11 @@ export function personJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Victor Hugo',
+    alternateName: ['Vitu', 'eovitu'],
     jobTitle: 'Backend Developer & Product Engineer',
     url: `${ORIGIN}/`,
     email: 'mailto:eovitu7@gmail.com',
-    sameAs: ['https://github.com/eovitu'],
+    sameAs: ['https://github.com/eovitu', 'https://www.linkedin.com/in/eovitu/'],
   } as const;
 }
 
