@@ -1,15 +1,41 @@
-import { useEffect, useRef } from 'react';
+import { useRef, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { nav } from '../../lib/content';
+import { useDialogSurface } from '../../hooks/useDialogSurface';
+import { TalkToMeButton } from '../conversation/TalkToMeButton';
 
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
   z-index: ${({ theme }) => theme.z.nav + 1};
   display: grid;
-  grid-template-rows: auto 1fr;
-  background: rgba(8, 8, 10, 0.98);
-  padding: 18px 20px 32px;
+  grid-template-rows: auto minmax(min-content, 1fr) auto;
+  gap: 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  --surface: #08080a;
+  --ink: #e9e7e2;
+  --ink-muted: #b7b7ae;
+  --accent: #d7ef92;
+  --border: #53534d;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 82% 8%, rgba(214, 159, 81, 0.18), transparent 28%), #08080a;
+  padding: max(18px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  animation: menu-arrive 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes menu-arrive {
+    from {
+      opacity: 0;
+      clip-path: circle(0% at 92% 7%);
+    }
+    to {
+      opacity: 1;
+      clip-path: circle(150% at 92% 7%);
+    }
+  }
 `;
 
 const Top = styled.div`
@@ -25,8 +51,21 @@ const Close = styled.button`
   background: transparent;
   color: inherit;
   padding: 10px;
+  min-width: 48px;
+  min-height: 48px;
   font: inherit;
   letter-spacing: inherit;
+  transition:
+    transform 180ms ease,
+    color 180ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    color: ${({ theme }) => theme.colors.accent};
+  }
+  &:active {
+    transform: scale(0.96);
+  }
 `;
 
 const Links = styled.nav`
@@ -35,39 +74,91 @@ const Links = styled.nav`
   gap: 18px;
 
   a {
-    font-size: clamp(42px, 15vw, 74px);
+    font-size: clamp(38px, min(15vw, 9dvh), 74px);
+    min-height: 44px;
     line-height: 0.95;
     letter-spacing: -0.05em;
+    opacity: 0;
+    transform: translateY(28px);
+    animation: menu-link-in 680ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition:
+      color 180ms ease,
+      transform 180ms ease;
+
+    &:hover {
+      color: ${({ theme }) => theme.colors.accent};
+      translate: 8px 0;
+    }
+
+    @keyframes menu-link-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    &:nth-child(2) {
+      animation-delay: 70ms;
+    }
+    &:nth-child(3) {
+      animation-delay: 140ms;
+    }
+    &:nth-child(4) {
+      animation-delay: 210ms;
+    }
   }
+  @media (prefers-reduced-motion: reduce) {
+    a {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+`;
+
+const MenuTalk = styled(TalkToMeButton)`
+  justify-self: start;
+  align-self: end;
+  margin-bottom: 8px;
 `;
 
 interface Props {
   open: boolean;
   onClose: () => void;
+  /** The control that opened the menu. Focus goes back to it on close. */
+  triggerRef?: RefObject<HTMLElement>;
 }
 
-export function MobileMenu({ open, onClose }: Props) {
+export function MobileMenu({ open, onClose, triggerRef }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    closeRef.current?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [open, onClose]);
+  // Same dialog contract as the conversation drawer, same implementation.
+  useDialogSurface({
+    open,
+    panelRef,
+    initialFocusRef: closeRef,
+    onClose,
+    returnFocusRef: triggerRef,
+  });
 
   if (!open) return null;
 
-  return (
-    <Overlay id="mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu">
+  /*
+   * Rendered into `document.body`, not into the header.
+   *
+   * `useDialogSurface` marks `#root` inert while a dialog is open; a menu that
+   * lived inside it would make itself unreachable. This is also what the
+   * conversation drawer does, for the same reason.
+   */
+  return createPortal(
+    <Overlay
+      ref={panelRef}
+      id="mobile-menu"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Site menu"
+    >
       <Top>
         <span>VITU</span>
         <Close ref={closeRef} type="button" onClick={onClose}>
@@ -86,6 +177,11 @@ export function MobileMenu({ open, onClose }: Props) {
           </a>
         ))}
       </Links>
-    </Overlay>
+      {/* Closes the menu and opens the drawer in one commit: React runs the
+          menu's teardown before the drawer's effect, so the scroll lock and
+          the inert background hand over rather than fight. */}
+      <MenuTalk aria-label="Talk to me" onClick={onClose} />
+    </Overlay>,
+    document.body,
   );
 }

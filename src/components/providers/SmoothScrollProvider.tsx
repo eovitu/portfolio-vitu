@@ -112,14 +112,40 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const scrollTo = useCallback((target: string | HTMLElement | number, duration = 1.5) => {
+    const element =
+      typeof target === 'string'
+        ? document.querySelector<HTMLElement>(target)
+        : typeof target === 'number'
+          ? null
+          : target;
+    if (element) {
+      // Route entrance transforms change visual rectangles, not document flow.
+      // Measure layout offsets so a case-to-section link lands at the same point
+      // before and after that entrance settles.
+      let top = 0;
+      let node: HTMLElement | null = element;
+      while (node) {
+        top += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      target = Math.max(
+        0,
+        top - (parseFloat(getComputedStyle(element).scrollMarginTop) || 0),
+      );
+    }
     const lenis = lenisRef.current;
     if (lenis) {
-      // duration 0 means "be there now" — used by scroll restoration, which
+      // duration 0 means "be there now", used by scroll restoration, which
       // must not animate the reader across the page on load.
       if (duration === 0) {
         lenis.resize();
         lenis.scrollTo(target, { immediate: true, force: true });
-      } else lenis.scrollTo(target, { duration });
+      } else {
+        // A menu link fires before the dialog effect releases its scroll lock.
+        // Explicit navigation must survive that same-event handoff.
+        lenis.resize();
+        lenis.scrollTo(target, { duration, force: true });
+      }
       return;
     }
     // Reduced motion: no Lenis instance exists, so nothing can be fought with.

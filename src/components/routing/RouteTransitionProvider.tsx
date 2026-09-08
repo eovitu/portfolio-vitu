@@ -11,10 +11,15 @@ import {
 import type { ProjectSlug } from '../../lib/content';
 import { gsap } from '../../lib/gsap';
 import { applyMetadata } from '../../lib/metadata';
+import { prefersReducedMotion } from '../../lib/prefersReducedMotion';
 import { isSameRoute, resolveRoute, type Route } from '../../lib/routes';
 import { normalizeHistoryState } from '../../motion/historyState';
-import { scrollTargetFor } from '../../motion/routeIntent';
+import {
+  scrollTargetFor,
+  shouldFallbackToDocumentNavigation,
+} from '../../motion/routeIntent';
 import { resetTransientSceneSignals, setSceneTarget } from '../../motion/sceneSignals';
+import { coreOrigin } from '../../lib/warpTargets';
 import {
   createTransitionMachine,
   type TransitionMachine,
@@ -32,6 +37,23 @@ interface RouteTransitionApi {
   route: Route;
   phase: TransitionPhase;
   navigate: (href: string, context: NavigationContext) => Promise<void>;
+  /**
+   * The route wrapper's `AnimatePresence` calls this when the outgoing scene
+   * has finished its exit and the incoming one has been mounted. It is the
+   * master clock of the swap: nothing that needs the new DOM may run before
+   * it. See `waitForRouteMount` below.
+   */
+  notifyRouteMounted: () => void;
+  /**
+   * Subscribe to the swap instant itself.
+   *
+   * Listeners are called synchronously from the destination scene ref, which is the
+   * one moment the outgoing scene is gone and the incoming one has not
+   * painted. Anything that must change between two routes without ever being
+   * seen half-applied, the page surface, above all, belongs here rather
+   * than in an effect that runs a commit too early or a frame too late.
+   */
+  onRouteMounted: (listener: () => void) => () => void;
 }
 
 const RouteTransitionContext = createContext<RouteTransitionApi | null>(null);
@@ -47,21 +69,95 @@ function nextFrame(): Promise<void> {
   return new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
 }
 
+function waitForSelector(
+  selector: string | null,
+  signal: AbortSignal,
+  timeoutMs = 760,
+): Promise<void> {
+  if (!selector || document.querySelector(selector) || signal.aborted)
+    return Promise.resolve();
+
+  return new Promise((resolve) => {
+    let raf = 0;
+    let timeout = 0;
+    const finish = () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(timeout);
+      signal.removeEventListener('abort', finish);
+      resolve();
+    };
+    const poll = () => {
+      if (document.querySelector(selector)) finish();
+      else raf = window.requestAnimationFrame(poll);
+    };
+    signal.addEventListener('abort', finish, { once: true });
+    timeout = window.setTimeout(finish, timeoutMs);
+    poll();
+  });
+}
+
+/**
+ * Wait for the route wrapper to report that the swap has actually happened.
+ *
+ * `register` hands the resolver to the provider so the destination scene ref can call
+ * it. The timeout is a fail-safe, not the mechanism: if the presence layer is
+ * ever skipped (no exit animation to run, an interrupted tree) the transition
+ * still has to finish rather than hang behind a full-screen overlay.
+ */
+function waitForRouteMount(
+  register: (resolve: () => void) => void,
+  signal: AbortSignal,
+  timeoutMs = 1400,
+): Promise<void> {
+  if (signal.aborted) return Promise.resolve();
+  return new Promise((resolve) => {
+    let timeout = 0;
+    const finish = () => {
+      window.clearTimeout(timeout);
+      signal.removeEventListener('abort', finish);
+      register(() => {});
+      resolve();
+    };
+    signal.addEventListener('abort', finish, { once: true });
+    timeout = window.setTimeout(finish, timeoutMs);
+    register(finish);
+  });
+}
+
+/**
+ * A GSAP tween as a promise that always settles.
+ *
+ * Two ways a tween can end without completing: the caller aborts the
+ * transition, or GSAP kills it because another tween claimed the same target
+ * with `overwrite: true`. The second one is silent, and it is what turned a
+ * route change into a four-second stall followed by a full document load. An
+ * animation the reader is waiting behind must resolve on every exit.
+ */
 function tween(
   target: gsap.TweenTarget,
   vars: gsap.TweenVars,
   signal: AbortSignal,
 ): Promise<void> {
+  if (signal.aborted) return Promise.reject(new Error('transition aborted'));
   return new Promise((resolve, reject) => {
-    const animation = gsap.to(target, { ...vars, onComplete: resolve });
-    signal.addEventListener(
-      'abort',
-      () => {
-        animation.kill();
-        reject(new Error('transition aborted'));
-      },
-      { once: true },
-    );
+    let settled = false;
+    let animation: gsap.core.Tween | null = null;
+
+    const onAbort = () => {
+      if (settled) return;
+      settled = true;
+      animation?.kill();
+      reject(new Error('transition aborted'));
+    };
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    };
+
+    signal.addEventListener('abort', onAbort, { once: true });
+    animation = gsap.to(target, { ...vars, onComplete: done, onInterrupt: done });
   });
 }
 
@@ -93,7 +189,25 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   const activePromiseRef = useRef<Promise<void> | null>(null);
   const intentId = useRef(0);
   const machineRef = useRef<TransitionMachine | null>(null);
-  const { scrollToImmediate, smooth, stop, start } = useSmoothScroll();
+  const routeMountedRef = useRef<(() => void) | null>(null);
+  const swapListeners = useRef(new Set<() => void>());
+  const { scrollTo, scrollToImmediate, smooth, stop, start } = useSmoothScroll();
+
+  /** Resolved by the destination scene ref, after its DOM is committed. */
+  const notifyRouteMounted = useCallback(() => {
+    // Synchronously, before anything can paint the new scene.
+    swapListeners.current.forEach((listener) => listener());
+    const resolve = routeMountedRef.current;
+    routeMountedRef.current = null;
+    resolve?.();
+  }, []);
+
+  const onRouteMounted = useCallback((listener: () => void) => {
+    swapListeners.current.add(listener);
+    return () => {
+      swapListeners.current.delete(listener);
+    };
+  }, []);
 
   routeRef.current = route;
 
@@ -101,6 +215,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     controllerRef.current?.abort();
     controllerRef.current = null;
     activeHrefRef.current = '';
+    routeMountedRef.current = null;
     const overlay = overlayRef.current;
     if (overlay) gsap.set(overlay, { clearProps: 'display,transform,transformOrigin' });
     sharedMediaRef.current?.clear();
@@ -113,7 +228,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     machineRef.current = createTransitionMachine({
       onPhase: setPhase,
       restore: restoreInterface,
-      timeoutMs: 2400,
+      timeoutMs: 4200,
     });
   }
 
@@ -126,7 +241,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
 
       if (activePromiseRef.current) {
         if (activeHrefRef.current === targetHref) return activePromiseRef.current;
-        controllerRef.current?.abort();
+        controllerRef.current?.abort('superseded');
         machineRef.current?.cancel('superseded');
         await activePromiseRef.current.catch(() => undefined);
       }
@@ -152,7 +267,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         if (target.kind === 'saved') scrollToImmediate(target.value);
         if (target.kind === 'selector') {
           const element = document.querySelector<HTMLElement>(target.value);
-          if (element) scrollToImmediate(element);
+          if (element) scrollTo(element, context.cause === 'popstate' ? 0 : 1.65);
         }
         focusRouteTarget(targetRoute, url.hash);
         return;
@@ -171,12 +286,25 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
             : undefined);
       const machineRun = machine.begin({ id: ++intentId.current });
 
+      /**
+       * Reduced motion keeps the whole route machine, the phases, the
+       * occlusion, the focus move, and removes only the movement.
+       *
+       * The reader still gets an occluded swap rather than a jump cut, but
+       * nothing travels: no press, no media flying across the viewport, no
+       * curtain sweeping the screen. The same preference read the rest of the
+       * site already uses; there is no second mechanism here.
+       */
+      const reduced = prefersReducedMotion();
+      const beat = (seconds: number) => (reduced ? 0 : seconds);
+
       const run = (async () => {
         const overlay = overlayRef.current;
         if (!overlay) throw new Error('transition overlay unavailable');
         stop();
-        const sourceMedia =
-          currentRoute.kind === 'case'
+        const sourceMedia = reduced
+          ? null
+          : currentRoute.kind === 'case'
             ? document.querySelector<HTMLElement>('[data-case-media]')
             : (context.trigger
                 ?.closest<HTMLElement>('[data-project]')
@@ -191,30 +319,29 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
           );
         }
 
-        const origin = context.trigger?.getBoundingClientRect();
-        overlay.style.setProperty(
-          '--transition-x',
-          `${origin ? origin.left + origin.width / 2 : window.innerWidth / 2}px`,
-        );
-        overlay.style.setProperty(
-          '--transition-y',
-          `${origin ? origin.top + origin.height / 2 : window.innerHeight / 2}px`,
-        );
+        // The singularity is the stable spatial anchor for every route. The
+        // clicked card still travels through SharedMediaLayer, but the black
+        // hole itself must never jump to the button that initiated the route.
+        const origin = coreOrigin();
+        overlay.style.setProperty('--transition-x', `${origin.x}px`);
+        overlay.style.setProperty('--transition-y', `${origin.y}px`);
         gsap.set(overlay, { display: 'block', scaleY: 0, transformOrigin: '50% 100%' });
-        if (context.trigger) {
-          await tween(
-            context.trigger,
-            { scale: 0.97, duration: 0.12, ease: 'power2.out' },
-            controller.signal,
-          );
-          gsap.set(context.trigger, { clearProps: 'transform' });
-        }
+        /*
+         * The trigger's press is NOT animated here.
+         *
+         * `useMagneticElements` already owns `scale` on every `a` and
+         * `button`, and it writes with `overwrite: true`. A second tween on
+         * the same node was being killed the moment the magnetic pointerup
+         * rendered, silently, taking the transition's promise with it. One
+         * node, one author: the press belongs to the magnetic layer, which
+         * responds on pointerdown and is therefore faster anyway.
+         */
 
         machine.advance('occluding');
         document.documentElement.dataset.transitionPhase = 'occluding';
         await tween(
           overlay,
-          { scaleY: 1, duration: 0.28, ease: 'power3.in' },
+          { scaleY: 1, duration: beat(0.28), ease: 'power3.in' },
           controller.signal,
         );
 
@@ -223,10 +350,16 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         if (context.cause !== 'popstate') {
           history.pushState({ path: url.pathname }, '', targetHref);
         }
+        const mounted = waitForRouteMount((resolve) => {
+          routeMountedRef.current = resolve;
+        }, controller.signal);
         setRoute(targetRoute);
         routeRef.current = targetRoute;
         applyMetadata(targetRoute);
-        await nextFrame();
+        // The exit owns this stretch. Scroll targeting, the shared-media
+        // handoff and the reveal all read the destination DOM, and none of
+        // them may run while the outgoing scene is still on screen.
+        await mounted;
         await nextFrame();
 
         const target = scrollTargetFor({
@@ -244,14 +377,16 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
           if (element) scrollToImmediate(element);
         }
 
-        const destinationMedia =
+        const destinationSelector =
           targetRoute.kind === 'case'
-            ? document.querySelector<HTMLElement>('[data-case-media]')
+            ? '[data-case-media]'
             : projectSlug
-              ? document.querySelector<HTMLElement>(
-                  `[data-project="${projectSlug}"] [data-project-media]`,
-                )
+              ? `[data-project="${projectSlug}"] [data-project-media]`
               : null;
+        await waitForSelector(destinationSelector, controller.signal);
+        const destinationMedia = destinationSelector
+          ? document.querySelector<HTMLElement>(destinationSelector)
+          : null;
         await sharedMediaRef.current?.animateTo(destinationMedia, controller.signal);
 
         machine.advance('revealing');
@@ -259,7 +394,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         gsap.set(overlay, { transformOrigin: '50% 0%' });
         await tween(
           overlay,
-          { scaleY: 0, duration: 0.42, ease: 'power3.out' },
+          { scaleY: 0, duration: beat(0.42), ease: 'power3.out' },
           controller.signal,
         );
         machine.complete();
@@ -275,12 +410,20 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         try {
           await run;
         } catch (error) {
+          const failureReason =
+            typeof controller.signal.reason === 'string'
+              ? controller.signal.reason
+              : error instanceof Error
+                ? error.message
+                : undefined;
           if (machine.phase() !== 'idle') {
             machine.cancel(error instanceof Error ? error.message : 'transition failed');
           }
           await machineRun.catch(() => undefined);
           if (context.cause === 'popstate') {
             setRoute(resolveRoute(window.location.pathname));
+          } else if (shouldFallbackToDocumentNavigation(context.cause, failureReason)) {
+            window.location.assign(targetHref);
           }
           throw error;
         } finally {
@@ -291,7 +434,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
       activePromiseRef.current = lifecycle;
       await lifecycle;
     },
-    [restoreInterface, scrollToImmediate, stop],
+    [restoreInterface, scrollTo, scrollToImmediate, stop],
   );
 
   useInternalNavigation(navigate);
@@ -305,7 +448,9 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
       revealing: 1,
     };
     setSceneTarget({
-      route: route.kind,
+      // The scene knows two worlds. A missing page is read as home: it is
+      // where the reader is being sent back to.
+      route: route.kind === 'case' ? 'case' : 'home',
       projectTheme: route.kind === 'case' ? route.slug : null,
       transitionProgress: progressByPhase[phase],
       energy: phase === 'idle' ? 0 : 0.7,
@@ -390,7 +535,9 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <RouteTransitionContext.Provider value={{ route, phase, navigate }}>
+    <RouteTransitionContext.Provider
+      value={{ route, phase, navigate, notifyRouteMounted, onRouteMounted }}
+    >
       {children}
       <RouteTransitionOverlay ref={overlayRef} />
       <SharedMediaLayer ref={sharedMediaRef} />
