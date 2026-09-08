@@ -5,7 +5,7 @@
  * was right when it was the only image on the site, and wrong the moment the
  * sections needed worlds of their own: WORK, SKILLS and CONTACT all shared one
  * backdrop, so none of them could have an identity. The evidence is that ABOUT
- * — the only section the object is absent from — is the only one that reads as
+ *, the only section the object is absent from, is the only one that reads as
  * a place.
  *
  * So presence becomes a function of position in the document:
@@ -20,7 +20,7 @@
  * the screen position, which are the three levers the direction allows, so
  * every exit and return is a move rather than a cut.
  *
- * Boundaries are measured once and re-measured on refresh — never per frame.
+ * Boundaries are measured once and re-measured on refresh, never per frame.
  */
 
 interface Bounds {
@@ -59,12 +59,11 @@ export function measureStage(): void {
   const contact = document.querySelector<HTMLElement>('#contact');
   if (!work || !about || !contact) return;
 
-  // The pin spacer is what gives WORK its real scrolled length; without it the
-  // chapter would appear to end where its markup ends.
-  const spacer = work.closest('.pin-spacer') ?? work.querySelector('.pin-spacer');
   const workTop = work.getBoundingClientRect().top + window.scrollY;
-  const workHeight =
-    spacer instanceof HTMLElement ? spacer.offsetHeight : work.offsetHeight;
+  // Selected Work owns one bounded sticky run, so its natural section height
+  // already includes the complete theater progression. No pin spacer is
+  // created or required.
+  const workHeight = work.offsetHeight;
 
   bounds.workTop = workTop;
   bounds.workBottom = workTop + workHeight;

@@ -11,11 +11,11 @@
  */
 
 export const MOTION_DURATION = {
-  /** 120-180 ms — press, release, focus. Below the threshold of feeling slow. */
+  /** 120-180 ms, press, release, focus. Below the threshold of feeling slow. */
   quick: 0.15,
-  /** 280-450 ms — the ordinary on-screen change. */
+  /** 280-450 ms, the ordinary on-screen change. */
   standard: 0.36,
-  /** 650-1100 ms — a composed move that the reader is meant to watch. */
+  /** 650-1100 ms, a composed move that the reader is meant to watch. */
   slow: 0.88,
 
   /**
@@ -30,7 +30,7 @@ export const MOTION_DURATION = {
    * The absolute ceiling on the entry, in milliseconds.
    *
    * Not a target and not a budget: a hard stop. WebGL failing, the lazy chunk
-   * never resolving, a throttled background tab, a thrown effect — past this
+   * never resolving, a throttled background tab, a thrown effect, past this
    * point the interface is released regardless of what did or did not become
    * ready, because a reader must never be held behind a loader that is waiting
    * for something that is not coming.
@@ -46,7 +46,7 @@ export const MOTION_DURATION = {
 export const MOTION_EASE = {
   /** The main on-screen curve: fast departure, long settle. */
   standard: 'power3.out',
-  /** Attraction accelerates inward — gravity does not ease out. */
+  /** Attraction accelerates inward, gravity does not ease out. */
   attract: 'power3.in',
   /** Expulsion decelerates outward. */
   expel: 'expo.out',
@@ -59,6 +59,6 @@ export const MOTION_STAGGER = {
   glyph: 0.028,
   /** Word and line level. */
   word: 0.07,
-  /** Independent blocks — navigation items, actions. */
+  /** Independent blocks, navigation items, actions. */
   block: 0.06,
 } as const;

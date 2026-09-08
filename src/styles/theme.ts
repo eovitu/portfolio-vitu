@@ -1,6 +1,6 @@
 /**
  * Design tokens extracted 1:1 from the approved handoff
- * (`Singularity Portfolio v2.dc.html`). Do not invent values here —
+ * (`Singularity Portfolio v2.dc.html`). Do not invent values here,
  * every token below appears literally in the design source.
  */
 
@@ -18,7 +18,7 @@ export const colors = {
    * The dim end of the neutral ramp, raised to clear WCAG AA.
    *
    * The handoff's values (`#6E6E74`, `#55555C`, `#3E3E44`) measured 3.95:1,
-   * 2.71:1 and 1.88:1 against the page black — every micro-label on the site
+   * 2.71:1 and 1.88:1 against the page black, every micro-label on the site
    * failed, and the 10px mono labels are exactly the text that most needs the
    * help. These are the darkest greys that still clear 4.5:1 on `#08080A`,
    * which keeps the four-step hierarchy while making all of it readable.
@@ -29,7 +29,7 @@ export const colors = {
   textGhost: '#7F7F87',
   textTrace: '#7A7A82',
   /**
-   * The single accent. One warm colour against the black — never two.
+   * The single accent. One warm colour against the black, never two.
    *
    * Its hue (35°) was measured, not chosen: sampling the composited hero with
    * `Page.captureScreenshot` puts the accretion disc's chromatic body at
@@ -39,7 +39,7 @@ export const colors = {
    * measured 26%. The disc states its colour across a 500px-wide mass; the
    * accent has to state the same colour in a 12px numeral or a 1px rule, and
    * at that size 26% reads as grey. Matching the object's saturation would
-   * have reproduced `#B9A79A` — the old accent, which carried no weight.
+   * have reproduced `#B9A79A`, the old accent, which carried no weight.
    * If it ever reads too sweet beside the object, drop saturation toward 50%.
    */
   accent: '#D69F51',
@@ -48,13 +48,13 @@ export const colors = {
   /** Secondary marks that must not compete with the accent proper. */
   accentMuted: '#8F7A5C',
   /**
-   * Scene particulate, NOT the UI accent — the dust is nearly achromatic on
+   * Scene particulate, NOT the UI accent, the dust is nearly achromatic on
    * purpose and must not inherit the accent's saturation, or the starfield
    * turns gold and the object stops reading as light against void.
    */
   dust: '#B9A79A',
   /**
-   * The ABOUT register break — the one light surface on a black site.
+   * The ABOUT register break, the one light surface on a black site.
    *
    * Bone rather than white: white would read as an unstyled section, while a
    * warmed paper reads as a deliberate change of material, and it is the only
@@ -98,7 +98,7 @@ export const layout = {
   maxWidth: '1500px',
 } as const;
 
-export const breakpoints = {
+const breakpoints = {
   /** Below this the pinned horizontal chapter is replaced by a vertical stack. */
   desktop: 860,
   tablet: 1080,

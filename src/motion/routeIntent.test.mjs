@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isEligibleInternalClick, scrollTargetFor } from './routeIntent.ts';
+import {
+  isEligibleInternalClick,
+  shouldFallbackToDocumentNavigation,
+  scrollTargetFor,
+} from './routeIntent.ts';
 
 test('defines deterministic scroll targets for route relationships', () => {
   assert.deepEqual(
@@ -86,4 +90,11 @@ test('accepts only finite saved history positions', () => {
     }).kind,
     'saved',
   );
+});
+
+test('falls back to document navigation after a real transition failure', () => {
+  assert.equal(shouldFallbackToDocumentNavigation('link', undefined), true);
+  assert.equal(shouldFallbackToDocumentNavigation('link', 'transition timeout'), true);
+  assert.equal(shouldFallbackToDocumentNavigation('link', 'superseded'), false);
+  assert.equal(shouldFallbackToDocumentNavigation('popstate', undefined), false);
 });

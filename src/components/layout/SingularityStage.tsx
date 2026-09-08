@@ -4,7 +4,7 @@ import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { veilValue } from '../../lib/veil';
 import { ModelBoundary } from '../../three/ModelBoundary';
 
-// The 3D bundle is the heaviest asset on the page — keep it out of the
+// The 3D bundle is the heaviest asset on the page, keep it out of the
 // critical path so the typography paints first.
 const SingularityCanvas = lazy(() => import('../../three/SingularityCanvas'));
 
@@ -15,7 +15,7 @@ const SingularityCanvas = lazy(() => import('../../three/SingularityCanvas'));
  * It has to outlive the first fold: the object stays on screen while the
  * reader moves through WORK, ABOUT, SKILLS and CONTACT, and the intro can pull
  * text into it from any section. A layer inside the hero would be scrolled
- * away — and clipped by the hero's own `overflow: hidden`.
+ * away, and clipped by the hero's own `overflow: hidden`.
  *
  * `pointer-events: none` so it never intercepts a click, and `z-index: 0`
  * with the content at `z-index: 1` so it always sits behind the copy.
@@ -47,7 +47,7 @@ const Layer = styled.div`
  *
  * The singularity stays on screen for the whole page, which would otherwise
  * put a bright accretion disc directly behind body text. Rather than move or
- * shrink the object — the composition has to stay fixed — the veil deepens as
+ * shrink the object, the composition has to stay fixed, the veil deepens as
  * the reader leaves the hero, so the object recedes without going anywhere.
  */
 const Veil = styled.div`
@@ -66,7 +66,7 @@ const Veil = styled.div`
  * be a composition rather than an absence. This is the light the `Layer`
  * already paints, held a little more present: the field the page shows during
  * the ~900 ms before the 3D chunk hydrates, kept permanently instead of being
- * replaced. The failure therefore has no cut — it is the page arriving and
+ * replaced. The failure therefore has no cut, it is the page arriving and
  * then stopping where it was.
  *
  * Deliberately not the first project's poster. That asset is a 1440x900
@@ -74,7 +74,7 @@ const Veil = styled.div`
  * stretched fixed behind every route it would compete with body copy, which is
  * the exact problem `lib/veil` exists to solve. It stays a light field.
  *
- * Static by construction — no transform, no transition — so reduced motion and
+ * Static by construction, no transform, no transition, so reduced motion and
  * the `sceneMode('poster')` path need no separate branch here.
  */
 const StaticField = styled.div`

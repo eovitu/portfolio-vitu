@@ -4,10 +4,8 @@
  */
 
 export const EASE = 'expo.out';
-export const EASE_SOFT = 'power3.out';
-export const EASE_CSS = 'cubic-bezier(.16, 1, .3, 1)';
 
-/** Hero entrance — absolute positions on the master timeline (seconds). */
+/** Hero entrance, absolute positions on the master timeline (seconds). */
 export const HERO = {
   nav: { at: 0.15, duration: 1.1 },
   meta: { at: 0.2, duration: 1.1, stagger: 0.08 },
@@ -24,14 +22,14 @@ export const HERO = {
  * back *into* it, the core holds alone for a beat, then expels it again.
  *
  * `pull` / `spread` are the fraction of the distance to the core the letters
- * actually travel — at 1.0 they stack exactly on the singularity, which reads
+ * actually travel, at 1.0 they stack exactly on the singularity, which reads
  * as a collapse to a point rather than as matter being drawn in, so they stop
  * just short of it.
  */
 export const INTRO = {
   absorb: {
     /**
-     * The name is held legible for a beat before gravity claims it — without
+     * The name is held legible for a beat before gravity claims it, without
      * that pause there is nothing to *watch* being pulled in.
      */
     at: 0.55,
@@ -45,7 +43,7 @@ export const INTRO = {
    * How long the expulsion starts BEFORE the absorption has finished emptying
    * the screen.
    *
-   * There used to be a `hold` here — a beat with the core alone. On paper it
+   * There used to be a `hold` here, a beat with the core alone. On paper it
    * was the drama of the swallow; on screen it was a dead black frame, because
    * by then every element was already at `opacity: 0`. The two phases now
    * overlap: the first matter is thrown clear while the last is still falling
@@ -64,13 +62,13 @@ export const INTRO = {
     tilt: 5,
   },
   /**
-   * The staged reload — ghosts of the previous screen falling into the core
+   * The staged reload, ghosts of the previous screen falling into the core
    * while the camera travels back to the hero.
    *
    * HARD CEILING: `ceiling` seconds from the first useful frame to the end of
    * the expulsion. Past that the sequence stops being an transition and starts
    * being a cutscene the reader has to sit through on every refresh. When the
-   * arithmetic does not fit, the expel stagger is compressed — no phase is
+   * arithmetic does not fit, the expel stagger is compressed, no phase is
    * ever dropped.
    */
   reload: {
@@ -109,7 +107,7 @@ export const INTRO = {
 } as const;
 
 /**
- * Scroll reveal presets — `data-reveal` kinds from the design source.
+ * Scroll reveal presets, `data-reveal` kinds from the design source.
  *
  * `y: 0` is declared alongside every `yPercent` on purpose. GSAP writes a
  * percentage translate to the DOM in pixels; if the tween is ever re-parsed
@@ -140,31 +138,6 @@ export const REVEAL = {
 
 export type RevealKind = keyof typeof REVEAL;
 
-/** Project panel entrance inside the pinned horizontal chapter. */
-export const PANEL = {
-  itemsFrom: { yPercent: 60, y: 0, opacity: 0 },
-  itemsTo: { yPercent: 0, y: 0, opacity: 1 },
-  itemsDuration: 0.5,
-  itemsStagger: 0.05,
-  /**
-   * How long before a panel is centred its entrance begins, in panel-units
-   * (1 unit === one full panel of travel).
-   *
-   * This MUST be >= 1: panel `i` starts entering the viewport exactly one unit
-   * before it is centred. The prototype used 0.55, which is when its *text*
-   * column arrives — so the panel's right half sat on screen as a large empty
-   * black column for half a panel of scrolling. That is the "espaço preto onde
-   * deveria estar o PROJECT 03". At 1.0 the reveal starts the instant the
-   * panel's leading edge appears, and finishes at ~0.3 units — well composed
-   * before it reaches the centre.
-   */
-  leadIn: 1,
-  mediaDuration: 0.55,
-  mediaDelay: 0.08,
-  imageScale: 1.16,
-  imageParallax: 4,
-} as const;
-
 export const LENIS_OPTIONS = {
   duration: 1.15,
   wheelMultiplier: 1.05,
@@ -173,5 +146,3 @@ export const LENIS_OPTIONS = {
 
 /** Scroll-velocity skew, clamped exactly as in the design source. */
 export const SKEW = { factor: 0.045, clamp: 3, duration: 0.5 } as const;
-
-export const CURSOR = { lerp: 0.16, size: 10, hoverScale: 3.4 } as const;

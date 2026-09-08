@@ -1,7 +1,7 @@
 export type TransitionPhase =
   'idle' | 'anticipating' | 'occluding' | 'swapping' | 'revealing';
 
-export interface TransitionIntentIdentity {
+interface TransitionIntentIdentity {
   id: number;
 }
 

@@ -11,7 +11,7 @@ import { heroSignal } from './heroSignal';
 import { sceneSignals } from '../motion/sceneSignals';
 
 /**
- * Reused every frame — the rig is the field's producer and runs inside the
+ * Reused every frame, the rig is the field's producer and runs inside the
  * render loop, so it must not allocate.
  */
 const projected = new THREE.Vector3();
@@ -22,7 +22,7 @@ interface Props {
 }
 
 /**
- * World units the object travels vertically across the *entire* page — the
+ * World units the object travels vertically across the *entire* page, the
  * only movement the composition allows. Roughly a sixth of the visible frustum
  * height: enough to feel like the camera is easing around it, far too little
  * to read as the object wandering.
@@ -34,12 +34,12 @@ const SCROLL_DRIFT = 0.34;
  *
  * There are no lights and no environment map here, and that is not an
  * omission. Every material in the object is a `MeshBasicMaterial` with
- * additive blending — it emits, it is not lit. The previous rig's studio
+ * additive blending, it emits, it is not lit. The previous rig's studio
  * lighting and PMREM environment existed to shade a PBR bake that no longer
  * exists; they would now cost frames and change nothing on screen.
  *
  * Rotation belongs to the object itself (`singularityScene`), so this rig
- * touches position only — the two never write the same property.
+ * touches position only, the two never write the same property.
  */
 export function Scene({ reduced, tier }: Props) {
   const root = useRef<THREE.Group>(null);
@@ -75,13 +75,13 @@ export function Scene({ reduced, tier }: Props) {
       scroll.current = max > 0 ? Math.min(1, window.scrollY / max) : 0;
     };
     const remeasure = () => {
-      // Section boundaries, measured once per layout change — never per frame.
+      // Section boundaries, measured once per layout change, never per frame.
       measureStage();
       onScroll();
     };
     remeasure();
-    // The pin spacer only exists after ScrollTrigger has built it, and it is
-    // what gives WORK its true scrolled length.
+    // Selected Work's sticky run contributes its natural document height; no
+    // pin spacer is created, so the same boundary remains valid on every mode.
     const settle = window.setTimeout(remeasure, 400);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', remeasure);
@@ -106,7 +106,7 @@ export function Scene({ reduced, tier }: Props) {
      * Presence drives placement now, not just the veil.
      *
      * The object leaves the frame for WORK, SKILLS and ABOUT and returns for
-     * the collapse — as a move, never as a `display: none`. Scale and offset
+     * the collapse, as a move, never as a `display: none`. Scale and offset
      * come from `lib/stagePresence`; the rig only applies them, so there is
      * still exactly one authority on where the object is.
      */

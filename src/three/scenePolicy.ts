@@ -1,6 +1,6 @@
-export type SceneMode = 'poster' | 'economy' | 'full';
+type SceneMode = 'poster' | 'economy' | 'full';
 
-export interface ScenePolicyInput {
+interface ScenePolicyInput {
   webgl: boolean;
   coarse: boolean;
   width: number;

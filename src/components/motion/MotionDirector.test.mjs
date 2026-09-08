@@ -74,3 +74,10 @@ test('writes continuous values into the mutable store, never React state', () =>
   assert.match(director, /sceneSignals\.velocity = velocity/);
   assert.doesNotMatch(director, /setState.*velocity/);
 });
+
+test('keeps singularity lifecycle callbacks stable across intro state renders', () => {
+  assert.match(director, /const onIntroLock = useCallback/);
+  assert.match(director, /const onIntroRelease = useCallback/);
+  assert.match(director, /onLock: onIntroLock/);
+  assert.match(director, /onRelease: onIntroRelease/);
+});

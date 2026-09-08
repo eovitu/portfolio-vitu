@@ -9,7 +9,7 @@ interface Props {
 
 /**
  * If the singularity fails to build, the throw must not take the page down
- * with it — the page simply renders without the 3D layer.
+ * with it, the page simply renders without the 3D layer.
  *
  * The object is generated in code now rather than loaded from a GLB, so the
  * failure modes have changed (a shader that will not compile, a WebGL context

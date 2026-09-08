@@ -2,7 +2,7 @@
  * The gravitational field, in screen space.
  *
  * One source of truth for where the core is on screen and how strongly it
- * pulls at a given point — consumed by the letters, the cursor and the
+ * pulls at a given point, consumed by the letters, the cursor and the
  * starfield. Writing three independent proximity tests would guarantee they
  * disagree the moment the framing changes, which is exactly what the
  * direction rules out.
@@ -16,7 +16,7 @@
  * no garbage.
  */
 
-export interface FieldSample {
+interface FieldSample {
   /** Unit vector from the sampled point toward the core. */
   ux: number;
   uy: number;
@@ -24,7 +24,7 @@ export interface FieldSample {
   dist: number;
   /**
    * Influence, 1 at the core and 0 at the edge of `radius`, eased so the
-   * falloff is steep near the horizon and long in the tail — matter far out
+   * falloff is steep near the horizon and long in the tail, matter far out
    * should feel a trace, not a cliff.
    */
   strength: number;
@@ -37,7 +37,7 @@ const core = { x: 0, y: 0, visible: false };
  * framing the core sits around x 660 / y 470, and 620px reaches the far end of
  * "VICTOR" without touching the info grid below the rule.
  */
-export const FIELD_RADIUS = 620;
+const FIELD_RADIUS = 620;
 
 /**
  * Global gate. The intro owns every transform on the letters until it
@@ -108,7 +108,7 @@ export function getPointer(): { x: number; y: number; inside: boolean } {
  * How hard the field is pulling right now, independent of position.
  *
  * A field that is merely a function of position renders once and then looks
- * painted on — the letters would be born crooked and stay crooked, and the eye
+ * painted on, the letters would be born crooked and stay crooked, and the eye
  * stops seeing it within seconds. So the global gain moves: it rises as the
  * pointer approaches the core, and rides the object's own pulse on top.
  */
@@ -144,7 +144,7 @@ export function sample(x: number, y: number): FieldSample {
 /**
  * Standard damping for every consumer, so the letters, the cursor and the
  * stars all settle with the same weight. 0.035 is the prototype's figure and
- * the reference the direction asked to preserve — anything snappier reads as
+ * the reference the direction asked to preserve, anything snappier reads as
  * a UI effect rather than as mass responding to a force.
  */
 export const DAMPING = 0.035;

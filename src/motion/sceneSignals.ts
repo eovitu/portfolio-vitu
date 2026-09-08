@@ -1,6 +1,6 @@
 import type { ProjectSlug } from '../lib/content';
 
-export interface SceneSignals {
+interface SceneSignals {
   route: 'home' | 'case';
   chapter: number;
   transitionProgress: number;
@@ -13,6 +13,13 @@ export interface SceneSignals {
   particles: number;
   projectTheme: ProjectSlug | null;
   velocity: number;
+  /**
+   * The active project's accent as `#rrggbb`, or the neutral gold outside
+   * Works and the cases. Written by the surface tokens hook, which is also
+   * what writes it into CSS, one author, so the object and the interface
+   * cannot disagree about which project is on screen.
+   */
+  accent: string;
 }
 
 export const sceneSignals: SceneSignals = {
@@ -28,6 +35,7 @@ export const sceneSignals: SceneSignals = {
   particles: 1,
   projectTheme: null,
   velocity: 0,
+  accent: '#D69F51',
 };
 
 /** Keeps a stable object identity so the render loop never subscribes or rerenders. */

@@ -6,6 +6,7 @@ export const RouteTransitionOverlay = forwardRef<HTMLDivElement>(
     return (
       <S.Overlay ref={ref} aria-hidden="true" data-route-transition-overlay>
         <S.Core />
+        <S.Label>Entering orbit</S.Label>
       </S.Overlay>
     );
   },

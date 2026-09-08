@@ -14,7 +14,7 @@ import { heroSignal, resetHeroSignal } from '../three/heroSignal';
  * so the two do not read as one rigid slab.
  *
  * This writes the outer `[data-hero-word]` node, and it is the only thing that
- * does once the entrance has handed over — `hooks/useHomeMotion` owns that
+ * does once the entrance has handed over, `hooks/useHomeMotion` owns that
  * hand-off and is this hook's only caller. The inner `[data-hero-glyph]` belongs
  * to the gravity field and is never touched here.
  *
@@ -46,8 +46,8 @@ export function useHeroExit(sectionRef: RefObject<HTMLElement>, enabled: boolean
        * Measured on refresh rather than per frame, and always from the rest
        * state: measuring a mid-scrub element would compound the offset it has
        * already been given. The scene publishes the core's screen position each
-       * frame; when there is no scene, the composition's own focal point — the
-       * centre of the hero's radial gradient — stands in for it, so the exit
+       * frame; when there is no scene, the composition's own focal point, the
+       * centre of the hero's radial gradient, stands in for it, so the exit
        * still converges somewhere deliberate instead of collapsing to a corner.
        */
       const deltas: Array<{ x: number; y: number }> = [];

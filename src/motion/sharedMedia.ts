@@ -1,12 +1,12 @@
-export interface SharedMediaCandidate {
+interface SharedMediaCandidate {
   poster?: string;
   posterLoaded: boolean;
   frameReady: boolean;
 }
 
-export type SharedMediaSource = { kind: 'poster'; src: string } | { kind: 'frame-surface' };
+type SharedMediaSource = { kind: 'poster'; src: string } | { kind: 'frame-surface' };
 
-export interface MediaRect {
+interface MediaRect {
   left: number;
   top: number;
   width: number;
@@ -48,6 +48,8 @@ function positionRepresentation(element: HTMLElement, rect: MediaRect): void {
     objectFit: 'cover',
     pointerEvents: 'none',
     transformOrigin: '0 0',
+    boxShadow: '0 28px 90px rgba(0, 0, 0, 0.52), 0 0 0 1px rgba(214, 159, 81, 0.24)',
+    filter: 'saturate(1.08) contrast(1.04)',
   });
 }
 

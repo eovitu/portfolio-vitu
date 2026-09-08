@@ -9,7 +9,7 @@ import { sceneSignals } from '../motion/sceneSignals';
 
 import { stage, stageVeil } from '../lib/stagePresence';
 
-/** Reused every frame — the dust runs inside the render loop. */
+/** Reused every frame, the dust runs inside the render loop. */
 const coreView = new THREE.Vector3();
 
 /** Composited brightness the field aims to hold in every section. */
@@ -27,7 +27,7 @@ interface Props {
 }
 
 /**
- * The ambient dust halo around the singularity — a single Points draw call.
+ * The ambient dust halo around the singularity, a single Points draw call.
  * Density, radius range, flattening, colour and size are taken from the
  * design source; the field fades in over the first seconds and fades out as
  * the hero scrolls away.
@@ -57,19 +57,19 @@ export function DustField({ pointerRef, idle }: Props) {
   }, [count]);
 
   /**
-   * Gravitational lensing of the background field — third consumer of
+   * Gravitational lensing of the background field, third consumer of
    * `lib/gravityField`.
    *
    * Light passing near a black hole is bent around it, so a starfield behind
    * one does not render straight. The bend happens in the vertex shader via
    * `onBeforeCompile`: no full-screen pass, nothing added to the scene, and no
-   * per-frame CPU work over the point cloud. `singularityScene` is untouched —
+   * per-frame CPU work over the point cloud. `singularityScene` is untouched,
    * this is the dust, a separate object.
    *
    * It is a screen-plane approximation, deliberately: points are rotated
    * around the core in view space with a falloff of 1/(1+kr²), and pulled
    * slightly inward as they go. Real lensing is a light-path integral, but at
-   * this scale the visible signature is exactly this — the field appears to
+   * this scale the visible signature is exactly this, the field appears to
    * swirl and crowd near the silhouette.
    *
    * Known limitation, not worked around: point sprites cannot be elongated
@@ -131,7 +131,7 @@ export function DustField({ pointerRef, idle }: Props) {
     if (idle) node.rotation.y = t * 0.011;
     node.rotation.x = pointerRef.current.y * 0.09;
     /**
-     * The starfield is the site's constant — it is what holds the page
+     * The starfield is the site's constant, it is what holds the page
      * together as one place while the object itself enters and leaves.
      *
      * That means it has to survive the veil, and the veil is a black DOM layer
@@ -157,7 +157,7 @@ export function DustField({ pointerRef, idle }: Props) {
     coreView.set(cw.x, cw.y, cw.z).applyMatrix4(state.camera.matrixWorldInverse);
     uniforms.uCoreView.value.copy(coreView);
     // The bend rides the same pulse the rest of the field does, and fades out
-    // with the dust as the hero leaves — no lensing over the WORK copy.
+    // with the dust as the hero leaves, no lensing over the WORK copy.
     // Lensing tracks how present the object actually is: no bend where there
     // is nothing to bend around.
     uniforms.uLens.value =

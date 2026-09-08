@@ -27,7 +27,7 @@ export function useReveal(scopeRef: RefObject<HTMLElement>): void {
       if (!nodes.length) return;
 
       if (reduce) {
-        // Content must be fully visible and readable — no transforms at all.
+        // Content must be fully visible and readable, no transforms at all.
         gsap.set(nodes, { clearProps: 'all' });
         return;
       }
@@ -56,7 +56,7 @@ export function useReveal(scopeRef: RefObject<HTMLElement>): void {
           const preset = REVEAL[kind];
           // A single `fromTo` (not `set` + `to`): a standalone `set` writes the
           // transform as pixels, and the later tween then reads `yPercent` as
-          // already 0 — the element would never move. `immediateRender` puts
+          // already 0, the element would never move. `immediateRender` puts
           // the "from" state in place at creation, so nothing flashes either.
           gsap.fromTo(targets, preset.from, {
             ...preset.to,

@@ -19,14 +19,19 @@ import {
   visitMode,
   type VisitMode,
 } from '../../motion/visitState';
+import { isReloadNavigation } from '../../lib/reloadSnapshot';
 import { useRouteTransition } from '../routing/RouteTransitionProvider';
-import { useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { useAnimationFrame, useSmoothScroll } from '../providers/SmoothScrollProvider';
 import { EntrySequence } from './EntrySequence';
+import { useSingularityIntro } from '../../hooks/useSingularityIntro';
+import { getGhostLayer } from '../../lib/ghosts';
+import { useMagneticElements } from '../../hooks/useMagnetic';
+import { useSurfaceTokens } from '../../hooks/useSurfaceTokens';
 
 /**
  * The Motion Director.
  *
- * It owns page-level choreography — never component content. Concretely: which
+ * It owns page-level choreography, never component content. Concretely: which
  * entry the reader gets, the entry layer's lifecycle, the hand-off that lets
  * the hero take over, and the one scroll-velocity sample the whole site shares.
  *
@@ -44,7 +49,7 @@ interface MotionState {
   /** Frozen at mount: the entry a reader gets does not change under them. */
   mode: VisitMode;
   /**
-   * The expulsion has begun. This is the hero's cue — its entrance runs
+   * The expulsion has begun. This is the hero's cue, its entrance runs
    * against the entry layer clearing, not after it, so the composition is
    * arrived at rather than cut to.
    */
@@ -67,18 +72,57 @@ export function MotionDirector({ children }: { children: ReactNode }) {
   const { route } = useRouteTransition();
   const [mode] = useState<VisitMode>(() =>
     visitMode({
-      seen: readVisitSeen(currentVisitStorage()),
+      seen: readVisitSeen(currentVisitStorage()) || isReloadNavigation(),
       reduced: prefersReducedMotion(),
     }),
   );
   const [revealing, setRevealing] = useState(false);
   const [released, setReleased] = useState(false);
+  const [introReady, setIntroReady] = useState(false);
   const onReveal = useCallback(() => setRevealing(true), []);
   const onRelease = useCallback(() => setReleased(true), []);
 
   const reduced = mode === 'static';
   const skewSetters = useRef<Array<(value: number) => void>>([]);
   const lastScrollY = useRef(0);
+  const reloadGhosts = Boolean(getGhostLayer());
+  const { stop, start } = useSmoothScroll();
+  const onIntroLock = useCallback(() => {
+    stop();
+    onReveal();
+  }, [onReveal, stop]);
+  const onIntroRelease = useCallback(() => {
+    start();
+    onRelease();
+  }, [onRelease, start]);
+
+  useMagneticElements(route);
+  // One injection point for the active surface. See hooks/useSurfaceTokens.
+  useSurfaceTokens();
+
+  useSingularityIntro(reloadGhosts && introReady, {
+    onLock: onIntroLock,
+    onRelease: onIntroRelease,
+  });
+
+  useEffect(() => {
+    if (!reloadGhosts) {
+      setIntroReady(true);
+      return;
+    }
+
+    let cancelled = false;
+    let timer = 0;
+    const settle = () => {
+      if (!cancelled) setIntroReady(true);
+    };
+    document.fonts?.ready.then(settle).catch(settle);
+    timer = window.setTimeout(settle, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [reloadGhosts]);
 
   /**
    * Scroll-linked tension on the headlines that opt in with `data-skew`.
@@ -120,7 +164,9 @@ export function MotionDirector({ children }: { children: ReactNode }) {
   return (
     <MotionContext.Provider value={value}>
       {children}
-      {!released && <EntrySequence mode={mode} onReveal={onReveal} onRelease={onRelease} />}
+      {!released && !reloadGhosts && (
+        <EntrySequence mode={mode} onReveal={onReveal} onRelease={onRelease} />
+      )}
     </MotionContext.Provider>
   );
 }

@@ -10,7 +10,7 @@
 
 export type VisitMode = 'first' | 'repeat' | 'static';
 
-export interface VisitInput {
+interface VisitInput {
   /** The reader has already been through the entry in this session. */
   seen: boolean;
   /** `prefers-reduced-motion: reduce`. */
@@ -24,17 +24,17 @@ export function visitMode({ seen, reduced }: VisitInput): VisitMode {
   return seen ? 'repeat' : 'first';
 }
 
-export const VISIT_STORAGE_KEY = 'singularity:entry-seen';
+const VISIT_STORAGE_KEY = 'singularity:entry-seen';
 
 /** The slice of `sessionStorage` this module needs, so tests can substitute it. */
-export interface VisitStorage {
+interface VisitStorage {
   getItem(key: string): string | null;
 }
 
 /**
  * Session storage throws rather than returning null in private mode and under
  * blocked third-party storage. A reader who cannot be remembered is simply a
- * first-time reader — never a crash, and never a missing interface.
+ * first-time reader, never a crash, and never a missing interface.
  */
 export function readVisitSeen(storage: VisitStorage | null | undefined): boolean {
   if (!storage) return false;

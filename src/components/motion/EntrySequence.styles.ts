@@ -3,7 +3,7 @@ import styled from 'styled-components';
 /**
  * The entry layer sits above the route overlay (110) and below the skip link
  * (120): it is decoration, and a keyboard reader must never be locked behind
- * decoration. `pointer-events: none` for the same reason — the interface under
+ * decoration. `pointer-events: none` for the same reason, the interface under
  * it stays clickable for the whole sequence, so a slow entry can never become
  * a blocked page.
  */
@@ -20,7 +20,7 @@ export const Overlay = styled.div`
 
 /**
  * The fragments start off-composition and travel inward. Clipping them here
- * keeps that travel from ever widening the document — `scrollWidth` must stay
+ * keeps that travel from ever widening the document, `scrollWidth` must stay
  * within `innerWidth` at every viewport.
  */
 export const Field = styled.div`

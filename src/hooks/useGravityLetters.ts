@@ -35,7 +35,7 @@ import { sceneMode } from '../three/scenePolicy';
 
 interface Glyph {
   el: HTMLElement;
-  /** Cached centre in CSS px — re-measured on resize, never per frame. */
+  /** Cached centre in CSS px, re-measured on resize, never per frame. */
   cx: number;
   cy: number;
   /**
@@ -43,7 +43,7 @@ interface Glyph {
    *
    * Positional distortion alone does not read as "in space": a shape that
    * tracks the pointer exactly reads as a UI effect however far it moves. What
-   * communicates mass is lag — the glyph arriving late and settling. Wider
+   * communicates mass is lag, the glyph arriving late and settling. Wider
    * glyphs get more of it, so a `W` visibly trails an `I` and the line stops
    * moving as one rigid object.
    */
@@ -65,7 +65,7 @@ const glyphs: Glyph[] = [];
 const PULL_PX = 30;
 /** Peak lean in degrees. Negative so a glyph left of the core tips right. */
 const LEAN_DEG = -8;
-/** Peak stretch. Kept small — legibility of the heading is not negotiable. */
+/** Peak stretch. Kept small, legibility of the heading is not negotiable. */
 const STRETCH = 0.11;
 /** How far a glyph is thrown by a fast pointer sweep, per px of movement. */
 const DRIFT_POINTER = 0.5;
@@ -239,7 +239,7 @@ export function useGravityLetters(
 
       /**
        * Inertia is integrated on its own channel and then added to the field's
-       * pull — the two compose, they do not replace each other. The field says
+       * pull, the two compose, they do not replace each other. The field says
        * where the glyph is drawn; the inertia says how late it gets there.
        *
        * Heavier glyphs are impulsed harder and released more slowly, so the

@@ -3,12 +3,13 @@ import { gsap } from '../../lib/gsap';
 import { MOTION_DURATION, MOTION_EASE, MOTION_STAGGER } from '../../motion/tokens';
 import { markVisitSeen, type VisitMode } from '../../motion/visitState';
 import { heroSignal, resetHeroSignal } from '../../three/heroSignal';
+import { getGhostLayer } from '../../lib/ghosts';
 import * as S from './EntrySequence.styles';
 
 /**
  * The entry layer.
  *
- * It is painted *over* HTML that has already rendered — the heading, the
+ * It is painted *over* HTML that has already rendered, the heading, the
  * navigation and the project list are in the document and readable from the
  * first paint, and this layer is only the composition that hands the screen
  * over. Nothing here is a prerequisite for the page being correct: if every
@@ -33,7 +34,7 @@ interface Props {
    * against `onRelease`: the spec's beat is "expelled energy reveals navigation
    * and hero typography", so the type has to arrive while this layer is still
    * clearing. Waiting for the release would show the settled hero and then
-   * animate it in — the cut the sequence exists to avoid.
+   * animate it in, the cut the sequence exists to avoid.
    */
   onReveal: () => void;
   onRelease: () => void;
@@ -43,7 +44,7 @@ const FRAGMENT_COUNT = 14;
 
 /**
  * Deterministic positions on a golden-angle spiral, as a fraction of the
- * viewport's short side — deterministic rather than random so a re-render or a
+ * viewport's short side, deterministic rather than random so a re-render or a
  * resize can never produce two different fields.
  */
 const FRAGMENTS = Array.from({ length: FRAGMENT_COUNT }, (_, index) => {
@@ -105,6 +106,10 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
       release();
       return;
     }
+    if (mode === 'repeat' && getGhostLayer()) {
+      release();
+      return;
+    }
 
     // The absolute ceiling, deliberately independent of the timeline, the
     // observers and the readiness race, because its whole job is to survive
@@ -128,11 +133,43 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
         const navItems = Array.from(
           document.querySelectorAll<HTMLElement>('[data-nav-item]'),
         );
+        const warpTargets = Array.from(
+          document.querySelectorAll<HTMLElement>('[data-warp]'),
+        ).filter((element) => {
+          const rect = element.getBoundingClientRect();
+          return (
+            rect.bottom > 0 &&
+            rect.top < window.innerHeight &&
+            rect.right > 0 &&
+            rect.left < window.innerWidth
+          );
+        });
 
         if (mode === 'repeat') {
+          gsap.set(root, { backgroundColor: 'rgba(8, 8, 10, 0)', opacity: 1 });
+          gsap.set(fragments, {
+            x: (index: number) => FRAGMENTS[index].x * window.innerWidth,
+            y: (index: number) => FRAGMENTS[index].y * window.innerHeight,
+            scale: 1.8,
+            opacity: 0.38,
+          });
           gsap.set(core, { scale: 0.4, opacity: 1 });
           gsap
             .timeline({ onStart: reveal, onComplete: release })
+            .to(root, {
+              backgroundColor: 'rgba(8, 8, 10, 1)',
+              duration: MOTION_DURATION.entryRepeat * 0.34,
+              ease: MOTION_EASE.attract,
+            })
+            .to(fragments, {
+              x: 0,
+              y: 0,
+              scale: 0.2,
+              opacity: 0,
+              duration: MOTION_DURATION.entryRepeat * 0.72,
+              stagger: MOTION_STAGGER.glyph * 0.7,
+              ease: MOTION_EASE.attract,
+            })
             .to(core, {
               scale: 1.6,
               opacity: 0,
@@ -170,6 +207,13 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
         });
         gsap.set(core, { scale: 0, opacity: 1 });
         gsap.set(flare, { scaleX: 0, opacity: 0 });
+        if (warpTargets.length) {
+          gsap.set(warpTargets, {
+            transformOrigin: '50% 50%',
+            scale: 0,
+            opacity: 0,
+          });
+        }
         if (nav) gsap.set(nav, { opacity: 0 });
         if (navItems.length) gsap.set(navItems, { y: -8, opacity: 0 });
 
@@ -177,7 +221,7 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
         let ready = false;
         let expelling = false;
 
-        /** Phase B — expulsion reveals the interface, then settles onto it. */
+        /** Phase B, expulsion reveals the interface, then settles onto it. */
         const expel = () => {
           if (expelling || settled) return;
           expelling = true;
@@ -252,6 +296,19 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
               0.14,
             );
           }
+          if (warpTargets.length) {
+            tl.to(
+              warpTargets,
+              {
+                scale: 1,
+                opacity: 1,
+                duration: MOTION_DURATION.entryRelease,
+                ease: MOTION_EASE.expel,
+                stagger: MOTION_STAGGER.block * 0.35,
+              },
+              0.08,
+            );
+          }
         };
 
         const markReady = () => {
@@ -260,7 +317,7 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
           if (gathered) expel();
         };
 
-        /** Phase A — empty field, fragments, convergence, core, disc flare. */
+        /** Phase A, empty field, fragments, convergence, core, disc flare. */
         gsap
           .timeline({
             onComplete: () => {
@@ -362,6 +419,7 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
   }, [mode]);
 
   if (mode === 'static') return null;
+  if (mode === 'repeat' && getGhostLayer()) return null;
 
   return (
     <S.Overlay ref={overlay} aria-hidden="true" data-entry-overlay>

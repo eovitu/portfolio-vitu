@@ -1,6 +1,6 @@
 import { isPublicPath } from '../lib/routes.ts';
 
-export interface PortfolioHistoryState {
+interface PortfolioHistoryState {
   path: string;
   scrollY?: number;
 }

@@ -1,7 +1,11 @@
 import { useRef } from 'react';
 import { useHomeMotion } from '../../hooks/useHomeMotion';
-import { projects } from '../../lib/content';
-import { hrefForCase } from '../../lib/routes';
+import { useAnimationFrame } from '../providers/SmoothScrollProvider';
+import { stage } from '../../lib/stagePresence';
+import { coreOrigin } from '../../lib/warpTargets';
+import { SelectedWorkTheater } from './SelectedWorkTheater';
+import { Footer } from '../layout/Footer';
+import { useEditorialMotion } from '../../hooks/useEditorialMotion';
 import * as S from './HomePage.styles';
 
 /**
@@ -10,10 +14,10 @@ import * as S from './HomePage.styles';
  * `HERO_TITLE_TEXT` is what a screen reader announces: one intact string, in a
  * visually hidden span. The split below it is decoration and is `aria-hidden`,
  * because a heading spelled out one glyph per element is announced one glyph at
- * a time. The two must stay in sync — they are the same sentence.
+ * a time. The two must stay in sync, they are the same sentence.
  */
-const HERO_TITLE_TEXT = 'Reliable systems. Expressive products.';
-const HERO_TITLE_WORDS = ['Reliable', 'systems.', 'Expressive', 'products.'] as const;
+const HERO_TITLE_TEXT = 'Code with a human pulse.';
+const HERO_TITLE_WORDS = ['Code with', 'a human', 'pulse.'] as const;
 
 const capabilities = [
   {
@@ -33,21 +37,59 @@ const capabilities = [
   },
   {
     title: '3D & Motion',
-    body: 'Real-time visual systems used when they clarify the experience — with a measured performance budget.',
+    body: 'Real-time visual systems used when they clarify the experience, with a measured performance budget.',
     stack: 'Three.js · R3F · GSAP · GLSL',
   },
 ] as const;
 
 export function HomePage() {
   const heroRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
+  const profileRef = useRef<HTMLElement>(null);
+  const aboutRef = useRef<HTMLElement>(null);
+  useEditorialMotion(profileRef, aboutRef);
   useHomeMotion(heroRef);
+  useAnimationFrame(() => {
+    const el = contactRef.current;
+    if (!el) return;
+    const presence = stage().presence;
+    const collapse = Math.max(0, Math.min(1, (presence - 0.82) / 0.63));
+    el.style.setProperty('--contact-collapse', collapse.toFixed(3));
+    if (presence < 0.75) return;
+    const origin = coreOrigin();
+    const words = el.querySelectorAll<HTMLElement>('[data-contact-word]');
+    const vectors = Array.from(words, (word) => {
+      const previousX = Number(word.dataset.consumeX ?? 0);
+      const previousY = Number(word.dataset.consumeY ?? 0);
+      const rect = word.getBoundingClientRect();
+      const naturalCenterX = rect.left + rect.width / 2 - previousX * collapse;
+      const naturalCenterY = rect.top + rect.height / 2 - previousY * collapse;
+      return {
+        word,
+        consumeX: origin.x - naturalCenterX,
+        consumeY: origin.y - naturalCenterY,
+      };
+    });
+
+    // Keep layout reads and style writes in separate phases. Interleaving them
+    // forces synchronous reflow for every word during the collapse.
+    vectors.forEach(({ word, consumeX, consumeY }) => {
+      word.dataset.consumeX = consumeX.toFixed(2);
+      word.dataset.consumeY = consumeY.toFixed(2);
+      word.style.setProperty('--consume-x', `${consumeX.toFixed(2)}px`);
+      word.style.setProperty('--consume-y', `${consumeY.toFixed(2)}px`);
+    });
+  });
 
   return (
     <>
-      <S.Hero id="top" ref={heroRef} aria-labelledby="hero-title">
-        <S.HeroGrid>
+      <S.Hero id="top" ref={heroRef} aria-labelledby="hero-title" data-gravity-section>
+        <S.HeroNote href="#about">
+          Victor Hugo <span>Engineer. Curious human. ↘</span>
+        </S.HeroNote>
+        <S.HeroGrid data-warp>
           <div>
-            <S.Kicker>Backend Developer · Product Engineer</S.Kicker>
+            <S.Kicker>Backend developer. Product-minded.</S.Kicker>
             {/* `id`, `data-route-heading` and `tabIndex` are the route
                 transition director's focus target. They stay. */}
             <S.HeroTitle id="hero-title" data-route-heading tabIndex={-1}>
@@ -56,7 +98,11 @@ export function HomePage() {
                 {HERO_TITLE_WORDS.map((word) => (
                   <S.HeroWord key={word} data-hero-word>
                     {Array.from(word).map((glyph, index) => (
-                      <S.HeroGlyph key={`${word}-${index}`} data-hero-glyph>
+                      <S.HeroGlyph
+                        key={`${word}-${index}`}
+                        data-hero-glyph
+                        data-space={glyph === ' ' || undefined}
+                      >
                         {glyph}
                       </S.HeroGlyph>
                     ))}
@@ -67,8 +113,8 @@ export function HomePage() {
           </div>
           <S.HeroAside data-hero-fade>
             <S.HeroCopy>
-              I build digital products from backend architecture to the interface people
-              actually use.
+              Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a
+              product and the details that make it feel alive.
             </S.HeroCopy>
             <S.Actions>
               <S.Action $primary href="#work">
@@ -80,98 +126,22 @@ export function HomePage() {
         </S.HeroGrid>
       </S.Hero>
 
-      <S.Section id="work" aria-labelledby="work-title">
-        <S.SectionInner>
-          <S.SectionHead>
-            <div>
-              <S.Kicker>Selected work</S.Kicker>
-              <h2 id="work-title" data-skew>
-                Products with a system behind them.
-              </h2>
-            </div>
-            <p>
-              Three projects across platform architecture, local commerce and connected
-              care. Each case shows the decisions behind the surface.
-            </p>
-          </S.SectionHead>
-          <S.ProjectList>
-            {projects.map((project) => (
-              <S.Project key={project.slug} data-project={project.slug}>
-                <S.MediaFrame data-project-media>
-                  <img
-                    data-project-poster
-                    src={project.media.poster}
-                    alt=""
-                    aria-hidden="true"
-                    width={project.media.width}
-                    height={project.media.height}
-                  />
-                  <video
-                    muted
-                    playsInline
-                    controls
-                    preload="metadata"
-                    poster={project.media.poster}
-                    width={project.media.width}
-                    height={project.media.height}
-                    aria-label={project.media.alt}
-                  >
-                    <source src={project.media.video} type="video/mp4" />
-                  </video>
-                </S.MediaFrame>
-                <S.ProjectCopy>
-                  <S.Kicker>{project.eyebrow}</S.Kicker>
-                  <h3>{project.name}</h3>
-                  <p>{project.summary}</p>
-                  <S.Ownership>
-                    {project.ownership.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </S.Ownership>
-                  <S.Meta>
-                    <div>
-                      <dt>Role</dt>
-                      <dd>{project.role}</dd>
-                    </div>
-                    <div>
-                      <dt>Stack</dt>
-                      <dd>{project.tech}</dd>
-                    </div>
-                  </S.Meta>
-                  <S.Actions>
-                    <S.Action
-                      $primary
-                      href={hrefForCase(project.slug)}
-                      data-project-link
-                      data-transition-project={project.slug}
-                    >
-                      View case study
-                    </S.Action>
-                    {project.actions.map((action) => (
-                      <S.Action
-                        key={action.href}
-                        href={action.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {action.label}
-                      </S.Action>
-                    ))}
-                  </S.Actions>
-                </S.ProjectCopy>
-              </S.Project>
-            ))}
-          </S.ProjectList>
-        </S.SectionInner>
-      </S.Section>
+      <SelectedWorkTheater />
 
-      <S.Profile id="profile" aria-labelledby="profile-title">
+      <S.Profile
+        ref={profileRef}
+        id="profile"
+        aria-labelledby="profile-title"
+        data-gravity-section
+      >
         <S.SectionInner>
-          <S.SectionHead>
+          <S.SectionHead data-warp>
             <div>
               <S.Kicker>Engineering profile</S.Kicker>
               <h2 id="profile-title" data-skew>
-                Depth where the product needs it.
+                Under the hood.
+                <br />
+                Beyond the obvious.
               </h2>
             </div>
             <p>
@@ -179,9 +149,10 @@ export function HomePage() {
               real-time visuals extend the same engineering discipline.
             </p>
           </S.SectionHead>
-          <S.CapabilityGrid>
-            {capabilities.map((item) => (
+          <S.CapabilityGrid data-warp>
+            {capabilities.map((item, index) => (
               <S.Capability key={item.title}>
+                <span aria-hidden="true">{['{ }', '↗', '⌘', '✳'][index]}</span>
                 <h3>{item.title}</h3>
                 <p>{item.body}</p>
                 <small>{item.stack}</small>
@@ -191,24 +162,31 @@ export function HomePage() {
         </S.SectionInner>
       </S.Profile>
 
-      <S.Section id="about" aria-labelledby="about-title">
+      <S.About ref={aboutRef} id="about" aria-labelledby="about-title" data-gravity-section>
         <S.SectionInner>
-          <S.AboutGrid>
-            <img
-              src="/victor-2010.jpg"
-              width="720"
-              height="900"
-              alt="Victor Hugo as a child at a playground"
-            />
+          <S.AboutGrid data-warp>
+            <figure>
+              <img
+                src="/victor-2010.jpg"
+                width="720"
+                height="900"
+                alt="Victor Hugo as a child at a playground"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>Victor, before the code.</figcaption>
+            </figure>
             <div>
               <S.Kicker>About</S.Kicker>
               <h2 id="about-title" data-skew>
-                Curiosity became a way of building.
+                Still curious.
+                <br />
+                Just building bigger things.
               </h2>
               <p>
                 I am Victor Hugo, a backend developer in São Paulo working across system
                 architecture, product decisions and expressive interfaces. I care about the
-                invisible structure that keeps a product reliable — and the visible details
+                invisible structure that keeps a product reliable, and the visible details
                 that make it understandable.
               </p>
               <p>
@@ -217,29 +195,27 @@ export function HomePage() {
             </div>
           </S.AboutGrid>
         </S.SectionInner>
-      </S.Section>
+      </S.About>
 
-      <S.Contact id="contact" aria-labelledby="contact-title">
+      <S.Contact
+        id="contact"
+        ref={contactRef}
+        aria-labelledby="contact-title"
+        data-gravity-section
+      >
         <S.SectionInner>
           <S.Kicker>Available worldwide</S.Kicker>
-          <S.ContactTitle id="contact-title" data-skew>
-            Build something people can trust.
+          <S.ContactTitle id="contact-title" data-skew data-warp>
+            <S.ContactWord data-contact-word>Build</S.ContactWord>
+            <S.ContactWord data-contact-word>something</S.ContactWord>
+            <S.ContactWord data-contact-word>people can trust.</S.ContactWord>
           </S.ContactTitle>
-          <S.ContactGrid>
-            <p>
-              Open to backend, product engineering and creative development opportunities.
-              <br />
-              <a href="mailto:eovitu7@gmail.com">eovitu7@gmail.com</a>
-            </p>
-            <nav aria-label="Contact links">
-              <a href="mailto:eovitu7@gmail.com">Email ↗</a>
-              <a href="https://github.com/eovitu" target="_blank" rel="noreferrer">
-                GitHub ↗
-              </a>
-            </nav>
-          </S.ContactGrid>
+          <S.ContactEmail href="mailto:eovitu7@gmail.com" data-contact-survivor>
+            eovitu7@gmail.com <span aria-hidden="true">↗</span>
+          </S.ContactEmail>
         </S.SectionInner>
       </S.Contact>
+      <Footer />
     </>
   );
 }
