@@ -2,23 +2,40 @@ import styled from 'styled-components';
 import { footer } from '../../lib/content';
 
 const Bar = styled.footer`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 18px;
+  width: min(100%, 1500px);
+  margin: 0 auto;
+  padding: 28px ${({ theme }) => theme.space.gutter} 34px;
+  display: grid;
+  gap: 28px;
   font-family: ${({ theme }) => theme.fonts.mono};
   font-size: ${({ theme }) => theme.type.monoSm};
   letter-spacing: 0.16em;
   color: ${({ theme }) => theme.colors.textGhost};
+  border-top: 1px solid ${({ theme }) => theme.colors.line};
+
+  ${({ theme }) => theme.media.mobile} {
+    padding: 24px 20px 30px;
+    display: grid;
+    gap: 10px;
+  }
 `;
 
-/** The closing transmission line — part of the contact composition. */
+const Transmission = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px 18px;
+`;
+
+/** The closing transmission line, part of the contact composition. */
 export function Footer() {
   return (
-    <Bar data-warp>
-      {footer.items.map((item) => (
-        <span key={item}>{item}</span>
-      ))}
+    <Bar data-warp data-gravity-section>
+      <Transmission>
+        {footer.items.map((item) => (
+          <span key={item}>{item}</span>
+        ))}
+      </Transmission>
     </Bar>
   );
 }

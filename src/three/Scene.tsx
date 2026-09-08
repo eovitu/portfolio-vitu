@@ -8,9 +8,10 @@ import { CAMERA, QUALITY, type QualityTier } from './renderQuality';
 import { setCoreScreen, setCoreWorld, setEnergy } from '../lib/gravityField';
 import { measureStage, stage, updateStage } from '../lib/stagePresence';
 import { heroSignal } from './heroSignal';
+import { sceneSignals } from '../motion/sceneSignals';
 
 /**
- * Reused every frame — the rig is the field's producer and runs inside the
+ * Reused every frame, the rig is the field's producer and runs inside the
  * render loop, so it must not allocate.
  */
 const projected = new THREE.Vector3();
@@ -21,7 +22,7 @@ interface Props {
 }
 
 /**
- * World units the object travels vertically across the *entire* page — the
+ * World units the object travels vertically across the *entire* page, the
  * only movement the composition allows. Roughly a sixth of the visible frustum
  * height: enough to feel like the camera is easing around it, far too little
  * to read as the object wandering.
@@ -33,18 +34,19 @@ const SCROLL_DRIFT = 0.34;
  *
  * There are no lights and no environment map here, and that is not an
  * omission. Every material in the object is a `MeshBasicMaterial` with
- * additive blending — it emits, it is not lit. The previous rig's studio
+ * additive blending, it emits, it is not lit. The previous rig's studio
  * lighting and PMREM environment existed to shade a PBR bake that no longer
  * exists; they would now cost frames and change nothing on screen.
  *
  * Rotation belongs to the object itself (`singularityScene`), so this rig
- * touches position only — the two never write the same property.
+ * touches position only, the two never write the same property.
  */
 export function Scene({ reduced, tier }: Props) {
   const root = useRef<THREE.Group>(null);
   /** Damped inside the object; this is only the raw target. */
   const pointer = useRef({ x: 0, y: 0 });
   const scroll = useRef(0);
+  const current = useRef({ x: 0, y: 0, scale: 1, presence: 1, energy: 0 });
 
   const { camera } = useThree();
   const settings = QUALITY[tier];
@@ -73,13 +75,13 @@ export function Scene({ reduced, tier }: Props) {
       scroll.current = max > 0 ? Math.min(1, window.scrollY / max) : 0;
     };
     const remeasure = () => {
-      // Section boundaries, measured once per layout change — never per frame.
+      // Section boundaries, measured once per layout change, never per frame.
       measureStage();
       onScroll();
     };
     remeasure();
-    // The pin spacer only exists after ScrollTrigger has built it, and it is
-    // what gives WORK its true scrolled length.
+    // Selected Work's sticky run contributes its natural document height; no
+    // pin spacer is created, so the same boundary remains valid on every mode.
     const settle = window.setTimeout(remeasure, 400);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', remeasure);
@@ -92,7 +94,7 @@ export function Scene({ reduced, tier }: Props) {
 
   const frame = settings.frame;
 
-  useFrame(() => {
+  useFrame((_state, delta) => {
     const node = root.current;
     if (!node) return;
     /**
@@ -104,15 +106,28 @@ export function Scene({ reduced, tier }: Props) {
      * Presence drives placement now, not just the veil.
      *
      * The object leaves the frame for WORK, SKILLS and ABOUT and returns for
-     * the collapse — as a move, never as a `display: none`. Scale and offset
+     * the collapse, as a move, never as a `display: none`. Scale and offset
      * come from `lib/stagePresence`; the rig only applies them, so there is
      * still exactly one authority on where the object is.
      */
     updateStage(window.scrollY);
     const st = stage();
-    node.position.x = frame.x + st.offsetX;
-    node.position.y = frame.y - scroll.current * SCROLL_DRIFT + st.offsetY;
-    node.scale.setScalar(st.scale);
+    const damping = 1 - Math.exp(-Math.min(delta, 0.05) * 7);
+    current.current.x += (sceneSignals.transformX - current.current.x) * damping;
+    current.current.y += (sceneSignals.transformY - current.current.y) * damping;
+    current.current.scale +=
+      (sceneSignals.transformScale - current.current.scale) * damping;
+    current.current.presence +=
+      (sceneSignals.presence - current.current.presence) * damping;
+    current.current.energy += (sceneSignals.energy - current.current.energy) * damping;
+    node.position.x = frame.x + st.offsetX + current.current.x;
+    node.position.y =
+      frame.y - scroll.current * SCROLL_DRIFT + st.offsetY + current.current.y;
+    node.scale.setScalar(
+      st.scale * current.current.scale * Math.max(0.06, current.current.presence),
+    );
+    camera.position.z +=
+      (CAMERA.distance - current.current.energy * 0.12 - camera.position.z) * damping;
 
     /**
      * Publish the core's screen position for `lib/gravityField`.
@@ -131,7 +146,7 @@ export function Scene({ reduced, tier }: Props) {
       (-projected.y * 0.5 + 0.5) * h,
       projected.z < 1,
     );
-    setEnergy(heroSignal.energy);
+    setEnergy(Math.max(heroSignal.energy, current.current.energy));
   });
 
   const dust = useMemo(() => !reduced, [reduced]);

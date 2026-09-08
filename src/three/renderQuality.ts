@@ -3,7 +3,7 @@
  *
  * Quality scales with the device instead of being fixed: the desktop hero is
  * the identity of the site and gets the full budget, while phones drop pixel
- * ratio and MSAA first — those two dominate fragment cost, and dropping them
+ * ratio and MSAA first, those two dominate fragment cost, and dropping them
  * preserves the composition rather than the frame rate at its expense.
  */
 
@@ -33,7 +33,7 @@ interface TierSettings {
  *
  * Presence comes from the *lens*, not from inflating the model. Scaling the
  * geometry up inside the prototype's wide 35° lens swings the accretion disc
- * open — the object stops reading as a black hole and starts reading as "a
+ * open, the object stops reading as a black hole and starts reading as "a
  * planet with rings", which the direction explicitly rules out. A long lens
  * (20°) pulled in close keeps the disc near edge-on, exactly as approved,
  * while filling appreciably more of the frame.
@@ -43,30 +43,14 @@ export const QUALITY: Record<QualityTier, TierSettings> = {
     dpr: [1, 2],
     antialias: true,
     targetSize: 2.6,
-    /**
-     * Inside the lockup, not beside it.
-     *
-     * The old framing (x 0.15, y 0.08) put the core at screen ~(856, 418),
-     * which landed the disc's left arm at x≈640 — one pixel short of where
-     * VICTOR's R ends at x≈650. Object and typography abutted without
-     * overlapping, which reads worse than a gap: it looks like deliberate
-     * grid alignment rather than a scene.
-     *
-     * At the hero's framing one world unit is ~428 screen px vertically
-     * (frustum height 2·6·tan(10°) = 2.116 units over 905px). So x −0.31
-     * moves the core to ~660px and y −0.045 drops it to ~471px: the disc's
-     * left arm now runs to x≈400, deep behind VICTOR, and the bright band
-     * crosses the lower ~25% of the glyph height. Typography stays in front
-     * (Main is z-index 1, the canvas layer 0), so the glow leaks around the
-     * letterforms instead of over them.
-     */
-    frame: { x: -0.31, y: -0.045 },
+    // Keep the bright core above and to the right of the desktop headline.
+    frame: { x: 0.98, y: 0.22 },
   },
   low: {
     dpr: [1, 1.5],
     antialias: false,
     targetSize: 2.6,
-    frame: { x: 0.05, y: 0.34 },
+    frame: { x: 0.05, y: 0 },
   },
 };
 

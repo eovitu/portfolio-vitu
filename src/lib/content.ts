@@ -1,269 +1,233 @@
 /**
- * All copy, transcribed verbatim from the approved handoff.
+ * The site's content, and the only source of truth for it.
  *
- * Strings wrapped in [ ... ] are the designer's placeholders and are marked
- * `placeholder: true` so they render with the placeholder treatment and are
- * trivial to find later. TODO(content): replace before launch.
+ * Everything here is published copy with a live consumer. Nothing is kept
+ * "for later": an export with no reader is dead weight that the next person
+ * has to prove is dead before they can safely touch anything near it.
  */
 
+export type ProjectSlug = 'emprega-co' | 'doces-da-pati' | 'helppet';
+
+interface ProjectMedia {
+  video: string;
+  poster: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+interface ProjectSection {
+  title: string;
+  body: string;
+}
+
+interface ProjectAction {
+  label: 'Live Project' | 'View Source';
+  href: string;
+}
+
 export interface Project {
+  slug: ProjectSlug;
   n: string;
   name: string;
-  desc: string;
-  /** Designer placeholder copy — replace with the real case text. */
-  descIsPlaceholder?: boolean;
+  eyebrow: string;
+  summary: string;
+  outcome: string;
+  ownership: readonly string[];
+  media: ProjectMedia;
+  sections: readonly ProjectSection[];
+  actions: readonly ProjectAction[];
   role: string;
   tech: string;
   year: string;
-  /** Label of the image slot. TODO(assets): swap for a real capture. */
-  slot: string;
+  /**
+   * The relationship the work came out of, not a client name.
+   *
+   * "NGO project", "Client work", "Personal project" all say something true
+   * without naming a party nobody authorised us to name. Empty means unknown,
+   * and the case header omits the row rather than guessing.
+   */
+  context: string;
+  status: 'In development' | 'Live' | 'Academic build';
 }
 
 export const projects: Project[] = [
   {
+    slug: 'emprega-co',
     n: '01',
-    name: 'EMPREGA.CO',
-    desc: 'Marketplace de serviços domésticos — busca, agendamento e pagamento em um fluxo só. Do modelo de dados à interface.',
-    role: 'DESIGN · PRODUCT · FRONT-END',
-    tech: 'JAVA · SPRING · REACT',
+    name: 'Emprega.co',
+    eyebrow: 'Two-sided employment platform',
+    summary:
+      'A connected candidate and employer experience designed around discovery, applications and hiring workflows.',
+    outcome:
+      'Defined the product journeys and system structure for candidates and employers across one platform.',
+    ownership: ['Backend architecture', 'Product flows', 'Interface direction'],
+    media: {
+      video: '/media/emprega-co.mp4',
+      poster: '/media/emprega-co-poster.webp',
+      alt: 'Emprega.co candidate and employer product flow screens',
+      width: 1280,
+      height: 720,
+    },
+    sections: [
+      {
+        title: 'Context',
+        body: 'Employment products serve two audiences with different goals. The work maps candidate discovery and application states alongside employer publishing and management flows.',
+      },
+      {
+        title: 'What I owned',
+        body: 'I worked across backend structure, product decisions and interface direction, keeping the two journeys separate while sharing one domain model.',
+      },
+      {
+        title: 'Engineering approach',
+        body: 'The architecture centers explicit Java and Spring contracts, predictable state transitions and a React interface that makes loading, empty and recovery states visible.',
+      },
+    ],
+    actions: [],
+    role: 'BACKEND · PRODUCT · INTERFACE',
+    tech: 'JAVA 21 · SPRING BOOT · POSTGRESQL · REACT NATIVE · EXPO',
     year: '2025',
-    slot: 'PLACA 01 · PRÓXIMA DO HORIZONTE',
+    context: 'NGO project',
+    status: 'In development',
   },
   {
+    slug: 'doces-da-pati',
     n: '02',
-    name: 'PROJETO DOIS',
-    desc: '[ Uma frase sobre o problema, uma sobre a solução, uma sobre o resultado. Números ajudam. ]',
-    descIsPlaceholder: true,
-    role: 'FULL-STACK',
-    tech: 'NEXT · TS · POSTGRES',
-    year: '2024',
-    slot: 'PLACA 02 · ÓRBITA ESTÁVEL',
+    name: 'Doces da Pati',
+    eyebrow: 'Mobile-first local storefront',
+    summary:
+      'A lightweight storefront that turns a small confectionery catalogue into a clear mobile ordering journey.',
+    outcome:
+      'Shipped a public catalogue experience with product discovery and a direct path from selection to contact.',
+    ownership: ['Product design', 'Frontend engineering', 'Deployment'],
+    media: {
+      video: '/media/doces-da-pati.mp4',
+      poster: '/media/doces-da-pati-poster.webp',
+      alt: 'Doces da Pati mobile storefront and product catalogue',
+      width: 1280,
+      height: 720,
+    },
+    sections: [
+      {
+        title: 'Context',
+        body: 'The business needed a simple public catalogue that works well on phones and does not introduce operational infrastructure the owner cannot maintain.',
+      },
+      {
+        title: 'What I owned',
+        body: 'I designed and built the storefront, structured the catalogue and shaped the ordering path around the tools already used by the business.',
+      },
+      {
+        title: 'Engineering approach',
+        body: 'The implementation prioritizes mobile rendering, legible product information, low-friction contact and a deployment model that stays inexpensive to operate.',
+      },
+    ],
+    actions: [{ label: 'Live Project', href: 'https://doces-da-pati.vercel.app/' }],
+    role: 'PRODUCT · FRONT-END',
+    tech: 'NEXT.JS · TYPESCRIPT · FIREBASE',
+    year: '2026',
+    context: 'Client work',
+    status: 'Live',
   },
   {
+    slug: 'helppet',
     n: '03',
-    name: 'PROJETO TRÊS',
-    desc: '[ Substituir pelo case real. Prefira um projeto com resultado mensurável ou desafio técnico claro. ]',
-    descIsPlaceholder: true,
-    role: 'MOBILE',
-    tech: 'FLUTTER · FIREBASE',
-    year: '2023',
-    slot: 'PLACA 03 · CAMPO DISTANTE',
+    name: 'HelpPet',
+    eyebrow: 'Pet care, connected through code',
+    summary:
+      'An academic pet-care build exploring API consumption, a gateway and the connection between frontend and backend.',
+    outcome:
+      'Built the academic project and its interface system while learning to connect frontend and backend. No public deployment is available.',
+    ownership: ['Design system', 'Product flows', 'Interaction architecture'],
+    media: {
+      video: '/media/helppet.mp4',
+      poster: '/media/helppet-poster.webp',
+      alt: 'HelpPet design system components and connected care flows',
+      width: 1280,
+      height: 720,
+    },
+    sections: [
+      {
+        title: 'Context',
+        body: 'A third-semester integrator project: bring a pet-care experience together while learning API consumption and frontend/backend integration.',
+      },
+      {
+        title: 'What I owned',
+        body: 'I organized the page flows and created the component rules, variants and visual foundations needed for the product to grow consistently.',
+      },
+      {
+        title: 'Connecting the system',
+        body: 'The learning focus was the boundary between the interface, a gateway and the API. The Figma material documents the interface; it is not presented as footage of a deployed product.',
+      },
+    ],
+    actions: [
+      {
+        label: 'View Source',
+        href: 'https://github.com/orgs/HelpPetSENAI/repositories',
+      },
+    ],
+    role: 'PRODUCT · UI/UX',
+    tech: 'API INTEGRATION · GATEWAY · DESIGN SYSTEMS',
+    year: '2026',
+    context: 'Academic, integrator project',
+    status: 'Academic build',
   },
 ];
 
-export const hero = {
-  metaLeft: 'SINGULARITY / 01',
-  metaRight: 'DESIGN × CÓDIGO × MATÉRIA',
-  /** Split per line so each line gets its own overflow mask. */
-  nameLines: [
-    ['V', 'I', 'C', 'T', 'O', 'R'],
-    ['H', 'U', 'G', 'O'],
-  ],
-  role: 'CREATIVE DEVELOPER',
-  description: 'Eu transformo ideias em experiências digitais através de código e design.',
-  location: 'SÃO PAULO · BRAZIL',
-  scroll: '↓ CAIR',
-  cta: 'CHEGUE MAIS PERTO →',
-} as const;
-
-/**
- * ABOUT — written to inhabit the time-dilation idea rather than explain it.
- *
- * The section never says "this is a metaphor for a black hole". It talks
- * about time running at different rates and about a distance that looks
- * shorter from here, and lets the object standing behind the rest of the page
- * do the arguing.
- */
-export const about = {
-  label: 'ABOUT / DILATAÇÃO',
-  titleLines: [
-    'Perto de massa suficiente',
-    'o tempo anda mais devagar.',
-    'Esse menino ainda está lá.',
-  ],
-  body: 'Victor Hugo, desenvolvedor e designer em São Paulo. Trabalho onde produto, interface e engenharia param de ser departamentos — do backend em Java e Spring Boot à interface em React e Three.js.',
-  bodySecond:
-    'A distância entre aquele campo de areia e esta tela é de vinte e poucos anos. Vista daqui, ela parece bem menor do que foi para atravessar.',
-  photoCaption: 'ARQUIVO · OBSERVADOR EM QUEDA · REGISTRO ÚNICO',
-  photoAlt:
-    'Victor Hugo criança, de camisa amarela, segurando um gira-gira num parquinho com um campo de areia vazio ao fundo.',
-  meta: ['SÃO PAULO', 'DESENVOLVEDOR', 'DESIGNER', 'TECNOLOGIA CRIATIVA'],
-} as const;
-
-export const work = {
-  label: 'MATÉRIA EM ÓRBITA',
-  mediaNote: 'REGISTRO PENDENTE',
-} as const;
-
-/**
- * SKILLS as an emission spectrum.
- *
- * Astronomy reads what a body is made of from the lines in its spectrum. The
- * section states composition the same way: one band, one line per technology,
- * placed by domain and weighted by how much of the work it actually carries.
- *
- * `at` is the position along the band, 0 → 1, and doubles as the "wavelength".
- * Domains occupy contiguous stretches so the band reads as four regions rather
- * than as scattered ticks. `weight` drives the line's brightness and width.
- */
-export interface SpectralLine {
-  name: string;
-  domain: 'BACKEND' | 'FRONTEND' | 'TRIDIMENSIONAL' | 'DESIGN';
-  at: number;
-  weight: number;
-  detail: string;
-}
-
-export const skills = {
-  label: 'O QUE SOBREVIVE À PRESSÃO',
-  labelRight: 'LEITURA ESPECTRAL',
-  intro:
-    'Cada linha é uma emissão. A posição diz o domínio, o brilho diz o quanto ela carrega do trabalho.',
-  hint: 'PASSE SOBRE UMA LINHA',
-  lines: [
-    {
-      name: 'Java',
-      domain: 'BACKEND',
-      at: 0.05,
-      weight: 0.95,
-      detail: 'Serviços de longa duração, domínio modelado antes de qualquer tela.',
-    },
-    {
-      name: 'Spring Boot',
-      domain: 'BACKEND',
-      at: 0.12,
-      weight: 0.9,
-      detail: 'APIs, autenticação e a camada chata que precisa não falhar.',
-    },
-    {
-      name: 'PostgreSQL',
-      domain: 'BACKEND',
-      at: 0.19,
-      weight: 0.75,
-      detail: 'Modelagem relacional. O esquema é a parte que sobrevive ao produto.',
-    },
-    {
-      name: 'REST / APIs',
-      domain: 'BACKEND',
-      at: 0.26,
-      weight: 0.7,
-      detail: 'Contratos entre sistemas — onde a maioria dos bugs de produto nasce.',
-    },
-    {
-      name: 'TypeScript',
-      domain: 'FRONTEND',
-      at: 0.38,
-      weight: 1,
-      detail: 'O tipo como documentação executável. Nada de produção sem ele.',
-    },
-    {
-      name: 'React',
-      domain: 'FRONTEND',
-      at: 0.45,
-      weight: 0.95,
-      detail: 'Composição de interface e o custo real de cada re-render.',
-    },
-    {
-      name: 'Next.js',
-      domain: 'FRONTEND',
-      at: 0.52,
-      weight: 0.7,
-      detail: 'Renderização no servidor quando a primeira pintura importa.',
-    },
-    {
-      name: 'Flutter',
-      domain: 'FRONTEND',
-      at: 0.58,
-      weight: 0.55,
-      detail: 'Mobile quando uma base de código só é a decisão certa.',
-    },
-    {
-      name: 'Three.js',
-      domain: 'TRIDIMENSIONAL',
-      at: 0.68,
-      weight: 0.85,
-      detail: 'Geometria, materiais e orçamento de frame. Este site é a evidência.',
-    },
-    {
-      name: 'GLSL',
-      domain: 'TRIDIMENSIONAL',
-      at: 0.74,
-      weight: 0.6,
-      detail: 'Shaders quando o efeito não cabe no que o DOM sabe fazer.',
-    },
-    {
-      name: 'GSAP',
-      domain: 'TRIDIMENSIONAL',
-      at: 0.79,
-      weight: 0.8,
-      detail: 'Timelines scrubadas. Movimento que o leitor controla, não assiste.',
-    },
-    {
-      name: 'Figma',
-      domain: 'DESIGN',
-      at: 0.87,
-      weight: 0.85,
-      detail: 'Onde a decisão acontece antes de custar tempo de implementação.',
-    },
-    {
-      name: 'Design Systems',
-      domain: 'DESIGN',
-      at: 0.93,
-      weight: 0.8,
-      detail: 'Token único, uma fonte de verdade. Consistência é infraestrutura.',
-    },
-    {
-      name: 'Motion',
-      domain: 'DESIGN',
-      at: 0.98,
-      weight: 0.65,
-      detail: 'Peso, atrito e antecipação — física, não duração.',
-    },
-  ] satisfies SpectralLine[] as SpectralLine[],
-} as const;
-
-export const contact = {
-  label: 'ÚLTIMA ÓRBITA',
-  titleLines: ["LET'S BUILD", 'SOMETHING THAT', 'HAS GRAVITY.'],
-  /** Named in the section as the one thing the collapse does not take. */
-  survivorNote: 'O ÚNICO SINAL QUE ESCAPA',
-  links: [
-    // TODO(content): real GITHUB / LINKEDIN URLs — placeholders in the handoff.
-    { label: 'EMAIL', href: 'mailto:hello@example.com', external: false },
-    { label: 'GITHUB', href: '#contact', external: false },
-    { label: 'LINKEDIN', href: '#contact', external: false },
-  ],
-} as const;
-
 export const footer = {
   items: [
-    '© 2026 — VICTOR HUGO',
-    'SÃO PAULO — 23.5505° S / 46.6333° W',
-    'SINGULARITY / FIM DA TRANSMISSÃO',
+    '© 2026, VICTOR HUGO',
+    'BASED IN SÃO PAULO · WORKING WORLDWIDE',
+    'BUILT WITH INTENTION.',
   ],
 } as const;
 
 export const nav = {
-  brand: 'VITU / SINGULARITY',
+  brand: 'VITU / ENGINEERING',
   links: [
     { label: 'WORK', href: '#work' },
+    { label: 'PROFILE', href: '#profile' },
     { label: 'ABOUT', href: '#about' },
     { label: 'CONTACT', href: '#contact' },
   ],
-  cta: 'CHEGUE MAIS PERTO',
+  cta: 'START A CONVERSATION',
 } as const;
 
 export const chat = {
-  title: 'CHEGUE MAIS PERTO',
-  close: 'AFASTAR ✕',
-  intro:
-    'Pergunte qualquer coisa sobre o meu trabalho, minha stack ou como eu penso um projeto.',
+  title: 'TALK TO ME',
+  close: 'CLOSE',
+  intro: 'Ask about my work, my stack or how I approach a product.',
   prompts: [
-    'COMO VOCÊ TRABALHA?',
-    'QUAL SUA STACK PRINCIPAL?',
-    'ME CONTE SOBRE O EMPREGA.CO',
-    'ESTÁ DISPONÍVEL PARA PROJETOS?',
+    {
+      id: 'process',
+      question: 'How do you work?',
+      answer:
+        'I start with product behavior and constraints, then make the domain, interfaces and delivery path explicit. The goal is a small, reliable system with enough visual character to feel intentional.',
+      keywords: ['work', 'process', 'approach', 'build'],
+    },
+    {
+      id: 'stack',
+      question: 'What is your main stack?',
+      answer:
+        'My center of gravity is Java, Spring Boot and PostgreSQL. I also build typed interfaces with React and TypeScript, using Three.js and GSAP when motion or real-time visuals improve the product.',
+      keywords: ['stack', 'java', 'spring', 'react', 'typescript', 'three', 'gsap'],
+    },
+    {
+      id: 'emprega',
+      question: 'Tell me about Emprega.co.',
+      answer:
+        'Emprega.co is a two-sided employment platform. I worked across backend structure, candidate and employer journeys, product decisions and interface direction so both sides could share one coherent domain model.',
+      keywords: ['emprega', 'employment', 'job', 'case'],
+    },
+    {
+      id: 'availability',
+      question: 'Are you available for projects?',
+      answer:
+        'Yes. I am open to backend, product engineering and creative development opportunities, working remotely from São Paulo with teams worldwide.',
+      keywords: ['available', 'availability', 'project', 'hire', 'freelance', 'contact'],
+    },
   ],
-  note: '[ MOCKUP — na implementação, respostas geradas a partir de um contexto curado sobre você. Sem bolhas coloridas, sem avatar: só tipografia. ]',
-  inputPlaceholder: 'DIGITE SUA PERGUNTA',
+  fallback:
+    'This preview uses curated answers rather than AI. Ask about my process, stack, Emprega.co or availability, or email me directly for anything else.',
+  note: 'CURATED RESPONSES · NO AI CONNECTED',
+  inputPlaceholder: 'TYPE YOUR QUESTION…',
 } as const;

@@ -31,7 +31,7 @@ export default tseslint.config(
        * sixty updates a second through React state is the single most
        * expensive thing the page could do.
        *
-       * `rules-of-hooks` and `exhaustive-deps` stay on as errors — those catch
+       * `rules-of-hooks` and `exhaustive-deps` stay on as errors, those catch
        * real bugs. The five below only flag the architecture.
        */
       'react-hooks/purity': 'off',

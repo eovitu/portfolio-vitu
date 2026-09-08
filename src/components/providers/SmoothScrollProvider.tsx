@@ -1,5 +1,5 @@
 import Lenis from 'lenis';
-import { timeDilation, updateHorizon } from '../../lib/horizon';
+/* eslint-disable react-refresh/only-export-components -- context hooks intentionally share the provider module */
 import {
   createContext,
   useCallback,
@@ -29,6 +29,8 @@ type FrameCallback = (time: number, deltaMs: number) => void;
 interface SmoothScrollApi {
   /** Scroll to an element or offset, respecting Lenis (never window.scrollTo). */
   scrollTo: (target: string | HTMLElement | number, duration?: number) => void;
+  /** Jump without interpolation. Used after an occluded route swap. */
+  scrollToImmediate: (target: string | HTMLElement | number) => void;
   /** Lock the page scroll (used by the chat panel) without layout shift. */
   stop: () => void;
   start: () => void;
@@ -42,6 +44,7 @@ const noop = () => {};
 
 const SmoothScrollContext = createContext<SmoothScrollApi>({
   scrollTo: noop,
+  scrollToImmediate: noop,
   stop: noop,
   start: noop,
   onFrame: () => noop,
@@ -66,6 +69,7 @@ export function useAnimationFrame(cb: FrameCallback, enabled = true): void {
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
+  const lockCount = useRef(0);
   const frameCallbacks = useRef(new Set<FrameCallback>());
   const [smooth, setSmooth] = useState(false);
 
@@ -78,55 +82,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       const delta = lastTime ? now - lastTime : 16.67;
       lastTime = now;
 
-      /**
-       * Time dilation.
-       *
-       * Close to a large mass, time runs slower for the distant observer. The
-       * site makes that literally true: Lenis's easing duration is stretched
-       * as the reader falls toward CONTACT, so the scroll grows heavy and
-       * resistant rather than staying uniformly light.
-       *
-       * Written here, on the one tick that already exists, and only when the
-       * value has actually moved — Lenis reads `options.duration` per frame,
-       * so this is a property write rather than a re-instantiation.
-       */
-      updateHorizon();
       const lenis = lenisRef.current;
-      if (lenis) {
-        const d = timeDilation();
-
-        /**
-         * Two knobs, because only one of them is actually weight.
-         *
-         * Measured: stretching `duration` alone moved the page 2520px per
-         * gesture at the top and 2453px at 71% down — statistically the same
-         * distance. Duration governs how long the eased animation takes to
-         * settle, not how far the gesture carries, so on its own it produces
-         * latency, which reads as a laggy site rather than as gravity.
-         *
-         * Resistance is `wheelMultiplier`: dividing it means the same flick
-         * buys less ground, so approaching the horizon genuinely costs more
-         * input. Duration still stretches on top of it — together they are
-         * heavy and slow to settle, which is what mass feels like.
-         */
-        const nextDuration = LENIS_OPTIONS.duration * d;
-        if (
-          Math.abs((lenis.options.duration ?? LENIS_OPTIONS.duration) - nextDuration) >
-          0.001
-        ) {
-          lenis.options.duration = nextDuration;
-        }
-        const nextWheel = LENIS_OPTIONS.wheelMultiplier / d;
-        if (
-          Math.abs(
-            (lenis.options.wheelMultiplier ?? LENIS_OPTIONS.wheelMultiplier) - nextWheel,
-          ) > 0.001
-        ) {
-          lenis.options.wheelMultiplier = nextWheel;
-          lenis.options.touchMultiplier = LENIS_OPTIONS.touchMultiplier / d;
-        }
-      }
-
       frameCallbacks.current.forEach((cb) => cb(now, delta));
       lenis?.raf(now);
     };
@@ -150,17 +106,46 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       gsap.ticker.remove(tick);
       lenisRef.current?.destroy();
       lenisRef.current = null;
+      lockCount.current = 0;
       setSmooth(false);
     };
   }, []);
 
   const scrollTo = useCallback((target: string | HTMLElement | number, duration = 1.5) => {
+    const element =
+      typeof target === 'string'
+        ? document.querySelector<HTMLElement>(target)
+        : typeof target === 'number'
+          ? null
+          : target;
+    if (element) {
+      // Route entrance transforms change visual rectangles, not document flow.
+      // Measure layout offsets so a case-to-section link lands at the same point
+      // before and after that entrance settles.
+      let top = 0;
+      let node: HTMLElement | null = element;
+      while (node) {
+        top += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      target = Math.max(
+        0,
+        top - (parseFloat(getComputedStyle(element).scrollMarginTop) || 0),
+      );
+    }
     const lenis = lenisRef.current;
     if (lenis) {
-      // duration 0 means "be there now" — used by scroll restoration, which
+      // duration 0 means "be there now", used by scroll restoration, which
       // must not animate the reader across the page on load.
-      if (duration === 0) lenis.scrollTo(target, { immediate: true });
-      else lenis.scrollTo(target, { duration });
+      if (duration === 0) {
+        lenis.resize();
+        lenis.scrollTo(target, { immediate: true, force: true });
+      } else {
+        // A menu link fires before the dialog effect releases its scroll lock.
+        // Explicit navigation must survive that same-event handoff.
+        lenis.resize();
+        lenis.scrollTo(target, { duration, force: true });
+      }
       return;
     }
     // Reduced motion: no Lenis instance exists, so nothing can be fought with.
@@ -173,8 +158,21 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     el?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }, []);
 
-  const stop = useCallback(() => lenisRef.current?.stop(), []);
-  const start = useCallback(() => lenisRef.current?.start(), []);
+  const scrollToImmediate = useCallback(
+    (target: string | HTMLElement | number) => scrollTo(target, 0),
+    [scrollTo],
+  );
+
+  const stop = useCallback(() => {
+    lockCount.current += 1;
+    if (lockCount.current === 1) lenisRef.current?.stop();
+  }, []);
+
+  const start = useCallback(() => {
+    if (lockCount.current === 0) return;
+    lockCount.current -= 1;
+    if (lockCount.current === 0) lenisRef.current?.start();
+  }, []);
 
   const onFrame = useCallback((cb: FrameCallback) => {
     frameCallbacks.current.add(cb);
@@ -184,8 +182,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const api = useMemo<SmoothScrollApi>(
-    () => ({ scrollTo, stop, start, onFrame, smooth }),
-    [scrollTo, stop, start, onFrame, smooth],
+    () => ({ scrollTo, scrollToImmediate, stop, start, onFrame, smooth }),
+    [scrollTo, scrollToImmediate, stop, start, onFrame, smooth],
   );
 
   return (

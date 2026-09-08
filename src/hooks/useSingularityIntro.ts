@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { gsap, ScrollTrigger } from '../lib/gsap';
 import { EASE, HERO, INTRO } from '../lib/motion';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
@@ -17,7 +17,7 @@ import {
 } from '../lib/warpTargets';
 
 interface Options {
-  /** Called when the intro takes the screen — used to hold the scroll. */
+  /** Called when the intro takes the screen, used to hold the scroll. */
   onLock?: () => void;
   /** Called once it has settled and control returns to the reader. */
   onRelease?: () => void;
@@ -28,7 +28,7 @@ interface Options {
  *
  * A block like the hero's InfoGrid owns a first-visit entrance of its own (its
  * `[data-line]` children rise out of their masks). On a reload there is no such
- * entrance to protect, so the whole block is expelled as one piece — but on a
+ * entrance to protect, so the whole block is expelled as one piece, but on a
  * first visit it must be left entirely alone, or the two systems write the same
  * transform.
  */
@@ -46,7 +46,7 @@ const NAME = '[data-letter]';
  *
  * A literal 1:1 translation of 6500px would throw the ghosts off screen long
  * before the core could reach them. What has to read is *the ascent*, not its
- * true magnitude — so it is compressed and clamped to something the eye can
+ * true magnitude, so it is compressed and clamped to something the eye can
  * follow inside the budget.
  */
 function travelDistance(fromScrollY: number): number {
@@ -58,7 +58,7 @@ function travelDistance(fromScrollY: number): number {
  *
  * A straight line to a single point is what made the previous phase read as a
  * block sliding under the copy. The trajectory here is a quadratic Bézier: it
- * leaves sideways, bows, and only aligns with the core near the end — and the
+ * leaves sideways, bows, and only aligns with the core near the end, and the
  * control point is derived per fragment, so no two fragments share a path.
  */
 function flightPath(fragment: GhostFragment, origin: Point, index: number) {
@@ -83,14 +83,14 @@ function flightPath(fragment: GhostFragment, origin: Point, index: number) {
  *
  * Three modes, decided by what the previous page left behind:
  *
- * - **First visit** — the core appears and *expels* the name: the letters
+ * - **First visit**, the core appears and *expels* the name: the letters
  *   emerge from inside it and are thrown out to their places.
- * - **Staged reload** — a ghost layer (mounted before React rendered, from the
+ * - **Staged reload**, a ghost layer (mounted before React rendered, from the
  *   snapshot taken on `pagehide`) is standing in for the screen the reader was
  *   looking at. It is dragged into the core along curved, individually-timed
  *   paths while the camera travels back up to the hero; the core holds what it
  *   has taken for a beat, then expels the real hero.
- * - **Reduced motion** — everything is simply placed in its finished state.
+ * - **Reduced motion**, everything is simply placed in its finished state.
  *
  * A reload with no usable snapshot is deliberately indistinguishable from a
  * first visit: there is nothing to swallow, so nothing is faked.
@@ -99,8 +99,32 @@ export function useSingularityIntro(
   ready: boolean,
   { onLock, onRelease }: Options = {},
 ): void {
+  const lockState = useRef(false);
+  const pendingGhostDestroy = useRef<number | null>(null);
+
   useLayoutEffect(() => {
     if (!ready) return;
+
+    // React StrictMode intentionally mounts, cleans up and mounts effects
+    // again in development. Keep the pre-React ghost layer alive across that
+    // probe; destroying it synchronously makes the second pass look like a
+    // first visit and leaves the reload choreography without a destination.
+    if (pendingGhostDestroy.current !== null) {
+      window.clearTimeout(pendingGhostDestroy.current);
+      pendingGhostDestroy.current = null;
+    }
+
+    const lock = () => {
+      if (lockState.current) return;
+      lockState.current = true;
+      onLock?.();
+    };
+
+    const release = () => {
+      if (!lockState.current) return;
+      lockState.current = false;
+      onRelease?.();
+    };
 
     const reduce = prefersReducedMotion();
     const ghosts: GhostLayer | null = reduce ? null : getGhostLayer();
@@ -110,15 +134,17 @@ export function useSingularityIntro(
       document.documentElement.classList.remove('warp-staging');
     };
 
+    let failSafeTimer = 0;
     const ctx = gsap.context(() => {
       const lines = gsap.utils.toArray<HTMLElement>('[data-name-line]');
       const letters = gsap.utils.toArray<HTMLElement>(NAME);
 
       const settleStaged = () => {
-        // NOT `clearProps` — these offsets come from CSS (`translateY(110%)`),
+        // NOT `clearProps`, these offsets come from CSS (`translateY(110%)`),
         // so clearing the inline transform would leave the copy hidden inside
         // its mask. Explicit zeros write an inline transform that wins.
-        gsap.set(STAGED, { opacity: 1, y: 0, yPercent: 0 });
+        const staged = gsap.utils.toArray<HTMLElement>(STAGED);
+        if (staged.length) gsap.set(staged, { opacity: 1, y: 0, yPercent: 0 });
       };
 
       /**
@@ -150,7 +176,7 @@ export function useSingularityIntro(
 
       /**
        * Everything the intro will NOT touch has to be put into its finished
-       * state right now — some warp targets carry a CSS resting offset (the
+       * state right now, some warp targets carry a CSS resting offset (the
        * hero letters sit at `translateY(115%)` inside their mask) and would
        * otherwise stay hidden there forever.
        */
@@ -211,7 +237,7 @@ export function useSingularityIntro(
        * timeline runs out.
        *
        * The core keeps coasting for another beat or so after that (the energy
-       * bleed-off below), which is deliberate — but the reader must not be
+       * bleed-off below), which is deliberate, but the reader must not be
        * locked out of the page for it, and it must not be billed to the 3.2s
        * budget either. Both the release and the clock stop here.
        */
@@ -219,6 +245,7 @@ export function useSingularityIntro(
       const land = () => {
         if (landed) return;
         landed = true;
+        window.clearTimeout(failSafeTimer);
         // Masks close only now: the letters are back at y: 0, so nothing
         // still in flight can be clipped away by them.
         gsap.set(lines, { overflow: 'hidden' });
@@ -238,26 +265,26 @@ export function useSingularityIntro(
          * be a third writer competing with the timeline.
          */
         setFieldActive(true);
-        onRelease?.();
+        release();
       };
 
       const tl = gsap.timeline({
         defaults: { ease: EASE },
-        onStart: () => onLock?.(),
+        onStart: lock,
         // Belt and braces: if the landing callback is ever skipped (a seek, a
         // revert mid-flight) the page must still be handed back.
         onComplete: land,
       });
 
       if (isReload && ghosts) {
-        // The phenomenon is already there on a reload — it must not be fading
+        // The phenomenon is already there on a reload, it must not be fading
         // up while it is supposed to be swallowing the page.
         gsap.set('[data-gl]', { opacity: 1 });
 
         /**
          * The object is the destination of the journey, so it cannot be the
          * thing that is painted out. The veil is off for the WHOLE intro and
-         * only handed back to the scroll once the hero has landed — and since
+         * only handed back to the scroll once the hero has landed, and since
          * every load now ends at the top, its resting value there is 0 anyway.
          */
         veil.override = 0;
@@ -281,8 +308,8 @@ export function useSingularityIntro(
          * These are deliberately not two tweens on two objects. The travel
          * used to live on the ghost layer's own transform, and that was wrong
          * in a way that only measurement caught: the layer's translation
-         * dragged the *destination* with it, so from CONTACT — where the
-         * travel is longest — matter was being swallowed ~400px above the
+         * dragged the *destination* with it, so from CONTACT, where the
+         * travel is longest, matter was being swallowed ~400px above the
          * object rather than into it. The core is the one thing on screen that
          * must not move.
          *
@@ -308,7 +335,7 @@ export function useSingularityIntro(
          * The last few fragments in are not simply deleted at the horizon.
          *
          * A beat of possession that is literally an empty screen is the dead
-         * black frame this choreography exists to avoid — it is what the
+         * black frame this choreography exists to avoid, it is what the
          * previous phase had to remove. So the matter that arrives last stays
          * visible *as* the thing the core is holding: a collapsing point of
          * light at the singularity, which fades out only as the expulsion
@@ -362,7 +389,7 @@ export function useSingularityIntro(
                 const el = fl.f.el;
                 el.style.transform = `translate3d(${bx.toFixed(2)}px, ${(by + cy).toFixed(2)}px, 0) rotate(${(fl.spin * t).toFixed(2)}deg) scale(${scale.toFixed(3)})`;
                 // Holds its substance for most of the fall, then goes out at
-                // the horizon — matter consumed, not a cross-fade.
+                // the horizon, matter consumed, not a cross-fade.
                 const fade = Math.max(0, 1 - t * t * t * 1.35);
                 if (fl.held) el.style.opacity = String(Math.max(0.4, fade));
                 else if (raw >= 1) el.style.display = 'none';
@@ -403,7 +430,7 @@ export function useSingularityIntro(
           },
           reload.travel.at,
         )
-          // It swallows, then eases off — under the expulsion, not before it.
+          // It swallows, then eases off, under the expulsion, not before it.
           .to(
             heroSignal,
             {
@@ -415,7 +442,7 @@ export function useSingularityIntro(
             },
             absorbEnd,
           )
-          // Nothing of the theatre survives the ingestion — but only once the
+          // Nothing of the theatre survives the ingestion, but only once the
           // held remnant has finished collapsing, or the beat of possession
           // would be cut out from under it.
           .call(() => ghosts.destroy(), undefined, expelAt + 0.15);
@@ -438,7 +465,7 @@ export function useSingularityIntro(
 
       // ── EXPEL ────────────────────────────────────────────────────────────
       // Matter thrown clear of the core: each element leaves at its own
-      // moment, decelerating hard (expo.out) into place — mass, not a fade.
+      // moment, decelerating hard (expo.out) into place, mass, not a fade.
       tl.to(
         heroSignal,
         {
@@ -498,7 +525,7 @@ export function useSingularityIntro(
         tl.to('[data-nav]', { y: 0, duration: HERO.nav.duration }, expelAt)
           // NOTE: the resting position of these elements comes from a CSS
           // `translateY(110%)`. GSAP parses that into `y` in *pixels*, not
-          // into `yPercent` — tweening `yPercent` would silently do nothing.
+          // into `yPercent`, tweening `yPercent` would silently do nothing.
           .to(
             '[data-meta]',
             { y: '0%', duration: HERO.meta.duration, stagger: HERO.meta.stagger },
@@ -519,6 +546,20 @@ export function useSingularityIntro(
             '<0.2',
           );
       }
+
+      // A visual intro must never be able to strand the real interface in its
+      // pre-expulsion state. This is independent from the staging failsafe in
+      // main.tsx because the timeline intentionally removes `warp-staging`
+      // before the expulsion begins.
+      failSafeTimer = window.setTimeout(
+        () => {
+          if (landed) return;
+          tl.kill();
+          gsap.set(expelled, { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1 });
+          land();
+        },
+        ((isReload ? INTRO.reload.ceiling : 2.2) + 0.75) * 1000,
+      );
     });
 
     return () => {
@@ -526,7 +567,17 @@ export function useSingularityIntro(
       // Never leave the veil frozen on an override the timeline no longer owns.
       veil.override = -1;
       resetHeroSignal();
-      getGhostLayer()?.destroy();
+      // Balance a lock if the effect is torn down before the timeline can
+      // reach `land` (including StrictMode's development probe).
+      window.clearTimeout(failSafeTimer);
+      release();
+      const ghosts = getGhostLayer();
+      if (ghosts) {
+        pendingGhostDestroy.current = window.setTimeout(() => {
+          if (getGhostLayer() === ghosts) ghosts.destroy();
+          pendingGhostDestroy.current = null;
+        }, 0);
+      }
       releaseStaging();
     };
   }, [ready, onLock, onRelease]);

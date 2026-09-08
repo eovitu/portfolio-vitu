@@ -3,28 +3,25 @@
  *
  * WHY THIS EXISTS
  * A real F5 destroys the old DOM. There is no way to animate the previous
- * page out — by the time anything of ours runs, it is already gone. So the
+ * page out, by the time anything of ours runs, it is already gone. So the
  * exit is *staged* on the new page instead: on `pagehide` we record what the
  * reader could see, and the new load rebuilds a throwaway copy of it (see
  * `lib/ghosts`) which the singularity then swallows.
  *
  * NOTE ON SCROLL OWNERSHIP
- * This module used to also restore the previous scroll offset. It no longer
- * does, and nothing else does either: from now on **every reload lands on the
- * hero, at the top**. The saved offset survives only as the *starting point*
- * of the camera travel, never as a destination. `scrollRestoration` is still
- * forced to `manual` so the browser cannot re-introduce a second owner.
+ * This module records visual continuity only. The browser remains the owner of
+ * reload scroll restoration, while the route director owns SPA navigation.
  */
 
 import { dropNested, isOnScreen, WARP } from './warpTargets';
 
 const KEY = 'singularity:warp';
 
-/** Above this the snapshot is not worth reconstructing — fall back to a first visit. */
+/** Above this the snapshot is not worth reconstructing, fall back to a first visit. */
 const MAX_BYTES = 50_000;
 const MAX_TARGETS = 40;
 
-export interface WarpRect {
+interface WarpRect {
   x: number;
   y: number;
   w: number;
@@ -64,7 +61,7 @@ export interface WarpWord {
   s: number;
 }
 
-export interface WarpTarget {
+interface WarpTarget {
   rect: WarpRect;
   words: WarpWord[];
 }
@@ -72,12 +69,12 @@ export interface WarpTarget {
 export interface WarpSnapshot {
   /** Snapshots are route-scoped: a different path is a different composition. */
   path: string;
-  /** Where the reader was — the origin of the camera travel, not a destination. */
+  /** Where the reader was, the origin of the camera travel, not a destination. */
   scrollY: number;
   /** Nearest section id, for reporting/debugging. */
   section: string;
   viewport: { w: number; h: number };
-  /** Shared style table — a block's words rarely all share one style. */
+  /** Shared style table, a block's words rarely all share one style. */
   styles: WarpType[];
   targets: WarpTarget[];
 }
@@ -108,7 +105,7 @@ const round = (n: number) => Math.round(n * 10) / 10;
 /**
  * Measure every visible word inside a target, exactly where it is painted.
  *
- * A `Range` over the text node gives the true glyph box — the same box the
+ * A `Range` over the text node gives the true glyph box, the same box the
  * reader was looking at, including whatever padding, alignment and nested
  * typography the block happens to use.
  */
@@ -190,79 +187,45 @@ function capture(): WarpSnapshot | null {
   };
 }
 
+const finite = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
 function isUsable(shot: WarpSnapshot | null): shot is WarpSnapshot {
   return (
     !!shot &&
     shot.path === location.pathname &&
+    finite(shot.scrollY) &&
+    !!shot.viewport &&
+    finite(shot.viewport.w) &&
+    shot.viewport.w > 0 &&
+    finite(shot.viewport.h) &&
+    shot.viewport.h > 0 &&
+    Array.isArray(shot.styles) &&
     Array.isArray(shot.targets) &&
     shot.targets.length > 0 &&
-    shot.targets.length <= MAX_TARGETS
+    shot.targets.length <= MAX_TARGETS &&
+    shot.targets.every(
+      (target) =>
+        !!target?.rect &&
+        finite(target.rect.x) &&
+        finite(target.rect.y) &&
+        finite(target.rect.w) &&
+        target.rect.w > 0 &&
+        finite(target.rect.h) &&
+        target.rect.h > 0 &&
+        Array.isArray(target.words),
+    )
   );
 }
 
-/**
- * Hold the top until the reader actually asks to leave it.
- *
- * Setting `scrollRestoration = 'manual'` early stops the *browser* from moving
- * us, but it is not the only thing that can. The document keeps growing after
- * mount — the WORK pin spacer alone adds ~1900px — and every party that
- * measures it (ScrollTrigger's refresh, Lenis syncing its virtual offset) is
- * capable of writing a scroll position while doing so. A single check right
- * after load cannot see any of that; it happens later.
- *
- * So the invariant is enforced continuously instead of asserted once: until
- * the reader produces genuine scroll intent, scrollY is 0, and anything that
- * says otherwise is undone on the spot. Real input releases the guard
- * immediately, so it can never fight the reader — including the skip link and
- * the nav anchors, which are all preceded by a key or pointer event.
- */
-/**
- * How many times the guard had to undo someone else's scroll, and how far.
- * Published for the verification harness: "it ended at 0" is a much weaker
- * claim than "nothing ever tried to move it", and only this can tell them
- * apart.
- */
-export const scrollGuard = { corrections: 0, worst: 0, released: false };
-
-function holdTop(): void {
-  let released = false;
-
-  const release = () => {
-    if (released) return;
-    released = true;
-    scrollGuard.released = true;
-    window.removeEventListener('scroll', onScroll);
-    for (const type of INTENT) window.removeEventListener(type, release);
-  };
-
-  const onScroll = () => {
-    if (released) return;
-    const y = window.scrollY;
-    if (y === 0) return;
-    scrollGuard.corrections += 1;
-    scrollGuard.worst = Math.max(scrollGuard.worst, Math.abs(y));
-    window.scrollTo(0, 0);
-  };
-
-  const INTENT = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
-  window.addEventListener('scroll', onScroll, { passive: true });
-  for (const type of INTENT) {
-    window.addEventListener(type, release, { passive: true, once: true });
-  }
-}
+/** Kept until the legacy intro audit is removed; native scroll has no guard. */
+export const scrollGuard = { corrections: 0, worst: 0, released: true };
 
 /**
- * Must run before React renders: it takes over scroll restoration and reads
- * (and consumes) the snapshot the previous page left behind.
+ * Must run before React renders so it can consume the previous visual snapshot.
  */
 export function initReloadSnapshot(): void {
   if (typeof window === 'undefined') return;
-
-  // Belt and braces — the authoritative write is the inline script in
-  // index.html, which runs before this module is even fetched.
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  window.scrollTo(0, 0);
-  holdTop();
 
   try {
     const raw = sessionStorage.getItem(KEY);
@@ -272,7 +235,7 @@ export function initReloadSnapshot(): void {
       pending = isUsable(parsed) ? parsed : null;
     }
   } catch {
-    // Corrupt, foreign, or storage disabled — behave like a first visit.
+    // Corrupt, foreign, or storage disabled, behave like a first visit.
     pending = null;
   }
 

@@ -1,167 +1,214 @@
-import { useRef, type MouseEvent } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { gsap } from '../../lib/gsap';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 import styled from 'styled-components';
 import { nav } from '../../lib/content';
-import { useSmoothScroll, useAnimationFrame } from '../providers/SmoothScrollProvider';
-import { EASE_CSS } from '../../lib/motion';
+import { MobileMenu } from './MobileMenu';
+import { TalkToMeButton } from '../conversation/TalkToMeButton';
 
 const Bar = styled.header`
   position: fixed;
   inset: 0 0 auto 0;
   z-index: ${({ theme }) => theme.z.nav};
+  padding: 16px ${({ theme }) => theme.space.gutter};
+  pointer-events: none;
+  @media (max-width: 560px) {
+    padding: 10px 12px;
+  }
+`;
+
+const Inner = styled.div`
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  padding: ${({ theme }) => theme.space.navY} ${({ theme }) => theme.space.gutter};
-  font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: ${({ theme }) => theme.type.mono};
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: ${({ theme }) => theme.colors.textDim};
-  transform: translateY(-110%);
-  background: rgba(8, 8, 10, 0);
-  backdrop-filter: blur(10px);
-  transition: background 0.5s ease;
-
-  ${({ theme }) => theme.media.mobile} {
-    padding: 14px 20px;
-    gap: 12px;
-  }
-`;
-
-const Brand = styled.a`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  opacity: 0;
-  white-space: nowrap;
-
-  span {
-    width: 5px;
-    height: 5px;
-    background: ${({ theme }) => theme.colors.accent};
-    border-radius: 50%;
-    animation: blink 3.5s ease-in-out infinite;
-  }
-
-  ${({ theme }) => theme.media.mobile} {
-    font-size: 10px;
-  }
-`;
-
-const Links = styled.nav`
-  display: flex;
   gap: 24px;
-  align-items: center;
+  min-height: 76px;
+  padding: 10px 22px;
+  max-width: 1500px;
+  margin: 0 auto;
+  pointer-events: auto;
+  /*
+   * Legible over anything, without knowing what it is over.
+   *
+   * The bar has to hold on the dark home, on the cream case, and over a
+   * bright video passing underneath it, and it must keep holding when a
+   * fourth surface arrives. So it does not branch on the route: it paints the
+   * active surface behind itself, at an opacity that survives whatever the
+   * page puts under it, and takes its ink from the same token pair. Nothing
+   * here reads a slug.
+   */
+  color: var(--ink);
+  isolation: isolate;
+  font: 400 14px/1 ${({ theme }) => theme.fonts.mono};
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 
-  ${({ theme }) => theme.media.mobile} {
-    gap: 14px;
+  @media (max-width: 900px) {
+    min-height: 60px;
+    padding: 8px 16px;
   }
 `;
 
-const NavLink = styled.a`
-  opacity: 0;
+const Backdrop = styled.span`
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  z-index: -1;
+`;
 
-  ${({ theme }) => theme.media.mobile} {
-    /* At 375px the brand + three anchors + CTA cannot coexist without
-       clipping the CTA. The anchors are dropped rather than shrunk: the
-       sections are reached by scrolling, and the CTA is the design's primary
-       action. The skip link still exposes the same targets to keyboards. */
+const BrandPosition = styled.div`
+  display: flex;
+`;
+const TalkPosition = styled.div`
+  display: flex;
+  @media (max-width: 900px) {
     display: none;
   }
 `;
 
-const ChatTrigger = styled.button`
-  opacity: 0;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: transparent;
-  color: ${({ theme }) => theme.colors.text};
-  font: inherit;
-  letter-spacing: 0.16em;
-  padding: 9px 16px;
-  border-radius: 999px;
-  cursor: pointer;
+const Brand = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   white-space: nowrap;
-  transition:
-    border-color 0.35s ease,
-    color 0.35s ease,
-    transform 0.4s ${EASE_CSS};
-
-  &:hover,
-  &:focus-visible {
-    border-color: ${({ theme }) => theme.colors.text};
-    color: ${({ theme }) => theme.colors.text};
-  }
-
-  ${({ theme }) => theme.media.mobile} {
-    padding: 8px 12px;
-    font-size: 10px;
+  min-height: 48px;
+  font: 500 32px/1 ${({ theme }) => theme.fonts.sans};
+  text-transform: lowercase;
+  letter-spacing: -0.065em;
+  span {
+    color: var(--accent);
   }
 `;
 
-interface Props {
-  onOpenChat: () => void;
-  chatOpen: boolean;
-}
+const DesktopNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 30px);
 
-/**
- * Fixed header. It slides in from the hero timeline (which targets
- * `[data-nav]` / `[data-nav-item]`), and its background opacity is driven
- * imperatively from the frame loop past half a viewport of scroll.
- */
-export function Header({ onOpenChat, chatOpen }: Props) {
-  const barRef = useRef<HTMLElement>(null);
-  const solid = useRef(false);
-  const { scrollTo } = useSmoothScroll();
+  a {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 0;
+    color: var(--ink-muted);
+  }
+  a:hover,
+  a:focus-visible {
+    color: var(--ink);
+  }
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
 
-  useAnimationFrame(() => {
-    const el = barRef.current;
-    if (!el) return;
-    const next = window.scrollY > window.innerHeight * 0.5;
-    if (next === solid.current) return;
-    solid.current = next;
-    el.style.background = next ? 'rgba(8,8,10,0.78)' : 'rgba(8,8,10,0)';
-  });
+const MenuButton = styled.button`
+  display: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  min-width: 76px;
+  min-height: 48px;
+  font: inherit;
+  letter-spacing: inherit;
+  @media (max-width: 900px) {
+    display: inline-flex;
+  }
+`;
 
-  const onAnchorClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
-    const el = document.querySelector<HTMLElement>(href);
-    if (!el) return;
-    event.preventDefault();
-    scrollTo(el);
-  };
+const DesktopTalk = styled(TalkToMeButton)`
+  border-radius: 100px;
+  min-height: 48px;
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+export function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  useLayoutEffect(() => {
+    const inner = innerRef.current;
+    if (!inner || reduced) return;
+    // Entry owns the outer bar; scroll exclusively owns this inner transform.
+    const ctx = gsap.context(() => {
+      const inset = () => Math.max(0, (inner.clientWidth - 900) / 2);
+      gsap
+        .timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { start: 0, end: 260, scrub: true, invalidateOnRefresh: true },
+        })
+        .to(inner, { y: -6 }, 0)
+        .to(
+          inner.querySelector('[data-nav-backdrop]'),
+          { scaleX: () => Math.min(1, 900 / inner.clientWidth) },
+          0,
+        )
+        .to(inner.querySelector('[data-brand-position]'), { x: inset }, 0)
+        .to(inner.querySelector('[data-talk-position]'), { x: () => -inset() }, 0);
+    }, inner);
+    return () => ctx.revert();
+  }, [reduced]);
+
+  // Focus restoration belongs to the dialog, which knows when it is actually
+  // gone and when the background has stopped being inert.
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
-    // The bar itself is the warp target, not its links: past half a viewport it
-    // paints a translucent background and a backdrop blur, so swallowing only
-    // the children would leave that strip floating. `reload` mode keeps the
-    // first-visit slide-in (`[data-nav]` / `[data-nav-item]`) untouched.
-    <Bar ref={barRef} data-nav data-warp data-warp-mode="reload">
-      <Brand href="#top" data-nav-item onClick={(e) => onAnchorClick(e, '#top')}>
-        <span aria-hidden="true" />
-        {nav.brand}
-      </Brand>
-
-      <Links aria-label="Navegação principal">
-        {nav.links.map((link) => (
-          <NavLink
-            key={link.href}
-            href={link.href}
+    <>
+      {/* `data-nav` and `data-nav-item` are the entry sequence's only hold on
+          this component: it reveals the bar and staggers its items as the
+          expulsion clears. The hidden state is set from JavaScript and never in
+          CSS, so navigation stays visible when scripts do not run. */}
+      <Bar data-nav>
+        <Inner ref={innerRef}>
+          <Backdrop aria-hidden="true" data-nav-backdrop />
+          <BrandPosition data-brand-position>
+            <Brand
+              href="/#top"
+              aria-label={nav.brand}
+              data-transition-cause="brand"
+              data-nav-item
+            >
+              devitu<span>*</span>
+            </Brand>
+          </BrandPosition>
+          <DesktopNav aria-label="Primary navigation">
+            {nav.links.map((link) => (
+              <a
+                key={link.href}
+                href={`/${link.href}`}
+                data-transition-cause="hash"
+                data-nav-item
+              >
+                {link.label}
+              </a>
+            ))}
+          </DesktopNav>
+          <TalkPosition data-talk-position>
+            <DesktopTalk aria-label="Talk to me" />
+          </TalkPosition>
+          <MenuButton
+            ref={menuButtonRef}
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
             data-nav-item
-            onClick={(e) => onAnchorClick(e, link.href)}
+            onClick={() => setMenuOpen(true)}
           >
-            {link.label}
-          </NavLink>
-        ))}
-        <ChatTrigger
-          type="button"
-          data-nav-item
-          onClick={onOpenChat}
-          aria-haspopup="dialog"
-          aria-expanded={chatOpen}
-        >
-          {nav.cta}
-        </ChatTrigger>
-      </Links>
-    </Bar>
+            MENU
+          </MenuButton>
+        </Inner>
+      </Bar>
+      <MobileMenu open={menuOpen} onClose={closeMenu} triggerRef={menuButtonRef} />
+    </>
   );
 }

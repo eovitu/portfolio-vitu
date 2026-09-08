@@ -15,7 +15,7 @@ import { prefersReducedMotion } from './lib/prefersReducedMotion';
  *
  * The whole point of the reload choreography is that the reader never sees a
  * seam. If the ghosts of the previous screen were mounted from a React effect
- * they would arrive a frame or two after the hero has already painted — and
+ * they would arrive a frame or two after the hero has already painted, and
  * the reader would see the page jump to the top and *then* pretend it hadn't.
  * Painting them first makes the very first frame look like nothing happened.
  */
@@ -34,8 +34,8 @@ if (layer) {
   markFirstUsefulFrame('reload', 1, layer.fragments.length, layer.fidelity);
 
   /**
-   * Failsafe. If the intro never runs — a thrown effect, a hot reload, an
-   * unsupported browser — the reader must not be left staring at a frozen
+   * Failsafe. If the intro never runs, a thrown effect, a hot reload, an
+   * unsupported browser, the reader must not be left staring at a frozen
    * screenshot of where they were with the real page hidden underneath.
    */
   window.setTimeout(() => {

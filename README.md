@@ -1,114 +1,71 @@
-# Singularity — portfólio de Victor Hugo
+# devitu, Victor Hugo's portfolio
 
-Portfólio pessoal construído em torno de um conceito só: **gravidade**. Um
-buraco negro renderizado em tempo real não é o plano de fundo do site — é o
-personagem. Ele consome a página no reload e a devolve, puxa a tipografia da
-hero, curva o campo estelar, deixa a cena quando cada seção precisa de mundo
-próprio, e volta no fim para engolir tudo menos um sinal.
+A portfolio for backend and product engineering, built around three case studies and a persistent procedural black hole. The homepage combines large typography, distinct project colors, an engineering profile and direct contact.
 
-A leitura inteira é enquadrada como uma queda: um HUD permanente marca a
-distância até o horizonte de eventos em raios de Schwarzschild, o scroll fica
-progressivamente mais pesado conforme o leitor desce, e a temperatura de cor da
-página desloca para o vermelho no caminho.
+## Run locally
 
-## Stack
-
-- **React 18** + **TypeScript** + **Vite**
-- **Three.js** / **@react-three/fiber** — a cena é procedural, não um asset
-- **GSAP** + **ScrollTrigger** — timelines scrubadas
-- **Lenis** — scroll suave, com um único frame loop para tudo
-- **styled-components**
-
-## Rodando localmente
+Use Node.js 22.6 or later (CI uses Node 22) and npm.
 
 ```bash
-npm install
+npm ci --legacy-peer-deps
 npm run dev
 ```
 
-Build de produção e verificação:
+Open the localhost URL printed by Vite. No API keys or environment variables are required for the portfolio. The conversation panel uses local curated responses, not an AI service. Email links open the visitor's email application.
 
-```bash
-npm run build      # tsc --noEmit + vite build
-npm run typecheck
-npm run lint
-npm run preview
-```
+## Commands
 
-## Estrutura
+| Command                | Purpose                                                     |
+| ---------------------- | ----------------------------------------------------------- |
+| `npm run dev`          | Local development with hot reload                           |
+| `npm test`             | Node tests for content, routing, motion and media contracts |
+| `npm run typecheck`    | TypeScript validation                                       |
+| `npm run lint`         | ESLint checks                                               |
+| `npm run format:check` | Repository formatting checks                                |
+| `npm run build`        | TypeScript validation and production output in `dist/`      |
+| `npm run preview`      | Serve the production output locally                         |
 
-```
-src/
-  components/
-    layout/       HUD, grão, redshift, cursor, palco 3D, toggle de som
-    navigation/   header
-    providers/    SmoothScrollProvider — o único frame loop da aplicação
-    sections/     Hero, Work, About, Skills, Contact
-    chat/         widget de conversa (mock)
-  hooks/          scroll horizontal, intro, campo gravitacional, colapso
-  lib/            campo gravitacional, horizonte, presença do objeto,
-                  véu, snapshot de reload, fantasmas, auditoria
-  three/          cena procedural, qualidade de render, campo estelar
-  styles/         tokens e estilo global
-docs/
-  ARCHITECTURE.md decisões técnicas e as descobertas por trás delas
-  reference/      protótipo de origem da cena 3D
-public/
-  victor-2010.jpg a única fotografia do site
-```
+Run all checks before opening a pull request. CI installs from the lockfile and checks types, lint, tests, formatting and build. Some tests inspect source contracts; they do not replace browser testing.
 
-## A cena 3D
+## Projects and routes
 
-O buraco negro é **gerado em código** por `src/three/singularityScene.ts`. Um
-GLB do mesmo objeto foi tentado e descartado: o formato glTF perde o blending
-aditivo, as cores de vértice em HDR, o billboard do halo de lente e o shader que
-mascara o núcleo — ou seja, tudo que faz o objeto funcionar. O importado parecia
-uma foto do objeto, não o objeto.
+| Route                 | Project                                         | Status                     |
+| --------------------- | ----------------------------------------------- | -------------------------- |
+| `/`                   | Home, selected work, profile, about and contact | Portfolio                  |
+| `/work/emprega-co`    | Candidate and employer journeys                 | NGO project in development |
+| `/work/doces-da-pati` | Confectionery storefront                        | Live client project        |
+| `/work/helppet`       | Pet-care product and API integration            | Academic build             |
 
-O protótipo de onde os valores foram transcritos está em
-[`docs/reference/black-hole.html`](docs/reference/black-hole.html). Ele é fonte
-de verdade, não histórico: se algum dia a cena precisar ser reconstruída, é dali
-que os números saem. A semente `1337` mantém a geometria determinística.
+Unknown paths show a dedicated recovery page. The application supports direct case URLs, browser back/forward and section anchors.
 
-Detalhes em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Emprega.co's media is provisional. HelpPet's presentation media shows Figma work; the academic build explored frontend/backend integration and a gateway. Public links are listed only when available in the project data.
 
-## Trocando o conteúdo
+## Where to edit
 
-**Projetos.** Editar o array `projects` em `src/lib/content.ts`. Cada projeto
-recebe uma órbita pelo índice — `0` perto do horizonte (quente, comprimido),
-`1` órbita estável (neutro), `2` distante (frio, vazio) — e o layout, a paleta e
-o ambiente mudam junto. As placas de mídia são placeholders compostos por
-órbita; para colocar imagens reais, trocar o bloco de fundo em `MediaInner` por
-um `<img>`, mantendo `data-panel-image` para o parallax continuar funcionando.
+- `src/lib/content.ts`: project descriptions, ownership, media paths, navigation and footer.
+- `src/components/home/`: hero, project chapters, profile, about and contact.
+- `src/components/cases/`: case layouts, project narratives and accessible film controls.
+- `src/components/navigation/`: compact header and mobile menu.
+- `src/components/conversation/` and `src/lib/conversation.ts`: the local contact panel and responses.
+- `src/motion/` and `src/hooks/`: transition state, shared motion signals and lifecycle hooks.
+- `src/three/`: procedural scene, rendering policy, camera and device quality settings.
+- `public/media/`: project videos and poster images.
+- `src/lib/site.ts` and `src/lib/metadata.ts`: production origin and route metadata. Keep `public/sitemap.xml`, `public/robots.txt` and `public/llms.txt` aligned when changing URLs.
 
-**A fotografia.** `public/victor-2010.jpg`. É a única imagem do site, e a
-escassez é o que dá peso a ela. Todo o tratamento (alto contraste, duotom,
-grão) é CSS em `src/components/sections/About/About.tsx` — o arquivo original
-nunca é editado. Para trocar, substituir o arquivo e ajustar o `alt` em
-`about.photoAlt`.
+## Design and performance
 
-**Textos.** Tudo em `src/lib/content.ts`.
+React 18, TypeScript and Vite render the site, with styled-components for presentation. GSAP/ScrollTrigger and Lenis share the animation clock; Motion handles shared-media transitions. Three.js and React Three Fiber form the deferred visual layer.
 
-## Scroll e intro
+Selected work uses one sticky stage on suitable desktops and ordinary stacked articles on smaller screens or under reduced motion. Each chapter has a different composition. Mobile navigation has its own color tokens, scrollable content, safe-area padding and keyboard focus handling.
 
-Um relógio só governa o site: `Lenis → ticker do GSAP → ScrollTrigger →
-animações → R3F`. Não existe um segundo `requestAnimationFrame`.
+Posters remain available when preview autoplay is blocked. Inactive previews pause. The WebGL scene has a static fallback, lower mobile rendering quality and a hidden-tab policy. Three.js stays in a separate deferred chunk; its size still produces a Vite warning. Do not interpret the main bundle size as the total download.
 
-Todo carregamento termina na hero com `scrollY` 0. No reload, a posição de cada
-palavra visível é capturada no `pagehide`, os fragmentos são remontados antes do
-React renderar, e o objeto os suga enquanto a câmera volta ao topo. A sequência
-tem teto de 3,2s.
+## Deployment
 
-## Acessibilidade
+The production output is `dist/`. `vercel.json` supplies SPA fallback routing, and the canonical origin is `https://devitu.vercel.app`. For another host, configure equivalent fallback routing and update the canonical origin and discovery files.
 
-- WCAG AA verificado em todas as seções (4.5:1 texto normal, 3:1 texto grande).
-- `prefers-reduced-motion: reduce` desliga dilatação temporal, inércia das
-  letras, redshift, grão, a queda entre painéis, o colapso e o brinquedo da
-  hero — mantendo o site inteiro utilizável.
-- Estados de foco visíveis no acento dourado.
-- O espectro de habilidades é navegável por teclado, com o detalhe anunciado por
-  `aria-live` e uma lista agrupada como leitura alternativa.
+See [Architecture](docs/ARCHITECTURE.md) for motion ownership, data boundaries and verification limitations. The original procedural reference is retained at `docs/reference/black-hole.html` because its scene construction informs the renderer.
 
-## Licença
+## License
 
-MIT — ver [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

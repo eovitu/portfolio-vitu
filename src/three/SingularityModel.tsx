@@ -3,7 +3,36 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { heroSignal } from './heroSignal';
 import { buildSingularity, type SingularityScene } from './singularityScene';
-import { reportSceneStats } from '../lib/introAudit';
+import { sceneSignals } from '../motion/sceneSignals';
+import { hexToOklab, mixOklab, oklabToSrgb, type Oklab } from '../lib/oklab';
+import { prefersReducedMotion } from '../lib/prefersReducedMotion';
+
+const composedSignal = { energy: 0, swell: 0, flare: 0 };
+
+/**
+ * How far the emission is allowed to travel toward the project's accent.
+ *
+ * At 1 the disc becomes a flat sheet of the accent and stops reading as
+ * incandescent matter; the object would look painted. This keeps most of the
+ * white-hot base and lets the project colour the edges of it.
+ */
+const TINT_REACH = 0.62;
+
+/**
+ * Per-frame approach rate.
+ *
+ * At 60 fps this settles roughly 90% of the way in ~850 ms, inside the
+ * 600-900 ms the direction asks for, and it is frame-rate independent below
+ * because it is scaled by dt.
+ */
+const TINT_RATE = 2.7;
+
+/** All module scope: the tint runs every frame and must not allocate. */
+const tintBase: Oklab = { L: 0, a: 0, b: 0 };
+const tintTarget: Oklab = { L: 0, a: 0, b: 0 };
+const tintCurrent: Oklab = { L: 0, a: 0, b: 0 };
+const tintScratch: Oklab = { L: 0, a: 0, b: 0 };
+const tintRgb = [0, 0, 0];
 
 /**
  * The singularity, mounted into the site's rig.
@@ -13,7 +42,7 @@ import { reportSceneStats } from '../lib/introAudit';
  * could not know about:
  *
  *  - **Framing.** The prototype auto-framed a 45° camera to the object's
- *    bounds. The site uses a 20° lens at distance 6.0 on purpose — a long lens
+ *    bounds. The site uses a 20° lens at distance 6.0 on purpose, a long lens
  *    keeps the disc near edge-on, so the object reads as a black hole rather
  *    than a planet with rings. The generated model is therefore normalised to
  *    the same `targetSize` the GLB was, which keeps the hero composition
@@ -27,7 +56,7 @@ import { reportSceneStats } from '../lib/introAudit';
 interface Props {
   idle: boolean;
   targetSize: number;
-  /** Raw pointer target, owned by the rig — damped inside the object. */
+  /** Raw pointer target, owned by the rig, damped inside the object. */
   pointerRef: MutableRefObject<{ x: number; y: number }>;
 }
 
@@ -40,7 +69,7 @@ export function SingularityModel({ idle, targetSize, pointerRef }: Props) {
   /**
    * Normalised exactly the way the GLB was: bounding-box diagonal scaled to
    * `targetSize` and re-centred, so swapping the bake for the generator does
-   * not move the composition. Measured once, with the lens rig at identity —
+   * not move the composition. Measured once, with the lens rig at identity,
    * it is billboarded every frame and its box would otherwise be unstable.
    */
   const { offset, scale } = useMemo(() => {
@@ -54,19 +83,81 @@ export function SingularityModel({ idle, targetSize, pointerRef }: Props) {
   }, [scene, targetSize]);
 
   useEffect(() => {
-    reportSceneStats(scene.stats);
     return () => scene.dispose();
   }, [scene]);
 
   const still = useRef({ x: 0, y: 0 });
+  /** Last accent parsed, so the hex is converted on change and not per frame. */
+  const tintHex = useRef('');
+  const tintReady = useRef(false);
 
   useFrame((state, delta) => {
     const now = state.clock.getElapsedTime() * 1000;
     const dt = Math.min(0.05, delta);
-    scene.update(dt, now, camera, idle ? pointerRef.current : still.current, heroSignal);
+    composedSignal.energy = Math.max(heroSignal.energy, sceneSignals.energy);
+    composedSignal.swell = heroSignal.swell;
+    composedSignal.flare = Math.max(heroSignal.flare, sceneSignals.flare);
+    scene.update(
+      dt,
+      now,
+      camera,
+      idle ? pointerRef.current : still.current,
+      composedSignal,
+    );
 
     const node = breath.current;
-    if (node) node.scale.setScalar(1 + heroSignal.swell);
+    if (node) node.scale.setScalar(1 + composedSignal.swell);
+
+    /**
+     * The object takes the temperature of the project the reader is in.
+     *
+     * The interpolation is in Oklab because the straight line between
+     * terracotta and green in RGB runs through olive: the disc would visibly
+     * die on its way between two projects instead of changing temperature.
+     * The hex is only parsed when the accent actually changes, and the frame
+     * path here is three float lerps and one setRGB, no allocation, no new
+     * uniform, no shader recompile.
+     */
+    if (tintHex.current !== sceneSignals.accent) {
+      tintHex.current = sceneSignals.accent;
+      const accent = hexToOklab(sceneSignals.accent);
+      // White-hot base, pushed only part of the way toward the accent.
+      if (!tintReady.current) {
+        const white = hexToOklab('#ffffff');
+        tintBase.L = white.L;
+        tintBase.a = white.a;
+        tintBase.b = white.b;
+        tintCurrent.L = white.L;
+        tintCurrent.a = white.a;
+        tintCurrent.b = white.b;
+        tintReady.current = true;
+      }
+      mixOklab(tintBase, accent, TINT_REACH, tintTarget);
+      if (prefersReducedMotion()) {
+        tintCurrent.L = tintTarget.L;
+        tintCurrent.a = tintTarget.a;
+        tintCurrent.b = tintTarget.b;
+      }
+    }
+
+    if (tintReady.current) {
+      const settled =
+        Math.abs(tintCurrent.L - tintTarget.L) < 0.0008 &&
+        Math.abs(tintCurrent.a - tintTarget.a) < 0.0008 &&
+        Math.abs(tintCurrent.b - tintTarget.b) < 0.0008;
+      if (settled) {
+        tintCurrent.L = tintTarget.L;
+        tintCurrent.a = tintTarget.a;
+        tintCurrent.b = tintTarget.b;
+      } else {
+        mixOklab(tintCurrent, tintTarget, Math.min(1, TINT_RATE * dt), tintScratch);
+        tintCurrent.L = tintScratch.L;
+        tintCurrent.a = tintScratch.a;
+        tintCurrent.b = tintScratch.b;
+      }
+      oklabToSrgb(tintCurrent, tintRgb);
+      scene.tint(tintRgb[0], tintRgb[1], tintRgb[2]);
+    }
   });
 
   return (

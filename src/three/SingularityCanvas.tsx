@@ -5,7 +5,7 @@ import { Scene } from './Scene';
 import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { CAMERA, QUALITY, RENDERER, detectTier } from './renderQuality';
-import { installRenderProbe } from '../lib/introAudit';
+import { shouldRenderScene } from './scenePolicy';
 
 /**
  * Drives R3F from the application's single frame loop instead of letting the
@@ -30,6 +30,9 @@ function FrameDriver({ active, reduced }: { active: boolean; reduced: boolean })
 export default function SingularityCanvas({ className }: { className?: string }) {
   const wrapper = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
+  const [documentVisible, setDocumentVisible] = useState(
+    () => document.visibilityState !== 'hidden',
+  );
   const reduced = useReducedMotion();
   const tier = useMemo(detectTier, []);
   const settings = QUALITY[tier];
@@ -42,6 +45,12 @@ export default function SingularityCanvas({ className }: { className?: string })
     });
     io.observe(el);
     return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onVisibility = () => setDocumentVisible(document.visibilityState !== 'hidden');
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
 
   return (
@@ -63,14 +72,16 @@ export default function SingularityCanvas({ className }: { className?: string })
           far: CAMERA.far,
           position: [0, 0, CAMERA.distance],
         }}
-        onCreated={({ gl, scene, camera }) => {
+        onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = RENDERER.exposure;
           gl.outputColorSpace = THREE.SRGBColorSpace;
-          installRenderProbe({ gl, scene, camera });
         }}
       >
-        <FrameDriver active={visible} reduced={reduced} />
+        <FrameDriver
+          active={shouldRenderScene({ visible, documentVisible, reducedMotion: reduced })}
+          reduced={reduced}
+        />
         <Scene reduced={reduced} tier={tier} />
       </Canvas>
     </div>

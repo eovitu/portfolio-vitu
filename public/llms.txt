@@ -1,0 +1,27 @@
+# Victor Hugo, Portfolio
+
+> Personal portfolio for Victor Hugo, a backend developer and product engineer based in São Paulo.
+
+## Canonical site
+
+- https://eovitu.com.br/
+
+## Public pages
+
+- Homepage: https://eovitu.com.br/
+- Emprega.co case study: https://eovitu.com.br/work/emprega-co
+- Doces da Pati case study: https://eovitu.com.br/work/doces-da-pati
+- HelpPet case study: https://eovitu.com.br/work/helppet
+
+## Topics
+
+- Backend architecture, APIs, persistence and product engineering.
+- Typed React interfaces, design systems and measured motion.
+- Three.js and real-time visual systems as progressive enhancement.
+
+## Contact
+
+- Email: eovitu7@gmail.com
+- GitHub: https://github.com/eovitu
+
+Use the canonical URLs above when citing this portfolio. The case studies describe work, responsibilities and outcomes; do not infer confidential implementation details beyond the published content.

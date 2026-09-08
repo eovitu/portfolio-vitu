@@ -2,13 +2,13 @@
  * The singularity, built in code.
  *
  * WHY THIS IS NOT A GLB ANY MORE
- * The object was never a sculpted mesh — it is generated, and the generator is
+ * The object was never a sculpted mesh, it is generated, and the generator is
  * what carries the look. glTF cannot represent the three things that make it
  * work, so the exported asset was a flattened corpse of this file:
  *
  *  1. `AdditiveBlending`. glTF has OPAQUE / MASK / BLEND and nothing else, so
  *     every additive surface came back as normal alpha blending. Additive
- *     stacks *light*; normal blending stacks *paint* — that single substitution
+ *     stacks *light*; normal blending stacks *paint*, that single substitution
  *     is what made the object read as a flat grey decal.
  *  2. HDR vertex colours. The photon ring reaches luminance ~2.7 and the lensed
  *     ribbons ~3.1; glTF clamps COLOR_0 to 1.0. Everything that was supposed to
@@ -16,11 +16,11 @@
  *  3. The billboarded lens group. Each frame the lensing rig is re-aimed at the
  *     camera, which is what wraps the halo around the silhouette. A bake
  *     freezes it at the exporter's angle, so the halo stopped closing over the
- *     pole — that was never a depth-sort problem.
+ *     pole, that was never a depth-sort problem.
  *
  * There is also an `onBeforeCompile` core mask that glTF has no concept of.
  * Re-exporting could not have fixed any of this; the generator had to come
- * across. Nothing here is re-tuned — constants are transcribed from the
+ * across. Nothing here is re-tuned, constants are transcribed from the
  * approved prototype, including the `1337` seed, so the object is identical
  * and deterministic.
  *
@@ -32,7 +32,7 @@
 import * as THREE from 'three';
 
 /**
- * Range of motion — the one part of this file the direction reopened.
+ * Range of motion, the one part of this file the direction reopened.
  *
  * The prototype's rotation values were authored against a camera the mouse
  * could orbit; the orbit supplied the sense of life. The hero's camera is
@@ -41,7 +41,7 @@ import * as THREE from 'three';
  *
  * What they deliberately do NOT touch: colour, material, blending, tone
  * mapping, geometry, or the structure of the movement. No axis is added, and
- * the differential gradient is preserved by construction — `matter` is a
+ * the differential gradient is preserved by construction, `matter` is a
  * single multiplier over per-shell spins that already descend outward
  * (0.085 inner > 0.05 mid > 0.028 outer), so the interior stays faster than
  * the exterior at every intensity.
@@ -50,7 +50,7 @@ import * as THREE from 'three';
  * purpose. It is billboarded, never spun: it is the geometry of bent light,
  * not orbiting matter, and rotating it would be physically wrong.
  */
-export const MOTION = {
+const MOTION = {
   /** Multiplier over every matter spin: shells, core, strands, accents. */
   matter: 2.9,
   /** Whole-model yaw period in ms. Lower is faster. Prototype was 46000. */
@@ -60,7 +60,7 @@ export const MOTION = {
 /**
  * Published for the verification harness so intensity variants can be captured
  * without three rebuilds. Read every frame, so a write takes effect live.
- * Gated on the same opt-in flag as the renderer probe — absent in a normal
+ * Gated on the same opt-in flag as the renderer probe, absent in a normal
  * session, and never read by application code.
  */
 try {
@@ -68,7 +68,7 @@ try {
     (window as unknown as { __MOTION?: typeof MOTION }).__MOTION = MOTION;
   }
 } catch {
-  // Storage disabled — the hook is a verification affordance, nothing more.
+  // Storage disabled, the hook is a verification affordance, nothing more.
 }
 
 export interface SingularityScene {
@@ -82,6 +82,16 @@ export interface SingularityScene {
     pointer: { x: number; y: number },
     signal: { energy: number; swell: number; flare: number },
   ) => void;
+  /**
+   * Push the emission toward a colour, 0..1.
+   *
+   * The disc is `MeshBasicMaterial` with vertex colours and additive
+   * blending, so the material's own `color` multiplies what the geometry
+   * already carries, tinting it is a three-float write, not a new uniform
+   * and not a shader recompile. The caller owns the damping; this is a
+   * setter, and it allocates nothing.
+   */
+  tint: (r: number, g: number, b: number) => void;
   dispose: () => void;
   stats: { vertices: number; triangles: number; meshes: number; buildMs: number };
 }
@@ -92,7 +102,7 @@ const scratchQuat = new THREE.Quaternion();
 /**
  * The prototype's viewing elevation, reproduced as a model tilt.
  *
- * In the prototype the disc reads as an open ellipse with visible filaments —
+ * In the prototype the disc reads as an open ellipse with visible filaments,
  * but not because the model is tilted. It is because the stage's auto-framed
  * camera sits on `(1, 0.20, 1.25).normalize()`, i.e. 7.12° above the disc
  * plane. The site's camera is deliberately dead-on at `(0, 0, 6)`, and porting
@@ -101,7 +111,7 @@ const scratchQuat = new THREE.Quaternion();
  *
  * Rather than move the site's camera (the long lens and its framing are a
  * settled decision), the same relative geometry is restored by tilting the
- * model by that exact angle. Nothing about the object is re-tuned — this is
+ * model by that exact angle. Nothing about the object is re-tuned, this is
  * the prototype's own viewing angle, expressed on the other side of the
  * relationship.
  */
@@ -149,7 +159,7 @@ export function buildSingularity(): SingularityScene {
   });
   materials.push(mVoid, mMatter, mStrand, mViolet);
 
-  /* nothing may add light inside the horizon's screen-space disc — mask these
+  /* nothing may add light inside the horizon's screen-space disc, mask these
      materials against the core in view space so no fragment lands on the void */
   const coreMaskU = {
     uCoreView: { value: new THREE.Vector3() },
@@ -186,7 +196,7 @@ export function buildSingularity(): SingularityScene {
     0.28 * Math.sin(a * 7.71 - r * k * 1.7 + 1.3) +
     0.17 * Math.sin(a * 13.37 + r * k * 2.6 + 2.1);
 
-  /* fractal turbulence — filaments and density cells, no straight bands */
+  /* fractal turbulence, filaments and density cells, no straight bands */
   function fbm(a: number, r: number, k: number) {
     let v = 0;
     let amp = 0.5;
@@ -241,7 +251,7 @@ export function buildSingularity(): SingularityScene {
       for (let j = 0; j <= segs; j++) {
         const a = (j / segs) * Math.PI * 2;
         const n = noise(a, r, opts.k);
-        // gravitational warp — the plane is bent, never flat, never tilted much
+        // gravitational warp, the plane is bent, never flat, never tilted much
         const y =
           (0.055 * Math.sin(2 * a + opts.phase) + 0.02 * n) * Math.pow(gt + 0.1, 1.6) +
           opts.lift;
@@ -325,7 +335,7 @@ export function buildSingularity(): SingularityScene {
 
   /* ---------- lensing, billboarded to the viewer ----------
      The photon ring and the lensed far side always frame the silhouette from the
-     observer's side, the way bent light actually behaves — this is what keeps the
+     observer's side, the way bent light actually behaves, this is what keeps the
      object reading as a black hole and not a sphere with rings.               */
   const lens = new THREE.Group();
   lens.name = 'gravitational_lensing';
@@ -375,7 +385,7 @@ export function buildSingularity(): SingularityScene {
     return m;
   }
 
-  /* photon ring — a hairline of light, unevenly bright, fading under the void */
+  /* photon ring, a hairline of light, unevenly bright, fading under the void */
   const photon = (() => {
     const g = new THREE.BufferGeometry();
     const N = 320;
@@ -417,7 +427,7 @@ export function buildSingularity(): SingularityScene {
     ribbon(1.068, 0.038, Math.PI + 0.6, Math.PI * 2 - 0.6, 1.1, 'lensed_secondary_under'),
   );
 
-  /* soft bloom — additive gradient sprites, no hard outline */
+  /* soft bloom, additive gradient sprites, no hard outline */
   function glowTex(stops: [number, string][]) {
     const c = document.createElement('canvas');
     c.width = c.height = 256;
@@ -454,7 +464,7 @@ export function buildSingularity(): SingularityScene {
   lens.add(ringBloom);
   model.add(lens);
 
-  /* Doppler beaming — fixed in space, not carried around by the orbit: the flank
+  /* Doppler beaming, fixed in space, not carried around by the orbit: the flank
      turning toward the camera blows out warm-white, the receding flank stays dim */
   const doppler = new THREE.Group();
   doppler.name = 'doppler_beaming';
@@ -469,6 +479,9 @@ export function buildSingularity(): SingularityScene {
     side: THREE.DoubleSide,
   });
   materials.push(mBeam);
+  /* The beam's warm white, kept so the tint can lean on it rather than
+     replace it: a fully accent-coloured jet stops reading as hot plasma. */
+  const BEAM_BASE = mBeam.color.clone();
   (
     [
       [1.16, 0.15, 1.35],
@@ -548,7 +561,7 @@ export function buildSingularity(): SingularityScene {
   model.rotation.z = THREE.MathUtils.degToRad(3.5);
 
   /**
-   * The disc is emissive geometry seen from every angle — per-object culling
+   * The disc is emissive geometry seen from every angle, per-object culling
    * makes bands pop in and out at the edges of the frame.
    */
   model.traverse((o) => {
@@ -574,7 +587,7 @@ export function buildSingularity(): SingularityScene {
     cur.y += (pointer.y - cur.y) * 0.035;
 
     /**
-     * Absolute position, not an increment — and the one channel the pointer
+     * Absolute position, not an increment, and the one channel the pointer
      * also writes. Speeding it up therefore means shortening the period, which
      * leaves the damped pointer term untouched; multiplying the whole
      * expression would have scaled the pointer response with it.
@@ -596,7 +609,7 @@ export function buildSingularity(): SingularityScene {
 
     /**
      * Breathing is the resting state; `heroSignal.flare` is the transient laid
-     * on top of it — the two compose, neither replaces the other.
+     * on top of it, the two compose, neither replaces the other.
      */
     const flare = signal.flare;
     mBloom.opacity = 0.62 + 0.16 * Math.sin(now / 2700) + flare * 0.55;
@@ -619,6 +632,14 @@ export function buildSingularity(): SingularityScene {
   return {
     group: model,
     update,
+    tint: (r, g, b) => {
+      mMatter.color.setRGB(r, g, b);
+      mBeam.color.setRGB(
+        BEAM_BASE.r + (r - BEAM_BASE.r) * 0.55,
+        BEAM_BASE.g + (g - BEAM_BASE.g) * 0.55,
+        BEAM_BASE.b + (b - BEAM_BASE.b) * 0.55,
+      );
+    },
     dispose: () => {
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());

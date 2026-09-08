@@ -71,6 +71,12 @@ $RECYCLE.BIN/
 # These are how the site got built, not what it is. The reference prototype
 # that the 3D scene was ported from lives in docs/reference/ and IS tracked.
 project/
+.tmp-video-review/
+
+# Session handoff briefs. Same category as the notes above: they record how a
+# phase was executed, not what the site is. The durable decisions belong in
+# docs/ARCHITECTURE.md, which IS tracked.
+docs/handoff/
 
 # Agent tooling that is specific to one machine's setup.
 .claude/

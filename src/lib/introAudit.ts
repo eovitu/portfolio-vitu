@@ -4,7 +4,7 @@
  * Phase A left one open question: an intermediate measurement showed a single
  * residual transform on a warp target in WORK and in CONTACT, which never
  * reproduced. It is cheap to keep watching for, and impossible to argue about
- * without a number — so the sequence publishes its own timings and a stranded
+ * without a number, so the sequence publishes its own timings and a stranded
  * transform scan instead of relying on how the recording looks.
  *
  * Everything here is read-only and exists on `window` for the verification
@@ -14,7 +14,7 @@
 import { coreOrigin } from './warpTargets';
 import { scrollGuard } from './reloadSnapshot';
 
-export interface IntroReport {
+interface IntroReport {
   /** performance.now() at the frame the ghosts were first painted. */
   firstUsefulFrame: number | null;
   /** performance.now() when the expulsion finished. */
@@ -90,7 +90,7 @@ function isIdentity(transform: string): boolean {
  * frames that matter most are the first ones, and anything injected after the
  * document exists has already missed them.
  */
-export interface IntroFrame {
+interface IntroFrame {
   /** Milliseconds since the recorder started (≈ first script execution). */
   t: number;
   scrollY: number;
@@ -194,32 +194,6 @@ function startRecorder(): void {
   requestAnimationFrame(tick);
 }
 
-/**
- * Renderer probe, opt-in via `sessionStorage['singularity:record']`.
- *
- * Frame cost has to be measured, not asserted — the previous phase's decision
- * to drop post-processing "because it would cost too much" was made without a
- * number, and the object paid for it. This exposes the live renderer so a
- * harness can time real `render()` calls at a chosen pixel ratio.
- */
-export function installRenderProbe(handles: {
-  gl: unknown;
-  scene: unknown;
-  camera: unknown;
-}): void {
-  try {
-    if (!sessionStorage.getItem('singularity:record')) return;
-  } catch {
-    return;
-  }
-  (window as unknown as { __gl?: unknown }).__gl = handles;
-}
-
-/** Build cost and geometry census, published for the harness. */
-export function reportSceneStats(stats: unknown): void {
-  (window as unknown as { __sceneStats?: unknown }).__sceneStats = stats;
-}
-
 export function installAudit(): void {
   if (typeof window === 'undefined') return;
   window.__intro = report;
@@ -227,7 +201,7 @@ export function installAudit(): void {
   try {
     if (sessionStorage.getItem('singularity:record')) startRecorder();
   } catch {
-    // Storage disabled — recording is a verification affordance, nothing more.
+    // Storage disabled, recording is a verification affordance, nothing more.
   }
   window.__introAudit = () => {
     const targets = Array.from(
@@ -238,10 +212,7 @@ export function installAudit(): void {
 
     for (const el of targets) {
       const s = getComputedStyle(el);
-      // `[data-parallax]` elements legitimately hold a scroll-derived offset;
-      // they are owned by `useParallax`, not by the intro. Counting them as
-      // stranded would report a permanent, harmless false positive.
-      if (!el.closest('[data-parallax]') && !isIdentity(s.transform)) {
+      if (!isIdentity(s.transform)) {
         strandedTransforms.push({ selector: label(el), transform: s.transform });
       }
       const r = el.getBoundingClientRect();
@@ -286,7 +257,7 @@ export function markFirstUsefulFrame(
  * Seconds already spent between the first painted frame and now.
  *
  * The 3.2s budget is measured from pixels, not from the moment the timeline
- * happens to be built — whatever the mount gate costs comes out of the same
+ * happens to be built, whatever the mount gate costs comes out of the same
  * envelope, so the choreography has to know about it.
  */
 export function elapsedSinceFirstFrame(): number {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 /**
  * Media query as React state. Only for values that change at breakpoint /
- * preference boundaries — never for per-frame values.
+ * preference boundaries, never for per-frame values.
  */
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() =>

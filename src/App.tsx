@@ -1,139 +1,80 @@
-import { useCallback, useEffect, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
+import { useCallback } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { LayoutGroup } from 'motion/react';
+import { CaseStudy } from './components/cases/CaseStudy';
+import { ConversationProvider } from './components/conversation/ConversationProvider';
+import { NotFound } from './components/routing/NotFound';
+import { HomePage } from './components/home/HomePage';
+import { SingularityStage } from './components/layout/SingularityStage';
+import { Header } from './components/navigation/Header';
+import { MotionDirector } from './components/motion/MotionDirector';
+import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider';
+import {
+  RouteTransitionProvider,
+  useRouteTransition,
+} from './components/routing/RouteTransitionProvider';
+import { projects } from './lib/content';
 import { GlobalStyle } from './styles/GlobalStyle';
 import { theme } from './styles/theme';
-import {
-  SmoothScrollProvider,
-  useSmoothScroll,
-} from './components/providers/SmoothScrollProvider';
-import { getGhostLayer } from './lib/ghosts';
-import { useScrollSkew } from './hooks/useScrollSkew';
-import { ScrollTrigger } from './lib/gsap';
-import { Header } from './components/navigation/Header';
-import { Hud } from './components/layout/Hud';
-import { Cursor } from './components/layout/Cursor';
-import { Grain } from './components/layout/Grain';
-import { Redshift } from './components/layout/Redshift';
-import { SoundToggle } from './components/layout/SoundToggle';
-import { Hero } from './components/sections/Hero/Hero';
-import { Work } from './components/sections/Work/Work';
-import { About } from './components/sections/About/About';
-import { Skills } from './components/sections/Skills/Skills';
-import { Contact } from './components/sections/Contact/Contact';
-import { ChatWidget } from './components/chat/ChatWidget';
-import { useChat } from './hooks/useChat';
-import { useSingularityIntro } from './hooks/useSingularityIntro';
-import { SingularityStage } from './components/layout/SingularityStage';
 
 const SkipLink = styled.a`
-  position: absolute;
-  left: 8px;
-  top: -60px;
-  z-index: 100;
-  padding: 10px 16px;
-  background: ${({ theme }) => theme.colors.bgPanel};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 999px;
-  font-family: ${({ theme }) => theme.fonts.mono};
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  transition: top 0.3s ease;
+  position: fixed;
+  left: 12px;
+  top: -70px;
+  z-index: 120;
+  padding: 12px 16px;
+  color: ${({ theme }) => theme.colors.bg};
+  background: ${({ theme }) => theme.colors.text};
+  font: 400 11px/1 ${({ theme }) => theme.fonts.mono};
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 
   &:focus {
-    top: 8px;
+    top: 12px;
   }
 `;
 
-/**
- * No overflow / transform / filter here on purpose: any of them would make
- * this element a containing block for the `position: fixed` element
- * ScrollTrigger uses while the WORK chapter is pinned.
- */
-const Main = styled.main`
-  position: relative;
-  /* Above the fixed singularity layer, which sits at z-index 0. */
-  z-index: 1;
-`;
-
 function Site() {
-  const { open, openChat, closeChat } = useChat();
-  const { stop, start } = useSmoothScroll();
-  const [introReady, setIntroReady] = useState(false);
-  useScrollSkew();
-
-  const onLock = useCallback(() => stop(), [stop]);
-  const onRelease = useCallback(() => start(), [start]);
-  useSingularityIntro(introReady, { onLock, onRelease });
-
-  // Safety net: never leave the page frozen if the intro is torn down early.
-  useEffect(() => () => start(), [start]);
-
-  /**
-   * Hold the scroll from the first frame of a staged reload.
-   *
-   * The timeline's own `onStart` lock arrives a few frames later, and a reader
-   * whose finger is still on the wheel from before the refresh would otherwise
-   * drag the page while the ghosts are being painted.
-   */
-  useEffect(() => {
-    if (getGhostLayer()) stop();
-  }, [stop]);
-
-  /**
-   * Measure, then start — nothing to restore any more.
-   *
-   * Every load lands on the hero at the top (`lib/reloadSnapshot` owns that),
-   * so the old measure → restore → re-measure dance is gone. What remains is
-   * the one thing that still matters: `refresh()` builds and measures the
-   * WORK pin spacer, which is what gives the document its final height, and
-   * web fonts change the metrics of every pinned measurement.
-   *
-   * The gate is deliberately short. The ghosts are already on screen, and the
-   * reload sequence has a hard 3.2s budget measured from that first painted
-   * frame — a long wait here would spend the budget on nothing.
-   */
-  useEffect(() => {
-    let cancelled = false;
-    let started = false;
-
-    const settle = () => {
-      if (cancelled || started) return;
-      started = true;
-      ScrollTrigger.refresh();
-      setIntroReady(true);
-    };
-
-    document.fonts?.ready.then(settle).catch(() => undefined);
-    const timer = window.setTimeout(settle, 250);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, []);
+  const { route, notifyRouteMounted } = useRouteTransition();
+  const onSceneMount = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) notifyRouteMounted();
+    },
+    [notifyRouteMounted],
+  );
+  const project =
+    route.kind === 'case' ? projects.find((item) => item.slug === route.slug) : undefined;
+  const sceneKey =
+    route.kind === 'case'
+      ? `case:${route.slug}`
+      : route.kind === 'notFound'
+        ? `missing:${route.path}`
+        : 'home';
 
   return (
     <>
-      <SkipLink href="#work">PULAR PARA O CONTEÚDO</SkipLink>
-      <Hud />
-      <Cursor />
+      <SkipLink href={route.kind === 'home' ? '#work' : '#case-content'}>
+        Skip to content
+      </SkipLink>
       <SingularityStage />
-      <Header onOpenChat={openChat} chatOpen={open} />
-
-      <Main>
-        <Hero onOpenChat={openChat} />
-        <Work />
-        <About />
-        <Skills />
-        <Contact />
-      </Main>
-
-      {/* After Main so it composites over the content, before the interactive
-          layers so it never tints a control. */}
-      <Redshift />
-      <Grain />
-
-      <SoundToggle />
-      <ChatWidget open={open} onClose={closeChat} />
+      <Header />
+      <LayoutGroup id="singularity-route-layout">
+        <div
+          key={sceneKey}
+          ref={onSceneMount}
+          style={{ position: 'relative', zIndex: 1 }}
+          data-route-scene
+        >
+          {route.kind === 'notFound' ? (
+            <NotFound path={route.path} />
+          ) : project ? (
+            <CaseStudy project={project} />
+          ) : (
+            <HomePage />
+          )}
+        </div>
+      </LayoutGroup>
     </>
   );
 }
@@ -143,8 +84,15 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <SmoothScrollProvider>
-        <Site />
+        <RouteTransitionProvider>
+          <MotionDirector>
+            <ConversationProvider>
+              <Site />
+            </ConversationProvider>
+          </MotionDirector>
+        </RouteTransitionProvider>
       </SmoothScrollProvider>
+      <Analytics />
     </ThemeProvider>
   );
 }

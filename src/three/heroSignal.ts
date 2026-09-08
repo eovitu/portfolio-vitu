@@ -3,9 +3,9 @@
  *
  * It is a plain mutable object on purpose: GSAP tweens its numbers and the
  * render loop reads them each frame. No React state, no re-renders, no events
- * — the two systems stay decoupled and nothing is allocated per frame.
+ *, the two systems stay decoupled and nothing is allocated per frame.
  */
-export interface HeroSignal {
+interface HeroSignal {
   /** 0 → 1 burst of angular energy (spin + disc acceleration). */
   energy: number;
   /** Extra uniform scale added to the model, e.g. the gravity swell. */

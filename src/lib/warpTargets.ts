@@ -8,15 +8,19 @@
  */
 
 import { CAMERA, QUALITY, detectTier } from '../three/renderQuality';
+import { getCore } from './gravityField';
 
 /** Elements the singularity can swallow. Marked in the section markup. */
 export const WARP = '[data-warp]';
+
+/** Top-level page compositions that move as one gravitational field. */
+export const GRAVITY_SECTIONS = '[data-gravity-section]';
 
 /**
  * Drop any target that lives inside another target.
  *
  * Both would be given their own vector to the core, and the transforms
- * compose — the child would leave at roughly twice the distance and miss the
+ * compose, the child would leave at roughly twice the distance and miss the
  * core entirely. The outermost marked block wins.
  */
 export function dropNested(els: HTMLElement[]): HTMLElement[] {
@@ -47,10 +51,13 @@ export interface Point {
  * Where the singularity sits on screen, in pixels.
  *
  * The canvas is a fixed full-viewport layer, so the core is the viewport
- * centre shifted by the model's world-space framing offset — converted with
+ * centre shifted by the model's world-space framing offset, converted with
  * the camera's own frustum maths rather than a guessed pixel value.
  */
 export function coreOrigin(): Point {
+  const projected = getCore();
+  if (projected.visible) return { x: projected.x, y: projected.y };
+
   const { frame } = QUALITY[detectTier()];
   const frustumHeight = 2 * CAMERA.distance * Math.tan((CAMERA.fov * Math.PI) / 360);
   const perUnit = window.innerHeight / frustumHeight;

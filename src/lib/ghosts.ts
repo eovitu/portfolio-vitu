@@ -1,5 +1,5 @@
 /**
- * The ghost layer — the theatre that hides the reload.
+ * The ghost layer, the theatre that hides the reload.
  *
  * A real F5 destroys the previous DOM, so the content that is about to be
  * swallowed cannot be the real content: it no longer exists. Instead the new
@@ -9,10 +9,10 @@
  *
  * WHY FRAGMENTS
  * In the previous phase a block of copy was marked `[data-warp]` on its
- * container — necessary, or the block's rule and background would be left
+ * container, necessary, or the block's rule and background would be left
  * behind. The cost was that an inner section absorbed as one sliding rectangle
  * instead of as matter: a blur, not a journey. Ghosts are new, disposable
- * elements, so that constraint does not apply to them — the snapshot records
+ * elements, so that constraint does not apply to them, the snapshot records
  * every word's real glyph box, and each word (or line, for long copy) gets its
  * own vector, curve and delay.
  *
@@ -27,12 +27,12 @@ import { coreOrigin, type Point } from './warpTargets';
 const MAX_FRAGMENTS = 120;
 /** A target with more words than this is fragmented by line instead. */
 const MAX_WORDS_PER_TARGET = 12;
-/** A resize invalidates every saved rect — do not pretend otherwise. */
+/** A resize invalidates every saved rect, do not pretend otherwise. */
 const VIEWPORT_TOLERANCE = 0.05;
 
 export interface GhostFragment {
   el: HTMLElement;
-  /** Viewport-space centre at rest — the origin of its vector to the core. */
+  /** Viewport-space centre at rest, the origin of its vector to the core. */
   center: Point;
   /** Distance to the core, used to stagger from the outside in. */
   distance: number;
@@ -42,7 +42,7 @@ export interface GhostFragment {
  * Per-fragment proof that the illusion lines up: the box the previous page
  * recorded versus the box the stand-in actually occupies on this one.
  */
-export interface GhostFidelity {
+interface GhostFidelity {
   saved: { x: number; y: number; w: number; h: number };
   actual: { x: number; y: number; w: number; h: number };
   dx: number;
@@ -136,7 +136,7 @@ function describe(el: HTMLElement, origin: Point): GhostFragment {
 }
 
 /**
- * Build the layer. Returns null whenever the illusion cannot be trusted —
+ * Build the layer. Returns null whenever the illusion cannot be trusted,
  * the caller then behaves exactly as on a first visit.
  */
 export function mountGhosts(snapshot: WarpSnapshot): GhostLayer | null {
@@ -226,7 +226,7 @@ export function getGhostLayer(): GhostLayer | null {
   return current;
 }
 
-/** Unconditional teardown — the failsafe for an intro that never ran. */
+/** Unconditional teardown, the failsafe for an intro that never ran. */
 export function destroyGhosts(): void {
   current?.destroy();
 }
