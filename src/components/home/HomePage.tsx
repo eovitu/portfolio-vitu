@@ -253,7 +253,7 @@ export function HomePage() {
             rel="noreferrer"
             data-contact-survivor
           >
-            linkedin.com/in/eovitu <ArrowUpRight aria-hidden="true" weight="regular" />
+            LinkedIn <ArrowUpRight aria-hidden="true" weight="regular" />
           </S.ContactEmail>
         </S.SectionInner>
       </S.Contact>
