@@ -73,5 +73,10 @@ $RECYCLE.BIN/
 project/
 .tmp-video-review/
 
+# Session handoff briefs. Same category as the notes above: they record how a
+# phase was executed, not what the site is. The durable decisions belong in
+# docs/ARCHITECTURE.md, which IS tracked.
+docs/handoff/
+
 # Agent tooling that is specific to one machine's setup.
 .claude/
