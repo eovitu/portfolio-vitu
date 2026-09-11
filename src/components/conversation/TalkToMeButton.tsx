@@ -8,6 +8,7 @@ import {
 import { ArrowUpRight } from '@phosphor-icons/react';
 import { useConversation } from './ConversationProvider';
 import * as S from './ConversationHub.styles';
+import { useLanguage } from '../providers/LanguageProvider';
 
 type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'>;
 
@@ -24,6 +25,7 @@ export const TalkToMeButton = forwardRef<HTMLButtonElement, Props>(function Talk
   ref,
 ) {
   const { isOpen, open } = useConversation();
+  const { content } = useLanguage();
   const localRef = useRef<HTMLButtonElement>(null);
   useImperativeHandle(ref, () => localRef.current as HTMLButtonElement);
 
@@ -42,7 +44,7 @@ export const TalkToMeButton = forwardRef<HTMLButtonElement, Props>(function Talk
       onClick={handleClick}
       {...props}
     >
-      Talk to me <ArrowUpRight aria-hidden="true" weight="regular" />
+      {content.ui.talkToMe} <ArrowUpRight aria-hidden="true" weight="regular" />
     </S.Trigger>
   );
 });

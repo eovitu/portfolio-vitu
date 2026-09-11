@@ -11,6 +11,7 @@ import {
 import type { ProjectSlug } from '../../lib/content';
 import { gsap } from '../../lib/gsap';
 import { applyMetadata } from '../../lib/metadata';
+import { useLanguage } from '../providers/LanguageProvider';
 import { prefersReducedMotion } from '../../lib/prefersReducedMotion';
 import { isSameRoute, resolveRoute, type Route } from '../../lib/routes';
 import { normalizeHistoryState } from '../../motion/historyState';
@@ -168,6 +169,7 @@ function focusRouteTarget(route: Route, hash: string, projectSlug?: ProjectSlug)
 }
 
 export function RouteTransitionProvider({ children }: { children: ReactNode }) {
+  const { locale } = useLanguage();
   const [route, setRoute] = useState<Route>(() => resolveRoute(window.location.pathname));
   const [phase, setPhase] = useState<TransitionPhase>('idle');
   const routeRef = useRef(route);
@@ -319,7 +321,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         }, controller.signal);
         setRoute(targetRoute);
         routeRef.current = targetRoute;
-        applyMetadata(targetRoute);
+        applyMetadata(targetRoute, locale);
         // The exit owns this stretch. Scroll targeting, the shared-media
         // handoff and the reveal all read the destination DOM, and none of
         // them may run while the outgoing scene is still on screen.
@@ -387,7 +389,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
       activePromiseRef.current = lifecycle;
       await lifecycle;
     },
-    [restoreInterface, scrollTo, scrollToImmediate, stop],
+    [locale, restoreInterface, scrollTo, scrollToImmediate, stop],
   );
 
   useInternalNavigation(navigate);
@@ -443,7 +445,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   }, [scrollToImmediate, smooth]);
 
   useEffect(() => {
-    applyMetadata(routeRef.current);
+    applyMetadata(routeRef.current, locale);
     const existing = normalizeHistoryState(history.state);
     history.replaceState(
       existing ?? { path: window.location.pathname, scrollY: window.scrollY },
@@ -477,7 +479,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('scroll', saveScrollPosition);
       if (pendingFrame) window.cancelAnimationFrame(pendingFrame);
     };
-  }, [navigate]);
+  }, [locale, navigate]);
 
   useEffect(
     () => () => {

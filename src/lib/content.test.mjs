@@ -1,7 +1,33 @@
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import test from 'node:test';
-import { projects } from './content.ts';
+import * as content from './content.ts';
+
+const { projects } = content;
+
+test('serves complete English and Portuguese interface copy', () => {
+  assert.equal(typeof content.contentFor, 'function');
+  const english = content.contentFor('en');
+  const portuguese = content.contentFor('pt');
+
+  assert.equal(english.nav.links[0].label, 'WORK');
+  assert.equal(portuguese.nav.links[0].label, 'PROJETOS');
+  assert.equal(portuguese.ui.home.hero.title, 'Código com pulso humano.');
+  assert.equal(portuguese.projects.length, english.projects.length);
+  assert.deepEqual(
+    portuguese.projects.map((project) => project.slug),
+    english.projects.map((project) => project.slug),
+  );
+  assert.equal(portuguese.chat.prompts.length, english.chat.prompts.length);
+});
+
+test('accepts only supported persisted locales', () => {
+  assert.equal(typeof content.parseLocale, 'function');
+  assert.equal(content.parseLocale('pt'), 'pt');
+  assert.equal(content.parseLocale('en'), 'en');
+  assert.equal(content.parseLocale('es'), null);
+  assert.equal(content.parseLocale(null), null);
+});
 
 test('publishes exactly three complete, uniquely addressed cases', () => {
   assert.deepEqual(

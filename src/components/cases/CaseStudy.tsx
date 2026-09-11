@@ -3,15 +3,18 @@ import { lazy, Suspense } from 'react';
 import { ArrowLeft, ArrowUpRight } from '@phosphor-icons/react';
 import { PROJECT_THEMES } from '../../motion/projectThemes';
 import { useRouteScrollRefresh } from '../../hooks/useRouteScrollRefresh';
-import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import { CaseMedia } from './CaseMedia';
 import * as S from './CaseStudy.styles';
+import { useLanguage } from '../providers/LanguageProvider';
 
 const EmploymentJourney = lazy(() => import('./EmploymentJourney'));
 const IntegrationStory = lazy(() => import('./IntegrationStory'));
 
 export function CaseStudy({ project }: { project: Project }) {
+  const { content } = useLanguage();
+  const { projects } = content;
+  const copy = content.ui.caseStudy;
   // A case study enters and leaves through the same gravitational field as the
   // home page. Without this it was the one route that faded generically.
   useRouteScrollRefresh();
@@ -28,7 +31,7 @@ export function CaseStudy({ project }: { project: Project }) {
             data-transition-project={project.slug}
             data-transition-cause="brand"
           >
-            <ArrowLeft aria-hidden="true" weight="regular" /> Selected work
+            <ArrowLeft aria-hidden="true" weight="regular" /> {copy.back}
           </S.Back>
           <S.Eyebrow>
             {project.eyebrow} <span>{project.status}</span>
@@ -41,20 +44,20 @@ export function CaseStudy({ project }: { project: Project }) {
             <dl>
               {project.context ? (
                 <div>
-                  <dt>Context</dt>
+                  <dt>{copy.context}</dt>
                   <dd>{project.context}</dd>
                 </div>
               ) : null}
               <div>
-                <dt>Role</dt>
+                <dt>{copy.role}</dt>
                 <dd>{project.role}</dd>
               </div>
               <div>
-                <dt>Year</dt>
+                <dt>{copy.year}</dt>
                 <dd>{project.year}</dd>
               </div>
               <div>
-                <dt>Stack</dt>
+                <dt>{copy.stack}</dt>
                 <dd>{project.tech}</dd>
               </div>
             </dl>
@@ -64,7 +67,7 @@ export function CaseStudy({ project }: { project: Project }) {
 
       <CaseMedia project={project} />
 
-      <Suspense fallback={<S.Loading role="status">Loading the project story…</S.Loading>}>
+      <Suspense fallback={<S.Loading role="status">{copy.loading}</S.Loading>}>
         {project.slug === 'emprega-co' ? <EmploymentJourney /> : null}
         {project.slug === 'helppet' ? <IntegrationStory /> : null}
       </Suspense>
@@ -79,7 +82,7 @@ export function CaseStudy({ project }: { project: Project }) {
           ))}
         </S.Sections>
         <S.Outcome>
-          <span>Outcome</span>
+          <span>{copy.outcome}</span>
           <p>{project.outcome}</p>
         </S.Outcome>
         {project.actions.length ? (
@@ -98,13 +101,13 @@ export function CaseStudy({ project }: { project: Project }) {
         ) : null}
       </S.Body>
 
-      <S.Nav aria-label="Case study navigation" data-gravity-section>
+      <S.Nav aria-label={copy.navigation} data-gravity-section>
         <a
           href={hrefForCase(previous.slug)}
           data-transition-project={previous.slug}
           data-transition-cause="previous"
         >
-          <small>Previous case</small>
+          <small>{copy.previous}</small>
           <strong>{previous.name}</strong>
         </a>
         <a
@@ -112,7 +115,7 @@ export function CaseStudy({ project }: { project: Project }) {
           data-transition-project={next.slug}
           data-transition-cause="next"
         >
-          <small>Next case</small>
+          <small>{copy.next}</small>
           <strong>{next.name}</strong>
         </a>
       </S.Nav>

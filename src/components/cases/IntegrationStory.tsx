@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { useLanguage } from '../providers/LanguageProvider';
 
 const Integration = styled.section`
   padding: clamp(64px, 9vw, 140px) clamp(20px, 5vw, 80px);
@@ -55,23 +56,19 @@ const Integration = styled.section`
 `;
 
 export default function IntegrationStory() {
+  const { content } = useLanguage();
+  const copy = content.ui.integration;
   return (
     <Integration aria-labelledby="integration-title">
-      <h2 id="integration-title">The interesting part is in between.</h2>
-      <p>
-        An interface is one piece of the product. This academic build was an opportunity to
-        learn what happens across its boundaries.
-      </p>
-      <ol aria-label="Integration areas explored in the project">
-        <li>Interface</li>
-        <li>Gateway</li>
-        <li>API</li>
+      <h2 id="integration-title">{copy.title}</h2>
+      <p>{copy.intro}</p>
+      <ol aria-label={copy.areasLabel}>
+        {copy.areas.map((area) => (
+          <li key={area}>{area}</li>
+        ))}
       </ol>
-      <small>Learning to connect the pieces.</small>
-      <p>
-        The available visual material comes from Figma. It shows the interface system, while
-        the project’s engineering focus was connecting frontend and backend.
-      </p>
+      <small>{copy.note}</small>
+      <p>{copy.body}</p>
     </Integration>
   );
 }

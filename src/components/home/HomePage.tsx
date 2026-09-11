@@ -17,6 +17,7 @@ import { SelectedWorkTheater } from './SelectedWorkTheater';
 import { Footer } from '../layout/Footer';
 import { useEditorialMotion } from '../../hooks/useEditorialMotion';
 import * as S from './HomePage.styles';
+import { useLanguage } from '../providers/LanguageProvider';
 
 /**
  * The heading, twice.
@@ -26,37 +27,28 @@ import * as S from './HomePage.styles';
  * because a heading spelled out one glyph per element is announced one glyph at
  * a time. The two must stay in sync, they are the same sentence.
  */
-const HERO_TITLE_TEXT = 'Code with a human pulse.';
-const HERO_TITLE_WORDS = ['Code with', 'a human', 'pulse.'] as const;
-
 const capabilities = [
   {
     icon: Code,
-    title: 'Backend Systems',
-    body: 'Domain models, APIs and persistence shaped around product behavior instead of framework defaults.',
     stack: 'Java · Spring Boot · PostgreSQL · REST',
   },
   {
     icon: FlowArrow,
-    title: 'Product Engineering',
-    body: 'From ambiguous product flows to explicit states, contracts and implementation decisions.',
     stack: 'System design · Product flows · Delivery',
   },
   {
     icon: Command,
-    title: 'Interface Architecture',
-    body: 'Typed React interfaces with accessible states, clear ownership and maintainable motion boundaries.',
     stack: 'TypeScript · React · Next.js · Design systems',
   },
   {
     icon: Sparkle,
-    title: '3D & Motion',
-    body: 'Real-time visual systems used when they clarify the experience, with a measured performance budget.',
     stack: 'Three.js · R3F · GSAP · GLSL',
   },
 ] as const;
 
 export function HomePage() {
+  const { content } = useLanguage();
+  const { home } = content.ui;
   const heroRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
   const profileRef = useRef<HTMLElement>(null);
@@ -103,7 +95,7 @@ export function HomePage() {
         <S.HeroNote href="#about">
           Victor Hugo
           <span>
-            Engineer. Curious human. <ArrowDownRight aria-hidden="true" weight="regular" />
+            {home.hero.note} <ArrowDownRight aria-hidden="true" weight="regular" />
           </span>
         </S.HeroNote>
         <S.HeroGrid>
@@ -123,13 +115,13 @@ export function HomePage() {
             entrance and frees the CTAs to be clickable from first paint.
           */}
           <div data-warp>
-            <S.Kicker>Backend developer. Product-minded.</S.Kicker>
+            <S.Kicker>{home.hero.kicker}</S.Kicker>
             {/* `id`, `data-route-heading` and `tabIndex` are the route
                 transition director's focus target. They stay. */}
             <S.HeroTitle id="hero-title" data-route-heading tabIndex={-1}>
-              <span className="visually-hidden">{HERO_TITLE_TEXT}</span>
+              <span className="visually-hidden">{home.hero.title}</span>
               <S.HeroLines aria-hidden="true">
-                {HERO_TITLE_WORDS.map((word) => (
+                {home.hero.lines.map((word) => (
                   <S.HeroWord key={word} data-hero-word>
                     {Array.from(word).map((glyph, index) => (
                       <S.HeroGlyph
@@ -147,16 +139,13 @@ export function HomePage() {
           </div>
           <S.HeroAside data-hero-fade>
             <ArrowBendDownRight aria-hidden="true" size={60} weight="regular" />
-            <S.HeroCopy>
-              Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a
-              product and the details that make it feel alive.
-            </S.HeroCopy>
+            <S.HeroCopy>{home.hero.copy}</S.HeroCopy>
             <S.Actions>
               <S.Action $primary href="#work">
-                View selected work <ArrowUpRight aria-hidden="true" />
+                {home.hero.workCta} <ArrowUpRight aria-hidden="true" />
               </S.Action>
               <S.Action href="mailto:eovitu7@gmail.com">
-                Start a conversation <ArrowUpRight aria-hidden="true" />
+                {home.hero.contactCta} <ArrowUpRight aria-hidden="true" />
               </S.Action>
             </S.Actions>
           </S.HeroAside>
@@ -174,25 +163,22 @@ export function HomePage() {
         <S.SectionInner>
           <S.SectionHead>
             <div>
-              <S.Kicker>Engineering profile</S.Kicker>
+              <S.Kicker>{home.profile.kicker}</S.Kicker>
               <h2 id="profile-title" data-skew>
-                Under the hood.
+                {home.profile.title[0]}
                 <br />
-                Beyond the obvious.
+                {home.profile.title[1]}
               </h2>
             </div>
-            <p>
-              Backend is the center of gravity. Product thinking, interface architecture and
-              real-time visuals extend the same engineering discipline.
-            </p>
+            <p>{home.profile.intro}</p>
           </S.SectionHead>
           <S.CapabilityGrid>
-            {capabilities.map((item) => (
-              <S.Capability key={item.title}>
+            {capabilities.map((item, index) => (
+              <S.Capability key={item.stack}>
                 <item.icon aria-hidden="true" weight="regular" />
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-                <small>{item.stack}</small>
+                <h3>{home.profile.capabilities[index][0]}</h3>
+                <p>{home.profile.capabilities[index][1]}</p>
+                <small>{home.profile.capabilities[index][2]}</small>
               </S.Capability>
             ))}
           </S.CapabilityGrid>
@@ -207,28 +193,21 @@ export function HomePage() {
                 src="/victor-2010.jpg"
                 width="720"
                 height="900"
-                alt="Victor Hugo as a child at a playground"
+                alt={home.about.imageAlt}
                 loading="lazy"
                 decoding="async"
               />
-              <figcaption>Victor, before the code.</figcaption>
+              <figcaption>{home.about.caption}</figcaption>
             </figure>
             <div>
-              <S.Kicker>About</S.Kicker>
+              <S.Kicker>{home.about.kicker}</S.Kicker>
               <h2 id="about-title" data-skew>
-                Still curious.
+                {home.about.title[0]}
                 <br />
-                Just building bigger things.
+                {home.about.title[1]}
               </h2>
-              <p>
-                I am Victor Hugo, a backend developer in São Paulo working across system
-                architecture, product decisions and expressive interfaces. I care about the
-                invisible structure that keeps a product reliable, and the visible details
-                that make it understandable.
-              </p>
-              <p>
-                I work remotely and welcome conversations with teams and clients worldwide.
-              </p>
+              <p>{home.about.body[0]}</p>
+              <p>{home.about.body[1]}</p>
             </div>
           </S.AboutGrid>
         </S.SectionInner>
@@ -241,11 +220,13 @@ export function HomePage() {
         data-gravity-section
       >
         <S.SectionInner>
-          <S.Kicker>Available worldwide</S.Kicker>
+          <S.Kicker>{home.contact.kicker}</S.Kicker>
           <S.ContactTitle id="contact-title" data-skew data-warp>
-            <S.ContactWord data-contact-word>Build</S.ContactWord>
-            <S.ContactWord data-contact-word>something</S.ContactWord>
-            <S.ContactWord data-contact-word>people can trust.</S.ContactWord>
+            {home.contact.words.map((word) => (
+              <S.ContactWord key={word} data-contact-word>
+                {word}
+              </S.ContactWord>
+            ))}
           </S.ContactTitle>
           <S.ContactEmail
             href="https://www.linkedin.com/in/eovitu/"

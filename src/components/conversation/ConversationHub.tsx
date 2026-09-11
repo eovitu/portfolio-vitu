@@ -9,10 +9,11 @@ import {
 import { ArrowLeft, ArrowUpRight } from '@phosphor-icons/react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, useReducedMotion } from 'motion/react';
-import { chat } from '../../lib/content';
-import { answerConversationQuestion, type ChatPrompt } from '../../lib/conversation';
+import { type ChatPrompt } from '../../lib/content';
+import { answerConversationQuestion } from '../../lib/conversation';
 import { useDialogSurface } from '../../hooks/useDialogSurface';
 import * as S from './ConversationHub.styles';
+import { useLanguage } from '../providers/LanguageProvider';
 
 interface Message {
   id: number;
@@ -45,6 +46,8 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
   const answerTimerRef = useRef(0);
   const messageIdRef = useRef(0);
   const reducedMotion = useReducedMotion();
+  const { locale, content } = useLanguage();
+  const { chat, ui } = content;
 
   const close = onClose;
 
@@ -88,7 +91,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
     event.preventDefault();
     const question = input.trim().slice(0, 240);
     if (!question || pending) return;
-    const result = answerConversationQuestion(question);
+    const result = answerConversationQuestion(question, chat);
     appendExchange(question, result.answer);
     setInput('');
   };
@@ -99,6 +102,13 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
     },
     [],
   );
+
+  useEffect(() => {
+    setInput('');
+    setMessages([]);
+    setPending(false);
+    window.clearTimeout(answerTimerRef.current);
+  }, [locale]);
 
   useEffect(() => {
     if (!open) return;
@@ -119,7 +129,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
             <S.Layer>
               <S.Backdrop
                 type="button"
-                aria-label="Close conversation"
+                aria-label={ui.conversation.close}
                 onClick={close}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -148,11 +158,11 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                 </S.Top>
 
                 <S.Intro>
-                  <h2 id="conversation-title">A direct line into the work.</h2>
+                  <h2 id="conversation-title">{ui.conversation.heading}</h2>
                   <p>{chat.intro}</p>
                 </S.Intro>
 
-                <S.Prompts aria-label="Suggested questions">
+                <S.Prompts aria-label={ui.conversation.suggested}>
                   {chat.prompts.map((prompt) => (
                     <button
                       key={prompt.id}
@@ -168,7 +178,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
 
                 <S.Transcript ref={transcriptRef} aria-live="polite" aria-busy={pending}>
                   {messages.length === 0 ? (
-                    <S.Empty>Select a question or write your own.</S.Empty>
+                    <S.Empty>{ui.conversation.empty}</S.Empty>
                   ) : null}
                   {messages.map((message) => (
                     <S.Message
@@ -178,7 +188,11 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      <small>{message.role === 'visitor' ? 'You' : 'Vitu · Curated'}</small>
+                      <small>
+                        {message.role === 'visitor'
+                          ? ui.conversation.you
+                          : ui.conversation.curated}
+                      </small>
                       <p>{message.text}</p>
                     </S.Message>
                   ))}
@@ -191,7 +205,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                         exit={{ opacity: 0 }}
                         transition={{ duration: reducedMotion ? 0 : 0.8, repeat: Infinity }}
                       >
-                        RECEIVING…
+                        {ui.conversation.receiving}
                       </S.Typing>
                     ) : null}
                   </AnimatePresence>
@@ -199,7 +213,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
 
                 <S.Composer onSubmit={submit}>
                   <S.VisuallyHidden as="label" htmlFor="conversation-question">
-                    Ask a question
+                    {ui.conversation.ask}
                   </S.VisuallyHidden>
                   <input
                     id="conversation-question"
@@ -211,7 +225,8 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                     onChange={(event) => setInput(event.target.value)}
                   />
                   <button type="submit" disabled={!input.trim() || pending}>
-                    Send <ArrowUpRight aria-hidden="true" weight="regular" />
+                    {ui.conversation.send}{' '}
+                    <ArrowUpRight aria-hidden="true" weight="regular" />
                   </button>
                   <S.Meta>
                     {chat.note} · <a href="mailto:eovitu7@gmail.com">eovitu7@gmail.com</a>

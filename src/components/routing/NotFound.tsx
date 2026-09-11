@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useRouteScrollRefresh } from '../../hooks/useRouteScrollRefresh';
-import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import { prefersReducedMotion } from '../../lib/prefersReducedMotion';
 import { setSceneTarget } from '../../motion/sceneSignals';
 import * as S from './NotFound.styles';
+import { useLanguage } from '../providers/LanguageProvider';
 
 /**
  * The one page where the singularity is the subject.
@@ -21,6 +21,9 @@ import * as S from './NotFound.styles';
  * exactly what it looked for.
  */
 export function NotFound({ path }: { path: string }) {
+  const { content } = useLanguage();
+  const { projects } = content;
+  const copy = content.ui.notFound;
   const heldRef = useRef<HTMLElement>(null);
   useRouteScrollRefresh();
 
@@ -42,24 +45,23 @@ export function NotFound({ path }: { path: string }) {
       <S.Inner data-warp>
         <S.Code aria-hidden="true">404</S.Code>
         <S.Title data-route-heading tabIndex={-1}>
-          The singularity got there first.
+          {copy.title}
         </S.Title>
         <S.Body>
           <p>
-            There is no page at <S.Path>{path}</S.Path>. Either it never existed or it has
-            already crossed the horizon, from out here the two look identical.
+            {copy.beforePath} <S.Path>{path}</S.Path>. {copy.afterPath}
           </p>
-          <p>Everything that survived is one link away.</p>
+          <p>{copy.survived}</p>
         </S.Body>
         <S.Actions>
           <S.Action $primary href="/" data-transition-cause="brand">
-            Back to the start
+            {copy.back}
           </S.Action>
           <S.Action href="/#work" data-transition-cause="hash">
-            See the work
+            {copy.work}
           </S.Action>
         </S.Actions>
-        <S.Cases aria-label="Case studies">
+        <S.Cases aria-label={copy.cases}>
           {projects.map((project) => (
             <a
               key={project.slug}
