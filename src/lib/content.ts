@@ -444,18 +444,22 @@ const sharedUiEn = {
         [
           'Backend Systems',
           'Domain models, APIs and persistence shaped around product behavior instead of framework defaults.',
+          'Java · Spring Boot · PostgreSQL · REST',
         ],
         [
           'Product Engineering',
           'From ambiguous product flows to explicit states, contracts and implementation decisions.',
+          'System design · Product flows · Delivery',
         ],
         [
           'Interface Architecture',
           'Typed React interfaces with accessible states, clear ownership and maintainable motion boundaries.',
+          'TypeScript · React · Next.js · Design systems',
         ],
         [
           '3D & Motion',
           'Real-time visual systems used when they clarify the experience, with a measured performance budget.',
+          'Three.js · R3F · GSAP · GLSL',
         ],
       ],
     },
@@ -608,18 +612,22 @@ const sharedUiPt: SiteUi = {
         [
           'Sistemas Backend',
           'Modelos de domínio, APIs e persistência moldados pelo comportamento do produto, não pelos padrões do framework.',
+          'Java · Spring Boot · PostgreSQL · REST',
         ],
         [
           'Engenharia de Produto',
           'De fluxos ambíguos a estados, contratos e decisões de implementação explícitos.',
+          'Design de sistemas · Fluxos de produto · Entrega',
         ],
         [
           'Arquitetura de Interface',
           'Interfaces React tipadas, com estados acessíveis, responsabilidades claras e fronteiras de movimento sustentáveis.',
+          'TypeScript · React · Next.js · Design systems',
         ],
         [
           '3D e Movimento',
           'Sistemas visuais em tempo real usados quando tornam a experiência mais clara, dentro de um orçamento de performance medido.',
+          'Three.js · R3F · GSAP · GLSL',
         ],
       ],
     },

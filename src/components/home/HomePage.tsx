@@ -182,7 +182,7 @@ export function HomePage() {
                 <item.icon aria-hidden="true" weight="regular" />
                 <h3>{home.profile.capabilities[index][0]}</h3>
                 <p>{home.profile.capabilities[index][1]}</p>
-                <small>{item.stack}</small>
+                <small>{home.profile.capabilities[index][2]}</small>
               </S.Capability>
             ))}
           </S.CapabilityGrid>
