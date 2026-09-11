@@ -402,33 +402,6 @@ export const AboutGrid = styled.div`
   }
 `;
 
-export const ContactEmail = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  position: relative;
-  z-index: 5;
-  margin-top: auto;
-  padding: 24px 0;
-  border-top: 1px solid #a6bc72;
-  color: #d7ef92;
-  background: #08080a;
-  font-size: clamp(24px, 5.7vw, 90px);
-  letter-spacing: -0.055em;
-  &:hover {
-    color: #ff9b6a;
-  }
-  svg {
-    width: 0.85em;
-    height: 0.85em;
-    transition: transform 240ms ease;
-  }
-  &:hover svg {
-    transform: rotate(45deg);
-  }
-`;
-
 export const Contact = styled(Section)`
   min-height: 100svh;
   display: flex;

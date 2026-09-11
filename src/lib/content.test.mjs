@@ -29,6 +29,20 @@ test('accepts only supported persisted locales', () => {
   assert.equal(content.parseLocale(null), null);
 });
 
+test('publishes localized footer contact links', () => {
+  const english = content.contentFor('en').footer;
+  const portuguese = content.contentFor('pt').footer;
+
+  assert.equal(english.socialLabel, 'FIND ME ONLINE');
+  assert.equal(portuguese.socialLabel, 'ENCONTRE-ME EM');
+  assert.deepEqual(english.links, [
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/eovitu/' },
+    { label: 'GitHub', href: 'https://github.com/eovitu' },
+    { label: 'Email', href: 'mailto:eovitu7@gmail.com' },
+  ]);
+  assert.deepEqual(portuguese.links, english.links);
+});
+
 test('publishes exactly three complete, uniquely addressed cases', () => {
   assert.deepEqual(
     projects.map((project) => project.slug),

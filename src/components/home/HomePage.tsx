@@ -228,14 +228,6 @@ export function HomePage() {
               </S.ContactWord>
             ))}
           </S.ContactTitle>
-          <S.ContactEmail
-            href="https://www.linkedin.com/in/eovitu/"
-            target="_blank"
-            rel="noreferrer"
-            data-contact-survivor
-          >
-            LinkedIn <ArrowUpRight aria-hidden="true" weight="regular" />
-          </S.ContactEmail>
         </S.SectionInner>
       </S.Contact>
       <Footer />
