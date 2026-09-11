@@ -193,6 +193,12 @@ export const projects: Project[] = [
 ];
 
 export const footer = {
+  socialLabel: 'FIND ME ONLINE',
+  links: [
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/eovitu/' },
+    { label: 'GitHub', href: 'https://github.com/eovitu' },
+    { label: 'Email', href: 'mailto:eovitu7@gmail.com' },
+  ],
   items: [
     '© 2026, VICTOR HUGO',
     'BASED IN SÃO PAULO · WORKING WORLDWIDE',
@@ -732,7 +738,11 @@ const sharedUiPt: SiteUi = {
 
 export interface SiteContent {
   projects: Project[];
-  footer: { items: readonly string[] };
+  footer: {
+    socialLabel: string;
+    links: readonly { label: string; href: string }[];
+    items: readonly string[];
+  };
   nav: {
     brand: string;
     links: readonly { label: string; href: string }[];
@@ -747,6 +757,8 @@ const contentByLocale: Record<Locale, SiteContent> = {
   pt: {
     projects: projectsPt,
     footer: {
+      socialLabel: 'ENCONTRE-ME EM',
+      links: footer.links,
       items: [
         '© 2026, VICTOR HUGO',
         'EM SÃO PAULO · TRABALHANDO PARA O MUNDO',
