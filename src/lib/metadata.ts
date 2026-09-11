@@ -38,7 +38,9 @@ export function personJsonLd() {
 export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
   const localized = contentFor(locale);
   const homeTitle =
-    locale === 'pt' ? 'Victor Hugo, Desenvolvedor Backend e Engenheiro de Produto' : HOME_TITLE;
+    locale === 'pt'
+      ? 'Victor Hugo, Desenvolvedor Backend e Engenheiro de Produto'
+      : HOME_TITLE;
   const homeDescription =
     locale === 'pt'
       ? 'Desenvolvedor backend criando produtos digitais confiáveis, da arquitetura de sistemas às interfaces expressivas.'
@@ -57,7 +59,10 @@ export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
   if (route.kind === 'notFound') {
     return {
       lang,
-      title: locale === 'pt' ? 'Além do horizonte, Victor Hugo' : 'Past the horizon, Victor Hugo',
+      title:
+        locale === 'pt'
+          ? 'Além do horizonte, Victor Hugo'
+          : 'Past the horizon, Victor Hugo',
       description:
         locale === 'pt'
           ? 'Este endereço não existe. Volte aos projetos selecionados.'

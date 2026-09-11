@@ -63,7 +63,9 @@ export default function IntegrationStory() {
       <h2 id="integration-title">{copy.title}</h2>
       <p>{copy.intro}</p>
       <ol aria-label={copy.areasLabel}>
-        {copy.areas.map((area) => <li key={area}>{area}</li>)}
+        {copy.areas.map((area) => (
+          <li key={area}>{area}</li>
+        ))}
       </ol>
       <small>{copy.note}</small>
       <p>{copy.body}</p>

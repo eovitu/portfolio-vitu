@@ -78,9 +78,7 @@ export function SelectedWorkTheater() {
             {copy.title[1]}
           </h2>
         </div>
-        <p data-reveal="soft">
-          {copy.intro}
-        </p>
+        <p data-reveal="soft">{copy.intro}</p>
       </S.Intro>
       <S.TheaterRun
         data-theater-run

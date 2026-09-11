@@ -139,9 +139,7 @@ export function HomePage() {
           </div>
           <S.HeroAside data-hero-fade>
             <ArrowBendDownRight aria-hidden="true" size={60} weight="regular" />
-            <S.HeroCopy>
-              {home.hero.copy}
-            </S.HeroCopy>
+            <S.HeroCopy>{home.hero.copy}</S.HeroCopy>
             <S.Actions>
               <S.Action $primary href="#work">
                 {home.hero.workCta} <ArrowUpRight aria-hidden="true" />
@@ -172,9 +170,7 @@ export function HomePage() {
                 {home.profile.title[1]}
               </h2>
             </div>
-            <p>
-              {home.profile.intro}
-            </p>
+            <p>{home.profile.intro}</p>
           </S.SectionHead>
           <S.CapabilityGrid>
             {capabilities.map((item, index) => (

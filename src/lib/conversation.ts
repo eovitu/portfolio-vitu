@@ -8,7 +8,10 @@ const normalize = (value: string) =>
     .trim();
 
 /** Resolve a typed question locally. No network request or HTML parsing occurs. */
-export function answerConversationQuestion(value: string, content: ChatContent = chat): {
+export function answerConversationQuestion(
+  value: string,
+  content: ChatContent = chat,
+): {
   prompt?: ChatPrompt;
   answer: string;
 } {

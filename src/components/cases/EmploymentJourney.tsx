@@ -70,11 +70,10 @@ export default function EmploymentJourney() {
       <header>
         <h2 id="journey-title">
           {copy.title[0]}
-          <br />{copy.title[1]}
+          <br />
+          {copy.title[1]}
         </h2>
-        <p>
-          {copy.intro}
-        </p>
+        <p>{copy.intro}</p>
       </header>
       <ol>
         {copy.decisions.map(([title, body], index) => (
