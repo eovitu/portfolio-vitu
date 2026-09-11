@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { footer } from '../../lib/content';
+import { useLanguage } from '../providers/LanguageProvider';
 
 const Bar = styled.footer`
   width: min(100%, 1500px);
@@ -29,10 +29,11 @@ const Transmission = styled.div`
 
 /** The closing transmission line, part of the contact composition. */
 export function Footer() {
+  const { content } = useLanguage();
   return (
     <Bar data-warp data-gravity-section>
       <Transmission>
-        {footer.items.map((item) => (
+        {content.footer.items.map((item) => (
           <span key={item}>{item}</span>
         ))}
       </Transmission>

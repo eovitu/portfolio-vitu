@@ -10,11 +10,11 @@ import { SingularityStage } from './components/layout/SingularityStage';
 import { Header } from './components/navigation/Header';
 import { MotionDirector } from './components/motion/MotionDirector';
 import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider';
+import { LanguageProvider, useLanguage } from './components/providers/LanguageProvider';
 import {
   RouteTransitionProvider,
   useRouteTransition,
 } from './components/routing/RouteTransitionProvider';
-import { projects } from './lib/content';
 import { GlobalStyle } from './styles/GlobalStyle';
 import { theme } from './styles/theme';
 
@@ -37,6 +37,7 @@ const SkipLink = styled.a`
 
 function Site() {
   const { route, notifyRouteMounted } = useRouteTransition();
+  const { content } = useLanguage();
   const onSceneMount = useCallback(
     (node: HTMLDivElement | null) => {
       if (node) notifyRouteMounted();
@@ -44,7 +45,9 @@ function Site() {
     [notifyRouteMounted],
   );
   const project =
-    route.kind === 'case' ? projects.find((item) => item.slug === route.slug) : undefined;
+    route.kind === 'case'
+      ? content.projects.find((item) => item.slug === route.slug)
+      : undefined;
   const sceneKey =
     route.kind === 'case'
       ? `case:${route.slug}`
@@ -55,7 +58,7 @@ function Site() {
   return (
     <>
       <SkipLink href={route.kind === 'home' ? '#work' : '#case-content'}>
-        Skip to content
+        {content.ui.skipToContent}
       </SkipLink>
       <SingularityStage />
       <Header />
@@ -83,15 +86,17 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <SmoothScrollProvider>
-        <RouteTransitionProvider>
-          <MotionDirector>
-            <ConversationProvider>
-              <Site />
-            </ConversationProvider>
-          </MotionDirector>
-        </RouteTransitionProvider>
-      </SmoothScrollProvider>
+      <LanguageProvider>
+        <SmoothScrollProvider>
+          <RouteTransitionProvider>
+            <MotionDirector>
+              <ConversationProvider>
+                <Site />
+              </ConversationProvider>
+            </MotionDirector>
+          </RouteTransitionProvider>
+        </SmoothScrollProvider>
+      </LanguageProvider>
       <Analytics />
     </ThemeProvider>
   );

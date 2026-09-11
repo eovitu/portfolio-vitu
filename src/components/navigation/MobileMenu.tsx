@@ -2,11 +2,12 @@ import { useCallback, useRef, type MouseEvent, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
 import styled from 'styled-components';
-import { nav } from '../../lib/content';
 import { useDialogSurface } from '../../hooks/useDialogSurface';
 import { TalkToMeButton } from '../conversation/TalkToMeButton';
 import { useRouteTransition } from '../routing/RouteTransitionProvider';
 import { useSmoothScroll } from '../providers/SmoothScrollProvider';
+import { useLanguage } from '../providers/LanguageProvider';
+import { LanguageSwitch } from './LanguageSwitch';
 
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -80,7 +81,14 @@ const MenuLink = styled(motion.a)`
 `;
 const MenuTalk = styled(TalkToMeButton)`
   justify-self: start;
+`;
+
+const Bottom = styled.div`
   align-self: end;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 8px;
 `;
 
@@ -97,6 +105,8 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
   const { navigate } = useRouteTransition();
   const { start } = useSmoothScroll();
   const reduced = useReducedMotion();
+  const { content } = useLanguage();
+  const { nav, ui } = content;
 
   const surfaceMotion: Variants = {
     closed: {
@@ -202,7 +212,7 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
           id="mobile-menu"
           role="dialog"
           aria-modal="true"
-          aria-label="Site menu"
+          aria-label={ui.menu.label}
           variants={surfaceMotion}
           initial="closed"
           animate="open"
@@ -211,10 +221,10 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
           <Top>
             <span>VITU</span>
             <Close ref={closeRef} type="button" onClick={onClose}>
-              CLOSE
+              {ui.menu.close}
             </Close>
           </Top>
-          <Links aria-label="Mobile navigation">
+          <Links aria-label={ui.menu.navigation}>
             {nav.links.map((link) => (
               <MenuLink
                 key={link.href}
@@ -229,7 +239,10 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
           {/* Closes the menu and opens the drawer in one commit: React runs the
               menu's teardown before the drawer's effect, so the scroll lock and
               the inert background hand over rather than fight. */}
-          <MenuTalk aria-label="Talk to me" onClick={onClose} />
+          <Bottom>
+            <MenuTalk aria-label={ui.talkToMe} onClick={onClose} />
+            <LanguageSwitch />
+          </Bottom>
         </Overlay>
       )}
     </AnimatePresence>,

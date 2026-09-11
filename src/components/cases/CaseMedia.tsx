@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 're
 import { motion } from 'motion/react';
 import type { Project } from '../../lib/content';
 import * as S from './CaseStudy.styles';
+import { useLanguage } from '../providers/LanguageProvider';
 
 const MotionMedia = motion.create(S.Media);
 
@@ -25,6 +26,8 @@ const clock = (seconds: number) => {
  * around it would be one too many.
  */
 export function CaseMedia({ project }: { project: Project }) {
+  const { content } = useLanguage();
+  const copy = content.ui.caseStudy;
   const videoRef = useRef<HTMLVideoElement>(null);
   const surfaceRef = useRef<HTMLElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -102,7 +105,7 @@ export function CaseMedia({ project }: { project: Project }) {
       data-warp
       data-playing={playing}
       role="group"
-      aria-label={`${project.name}, case film. Space plays, arrows seek, M mutes.`}
+      aria-label={`${project.name}, ${copy.filmLabel}`}
       tabIndex={0}
       onKeyDown={onKeyDown}
     >
@@ -143,7 +146,7 @@ export function CaseMedia({ project }: { project: Project }) {
           type="button"
           data-no-magnetic
           onClick={toggle}
-          aria-label={playing ? 'Pause film' : 'Play film'}
+          aria-label={playing ? copy.pause : copy.play}
         >
           {playing ? '❙❙' : '▶'}
         </S.ControlButton>
@@ -153,8 +156,8 @@ export function CaseMedia({ project }: { project: Project }) {
           max={100}
           step={0.1}
           value={progress}
-          aria-label="Seek film"
-          aria-valuetext={`${clock(current)} of ${clock(duration)}`}
+          aria-label={copy.seek}
+          aria-valuetext={`${clock(current)} ${copy.of} ${clock(duration)}`}
           onChange={(event) => {
             const video = videoRef.current;
             if (!video || !Number.isFinite(video.duration)) return;
@@ -168,10 +171,10 @@ export function CaseMedia({ project }: { project: Project }) {
           type="button"
           data-no-magnetic
           onClick={toggleMute}
-          aria-label={muted ? 'Unmute film' : 'Mute film'}
+          aria-label={muted ? copy.unmute : copy.mute}
           aria-pressed={muted}
         >
-          {muted ? 'MUTED' : 'SOUND'}
+          {muted ? copy.muted : copy.sound}
         </S.ControlButton>
       </S.Controls>
     </MotionMedia>

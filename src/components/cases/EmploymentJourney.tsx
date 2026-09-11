@@ -1,31 +1,5 @@
 import styled from 'styled-components';
-
-const decisions = [
-  [
-    'Two doors, not one funnel',
-    'Workers and households arrive for opposite reasons. Splitting them at the first tap meant building two products instead of one compromise.',
-  ],
-  [
-    'A form that matches the job',
-    'Social name, available shifts, last employer as a reference. Every field maps to something a household actually asks before hiring, and nothing that it doesn’t.',
-  ],
-  [
-    'When the GPS says no',
-    'Location permission gets denied constantly. A postal-code fallback keeps the search alive instead of ending the session there.',
-  ],
-  [
-    'The whole listing, up front',
-    'Schedule, duties, requirements, benefits, rate. Holding back the pay until later wastes the time of the person who needs the work most.',
-  ],
-  [
-    'One tap, with the rule stated',
-    'Applying is a single confirmation, and that screen says plainly when the household gets to see your data.',
-  ],
-  [
-    'Something to come back to',
-    'Applications you can track. The product’s job doesn’t end at the apply button.',
-  ],
-] as const;
+import { useLanguage } from '../providers/LanguageProvider';
 
 const Journey = styled.section`
   padding: clamp(64px, 8vw, 120px) clamp(20px, 5vw, 80px);
@@ -89,20 +63,21 @@ const Journey = styled.section`
 `;
 
 export default function EmploymentJourney() {
+  const { content } = useLanguage();
+  const copy = content.ui.employment;
   return (
     <Journey aria-labelledby="journey-title">
       <header>
         <h2 id="journey-title">
-          Every tap.
-          <br />A decision.
+          {copy.title[0]}
+          <br />{copy.title[1]}
         </h2>
         <p>
-          Six moments that shape the journey from looking for work to following an
-          application.
+          {copy.intro}
         </p>
       </header>
       <ol>
-        {decisions.map(([title, body], index) => (
+        {copy.decisions.map(([title, body], index) => (
           <li key={title}>
             <span>{String(index + 1).padStart(2, '0')} / 06</span>
             <h3>{title}</h3>

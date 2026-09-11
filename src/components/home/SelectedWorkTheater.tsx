@@ -1,26 +1,33 @@
 import { useCallback, useRef, useState, type MouseEvent } from 'react';
 import { ArrowBendDownRight, ArrowUpRight } from '@phosphor-icons/react';
-import { projects } from '../../lib/content';
 import { hrefForCase } from '../../lib/routes';
 import { PROJECT_THEMES } from '../../motion/projectThemes';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useReveal } from '../../hooks/useReveal';
 import { useProjectTheaterMotion } from '../../hooks/useProjectTheaterMotion';
-import { chapterScrollTarget } from '../../motion/theaterChapters';
+import {
+  chapterScrollTarget,
+  canEnhanceProjectTheater,
+  PROJECT_THEATER_MEDIA_QUERY,
+} from '../../motion/theaterChapters';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useSmoothScroll } from '../providers/SmoothScrollProvider';
 import { useReloadColorReveal } from '../../hooks/useReloadColorReveal';
 import { ProjectMediaSurface } from './ProjectMediaSurface';
 import * as S from './SelectedWorkTheater.styles';
 import * as Base from './HomePage.styles';
+import { useLanguage } from '../providers/LanguageProvider';
 
 export function SelectedWorkTheater() {
+  const { content } = useLanguage();
+  const { projects } = content;
+  const projectCount = projects.length;
+  const copy = content.ui.home.work;
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
   const reduced = useReducedMotion();
-  const enhanced = useMediaQuery(
-    '(min-width: 1000px) and (min-height: 620px) and (hover: hover) and (pointer: fine)',
-  );
+  const viewportMatches = useMediaQuery(PROJECT_THEATER_MEDIA_QUERY);
+  const enhanced = canEnhanceProjectTheater({ viewportMatches, reducedMotion: reduced });
   const { scrollTo } = useSmoothScroll();
   useProjectTheaterMotion(sectionRef, setActive);
   useReveal(sectionRef);
@@ -52,28 +59,27 @@ export function SelectedWorkTheater() {
           runHeight: rect.height,
           viewportHeight: window.innerHeight,
           index,
-          count: projects.length,
+          count: projectCount,
         }),
         0.9,
       );
     },
-    [scrollTo],
+    [projectCount, scrollTo],
   );
 
   return (
     <S.Theater id="work" ref={sectionRef} aria-labelledby="work-title" data-gravity-section>
       <S.Intro>
         <div>
-          <Base.Kicker data-reveal="line">Selected work</Base.Kicker>
+          <Base.Kicker data-reveal="line">{copy.kicker}</Base.Kicker>
           <h2 id="work-title" data-skew data-reveal="soft">
-            Different problems.
+            {copy.title[0]}
             <br />
-            Different worlds.
+            {copy.title[1]}
           </h2>
         </div>
         <p data-reveal="soft">
-          Three projects across platform architecture, local commerce and connected care.
-          Each case shows the decisions behind the surface.
+          {copy.intro}
         </p>
       </S.Intro>
       <S.TheaterRun
@@ -124,11 +130,11 @@ export function SelectedWorkTheater() {
                   </ul>
                   <div data-project-meta>
                     <dl>
-                      <dt>Role</dt>
+                      <dt>{copy.role}</dt>
                       <dd>{project.role}</dd>
                     </dl>
                     <dl>
-                      <dt>Stack</dt>
+                      <dt>{copy.stack}</dt>
                       <dd>{project.tech}</dd>
                     </dl>
                   </div>
@@ -139,7 +145,7 @@ export function SelectedWorkTheater() {
                       data-project-link
                       data-transition-project={project.slug}
                     >
-                      View case study <ArrowUpRight aria-hidden="true" weight="regular" />
+                      {copy.caseCta} <ArrowUpRight aria-hidden="true" weight="regular" />
                     </Base.Action>
                     {project.actions.map((action) => (
                       <Base.Action
@@ -156,7 +162,7 @@ export function SelectedWorkTheater() {
               </S.Chapter>
             );
           })}
-          <S.Progress aria-label="Selected work chapters">
+          <S.Progress aria-label={copy.progressLabel}>
             {projects.map((project, index) => (
               <a
                 key={project.slug}

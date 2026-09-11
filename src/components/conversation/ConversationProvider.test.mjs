@@ -34,8 +34,8 @@ test('header and menu TALK TO ME open the drawer; footer has no repeated CTA', (
     assert.doesNotMatch(source, /mailto/);
   }
   assert.doesNotMatch(footer, /TalkToMeButton|Have a project/);
-  assert.match(header, /<DesktopTalk aria-label="Talk to me" \/>/);
-  assert.match(menu, /<MenuTalk aria-label="Talk to me" onClick=\{onClose\} \/>/);
+  assert.match(header, /<DesktopTalk aria-label=\{ui\.talkToMe\} \/>/);
+  assert.match(menu, /<MenuTalk aria-label=\{ui\.talkToMe\} onClick=\{onClose\} \/>/);
   assert.match(trigger, /open\(localRef\.current\)/);
 });
 

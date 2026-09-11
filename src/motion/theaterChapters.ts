@@ -14,6 +14,18 @@
  */
 
 /** Which chapter a trigger progress (0..1) belongs to. */
+export const PROJECT_THEATER_MEDIA_QUERY = '(min-width: 1000px) and (min-height: 620px)';
+
+export function canEnhanceProjectTheater({
+  viewportMatches,
+  reducedMotion,
+}: {
+  viewportMatches: boolean;
+  reducedMotion: boolean;
+}): boolean {
+  return viewportMatches && !reducedMotion;
+}
+
 export function chapterIndexForProgress(progress: number, count: number): number {
   if (count <= 0) return 0;
   const clamped = Math.min(Math.max(progress, 0), 0.999999);

@@ -16,9 +16,9 @@ test('the film carries our controls, never the browser chrome', () => {
   const videoTag = media.slice(media.indexOf('<video'), media.indexOf('</video>'));
   assert.ok(videoTag.length > 0);
   assert.doesNotMatch(videoTag, /\bcontrols\b/);
-  assert.match(media, /aria-label=\{playing \? 'Pause film' : 'Play film'\}/);
-  assert.match(media, /aria-label="Seek film"/);
-  assert.match(media, /aria-label=\{muted \? 'Unmute film' : 'Mute film'\}/);
+  assert.match(media, /aria-label=\{playing \? copy\.pause : copy\.play\}/);
+  assert.match(media, /aria-label=\{copy\.seek\}/);
+  assert.match(media, /aria-label=\{muted \? copy\.unmute : copy\.mute\}/);
   assert.match(media, /aria-valuetext=/);
 });
 
@@ -47,12 +47,12 @@ test('the transition contract on the media survives the rewrite', () => {
 });
 
 test('the case header identifies the project', () => {
-  assert.match(study, /<dt>Role<\/dt>/);
-  assert.match(study, /<dt>Year<\/dt>/);
-  assert.match(study, /<dt>Stack<\/dt>/);
+  assert.match(study, /<dt>\{copy\.role\}<\/dt>/);
+  assert.match(study, /<dt>\{copy\.year\}<\/dt>/);
+  assert.match(study, /<dt>\{copy\.stack\}<\/dt>/);
   // Client is rendered only when it is known, never invented.
   assert.match(study, /project\.context \?/);
-  assert.match(study, /<dt>Context<\/dt>/);
+  assert.match(study, /<dt>\{copy\.context\}<\/dt>/);
   // The controls float inside the media; no extra frame is introduced.
   assert.doesNotMatch(styles, /export const Controls[\s\S]{0,400}?border: 1px/);
 });

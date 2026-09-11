@@ -5,7 +5,11 @@ import { gsap, ScrollTrigger } from '../lib/gsap';
 import { prefersReducedMotion } from '../lib/prefersReducedMotion';
 import { sceneSignals } from '../motion/sceneSignals';
 import { PROJECT_THEMES } from '../motion/projectThemes';
-import { chapterIndexForProgress } from '../motion/theaterChapters';
+import {
+  chapterIndexForProgress,
+  canEnhanceProjectTheater,
+  PROJECT_THEATER_MEDIA_QUERY,
+} from '../motion/theaterChapters';
 import type { ProjectSlug } from '../lib/content';
 import { useMediaQuery } from './useMediaQuery';
 import { useReducedMotion } from './useReducedMotion';
@@ -15,15 +19,14 @@ export function useProjectTheaterMotion(
   setActive: (index: number) => void,
 ): void {
   const reduced = useReducedMotion();
-  const fineDesktop = useMediaQuery(
-    '(min-width: 1000px) and (min-height: 620px) and (hover: hover) and (pointer: fine)',
-  );
+  const viewportMatches = useMediaQuery(PROJECT_THEATER_MEDIA_QUERY);
+  const theaterEnabled = canEnhanceProjectTheater({ viewportMatches, reducedMotion: reduced });
   useLayoutEffect(() => {
     const section = sectionRef.current;
     const run = section?.querySelector<HTMLElement>('[data-theater-run]');
     if (!section || !run) return;
 
-    if (reduced || !fineDesktop) {
+    if (!theaterEnabled) {
       run.dataset.enhanced = 'false';
       setActive(0);
       return;
@@ -65,11 +68,11 @@ export function useProjectTheaterMotion(
       sceneSignals.transitionProgress = 0;
       ctx.revert();
     };
-  }, [sectionRef, setActive, reduced, fineDesktop]);
+  }, [sectionRef, setActive, reduced, theaterEnabled]);
 
   useAnimationFrame(() => {
     const section = sectionRef.current;
-    if (!section || !fineDesktop || prefersReducedMotion()) return;
+    if (!section || !theaterEnabled || prefersReducedMotion()) return;
     const velocity = Math.max(-1, Math.min(1, sceneSignals.velocity / 32));
     const previous = Number(section.dataset.theaterVelocity ?? 0);
     const damped = previous + (velocity - previous) * 0.12;

@@ -1,4 +1,4 @@
-import { projects } from './content.ts';
+import { contentFor, type Locale } from './content.ts';
 import type { Route } from './routes.ts';
 import { SITE_ORIGIN as ORIGIN } from './site.ts';
 
@@ -7,7 +7,7 @@ const HOME_DESCRIPTION =
   'Backend developer building reliable digital products from system architecture to expressive interfaces.';
 
 interface PageMetadata {
-  lang: 'en';
+  lang: 'en' | 'pt-BR';
   title: string;
   description: string;
   canonical: string;
@@ -35,12 +35,20 @@ export function personJsonLd() {
   } as const;
 }
 
-export function metadataFor(route: Route): PageMetadata {
+export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
+  const localized = contentFor(locale);
+  const homeTitle =
+    locale === 'pt' ? 'Victor Hugo, Desenvolvedor Backend e Engenheiro de Produto' : HOME_TITLE;
+  const homeDescription =
+    locale === 'pt'
+      ? 'Desenvolvedor backend criando produtos digitais confiáveis, da arquitetura de sistemas às interfaces expressivas.'
+      : HOME_DESCRIPTION;
+  const lang = locale === 'pt' ? 'pt-BR' : 'en';
   if (route.kind === 'home') {
     return {
-      lang: 'en',
-      title: HOME_TITLE,
-      description: HOME_DESCRIPTION,
+      lang,
+      title: homeTitle,
+      description: homeDescription,
       canonical: `${ORIGIN}/`,
       robots: INDEXABLE,
     };
@@ -48,9 +56,12 @@ export function metadataFor(route: Route): PageMetadata {
 
   if (route.kind === 'notFound') {
     return {
-      lang: 'en',
-      title: 'Past the horizon, Victor Hugo',
-      description: 'This address does not exist. Return to the selected work.',
+      lang,
+      title: locale === 'pt' ? 'Além do horizonte, Victor Hugo' : 'Past the horizon, Victor Hugo',
+      description:
+        locale === 'pt'
+          ? 'Este endereço não existe. Volte aos projetos selecionados.'
+          : 'This address does not exist. Return to the selected work.',
       // Canonical points home: the missing page has no address of its own
       // worth pointing a crawler at.
       canonical: `${ORIGIN}/`,
@@ -58,11 +69,11 @@ export function metadataFor(route: Route): PageMetadata {
     };
   }
 
-  const project = projects.find((item) => item.slug === route.slug);
+  const project = localized.projects.find((item) => item.slug === route.slug);
   return {
-    lang: 'en',
-    title: `${project?.name ?? 'Case Study'}, Victor Hugo`,
-    description: project?.summary ?? HOME_DESCRIPTION,
+    lang,
+    title: `${project?.name ?? (locale === 'pt' ? 'Case' : 'Case Study')}, Victor Hugo`,
+    description: project?.summary ?? homeDescription,
     canonical: `${ORIGIN}/work/${route.slug}`,
     robots: INDEXABLE,
   };
@@ -83,8 +94,8 @@ function meta(
   return element;
 }
 
-export function applyMetadata(route: Route): void {
-  const page = metadataFor(route);
+export function applyMetadata(route: Route, locale: Locale = 'en'): void {
+  const page = metadataFor(route, locale);
   document.documentElement.lang = page.lang;
   document.title = page.title;
   meta('meta[name="description"]', 'name', page.description);

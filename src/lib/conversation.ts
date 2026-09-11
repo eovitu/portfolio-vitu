@@ -1,6 +1,4 @@
-import { chat } from './content.ts';
-
-export type ChatPrompt = (typeof chat.prompts)[number];
+import { chat, type ChatContent, type ChatPrompt } from './content.ts';
 
 const normalize = (value: string) =>
   value
@@ -10,13 +8,13 @@ const normalize = (value: string) =>
     .trim();
 
 /** Resolve a typed question locally. No network request or HTML parsing occurs. */
-export function answerConversationQuestion(value: string): {
+export function answerConversationQuestion(value: string, content: ChatContent = chat): {
   prompt?: ChatPrompt;
   answer: string;
 } {
   const question = normalize(value).slice(0, 240);
-  const prompt = chat.prompts.find((candidate) =>
+  const prompt = content.prompts.find((candidate) =>
     candidate.keywords.some((keyword) => question.includes(keyword)),
   );
-  return { prompt, answer: prompt?.answer ?? chat.fallback };
+  return { prompt, answer: prompt?.answer ?? content.fallback };
 }

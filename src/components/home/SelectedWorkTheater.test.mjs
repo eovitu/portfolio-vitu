@@ -5,6 +5,7 @@ import {
   chapterIndexForProgress,
   chapterScrollTarget,
 } from '../../motion/theaterChapters.ts';
+import * as theaterChapters from '../../motion/theaterChapters.ts';
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
 const theater = read('./SelectedWorkTheater.tsx');
@@ -30,6 +31,32 @@ test('uses one sticky progression and the shared frame loop', () => {
   assert.match(motion, /ctx\.revert\(\)/);
   assert.doesNotMatch(motion, /requestAnimationFrame/);
   assert.doesNotMatch(motion, /wheel|preventDefault/);
+});
+
+test('enhances notebook-sized viewports regardless of their pointer hardware', () => {
+  assert.equal(typeof theaterChapters.canEnhanceProjectTheater, 'function');
+  assert.equal(
+    theaterChapters.canEnhanceProjectTheater({
+      viewportMatches: true,
+      reducedMotion: false,
+    }),
+    true,
+  );
+  assert.equal(
+    theaterChapters.canEnhanceProjectTheater({
+      viewportMatches: false,
+      reducedMotion: false,
+    }),
+    false,
+  );
+  assert.equal(
+    theaterChapters.canEnhanceProjectTheater({
+      viewportMatches: true,
+      reducedMotion: true,
+    }),
+    false,
+  );
+  assert.doesNotMatch(motion, /\(hover: hover\)|\(pointer: fine\)/);
 });
 
 test('keeps poster-first, one-video playback policy', () => {

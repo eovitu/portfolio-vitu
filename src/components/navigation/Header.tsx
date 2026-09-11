@@ -2,9 +2,10 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from '../../lib/gsap';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import styled from 'styled-components';
-import { nav } from '../../lib/content';
 import { MobileMenu } from './MobileMenu';
 import { TalkToMeButton } from '../conversation/TalkToMeButton';
+import { LanguageSwitch } from './LanguageSwitch';
+import { useLanguage } from '../providers/LanguageProvider';
 
 const Bar = styled.header`
   position: fixed;
@@ -64,6 +65,8 @@ const BrandPosition = styled.div`
 `;
 const TalkPosition = styled.div`
   display: flex;
+  align-items: center;
+  gap: 10px;
   @media (max-width: 900px) {
     display: none;
   }
@@ -134,6 +137,8 @@ export function Header() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+  const { content } = useLanguage();
+  const { nav, ui } = content;
 
   useLayoutEffect(() => {
     const inner = innerRef.current;
@@ -181,7 +186,7 @@ export function Header() {
               vitu<span>*</span>
             </Brand>
           </BrandPosition>
-          <DesktopNav aria-label="Primary navigation">
+          <DesktopNav aria-label={ui.menu.primary}>
             {nav.links.map((link) => (
               <a
                 key={link.href}
@@ -194,7 +199,8 @@ export function Header() {
             ))}
           </DesktopNav>
           <TalkPosition data-talk-position>
-            <DesktopTalk aria-label="Talk to me" />
+            <LanguageSwitch />
+            <DesktopTalk aria-label={ui.talkToMe} />
           </TalkPosition>
           <MenuButton
             ref={menuButtonRef}
@@ -204,7 +210,7 @@ export function Header() {
             data-nav-item
             onClick={() => setMenuOpen(true)}
           >
-            MENU
+            {ui.menu.open}
           </MenuButton>
         </Inner>
       </Bar>
