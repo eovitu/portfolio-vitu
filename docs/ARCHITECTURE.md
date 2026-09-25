@@ -19,17 +19,17 @@ The singularity itself remains procedural in `src/three/singularityScene.ts`. Th
 
 ## Motion and scroll
 
-`SmoothScrollProvider` coordinates Lenis with GSAP and ScrollTrigger. The experience uses ordinary vertical document flow: there is no wheel resistance, forced scroll restoration, horizontal scrolling, or reload choreography. Selected Work is the single bounded exception: `SelectedWorkTheater` owns one CSS-sticky stage and three semantic chapters, then releases naturally into Engineering Profile. It has no independent pins, wheel interception, or scroll trap. Motion supports hierarchy and continuity rather than delaying access to content.
+`SmoothScrollProvider` coordinates Lenis with GSAP and ScrollTrigger. The experience uses ordinary vertical document flow: there is no wheel resistance or horizontal scrolling. Route transitions capture and restore explicit scroll positions, while reload and direct-link scrolling remain under native browser ownership. The first visit also has a bounded singularity entrance sequence with a fail-safe; repeat visits and reduced motion use shorter or static paths. Selected Work is the single bounded sticky exception: `SelectedWorkTheater` owns one CSS-sticky stage and three semantic chapters, then releases naturally into Engineering Profile. It has no independent pins, wheel interception, or scroll trap. Motion supports hierarchy and continuity rather than delaying access to content.
 
 All essential content remains visible under `prefers-reduced-motion: reduce`. WebGL animation is disabled there rather than merely slowed down.
 
 ## Case studies and media
 
-`HomePage` renders the overview and `CaseStudy` renders each long-form project route from the same typed data. `ProjectMediaSurface` keeps the poster visible until the active video emits `playing`, pauses inactive surfaces, and never allows more than one project preview to play. Videos are muted, inline, looped 1280×720 previews with 16:9 poster frames. Autoplay failure, reduced motion, save-data and WebGL failure all retain a complete poster composition.
+`HomePage` renders the overview and `CaseStudy` renders each long-form project route from the same typed data. Both route surfaces and the 404 are lazy route chunks behind the transition mount handshake. `ProjectMediaSurface` keeps the poster visible until the active video emits `playing`, pauses inactive surfaces, and does not preload a video until its active surface is visible. Videos are muted, inline, looped 1280×720 previews with 16:9 poster frames. Autoplay failure, reduced motion, save-data and WebGL failure all retain a complete poster composition. The about portrait uses responsive WebP sources with a JPEG fallback.
 
 ## Metadata
 
-`src/lib/metadata.ts` derives English titles, descriptions, canonical URLs, Open Graph values, and verified `Person` JSON-LD from the resolved route. The production origin is `https://devitu.vercel.app`. The social preview is a 1200×630 raster image for broad crawler compatibility.
+`src/lib/metadata.ts` derives localized titles, descriptions, canonical URLs, robots rules and Open Graph/Twitter values from the resolved route. Home uses the 1200×630 site preview; each case uses its own poster. Structured data includes verified `Person`, home-only `WebSite` and case-specific `CreativeWork` records. Runtime navigation updates the document head, while `src/lib/seoHtml.ts` and `scripts/generate-route-html.mjs` generate equivalent crawler-visible HTML for home, all three cases and the noindex custom 404. The production origin is `https://eovitu.com.br`.
 
 ## Verification boundary
 

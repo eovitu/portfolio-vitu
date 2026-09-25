@@ -17,3 +17,8 @@ test('case navigation exposes route focus and project transition context', () =>
   assert.match(source, /data-transition-project/);
   assert.match(source, /data-transition-cause/);
 });
+
+test('Doces da Pati has a dedicated production story', () => {
+  assert.match(source, /lazy\(\(\) => import\('\.\/CommerceStory'\)\)/);
+  assert.match(source, /project\.slug === 'doces-da-pati' \? <CommerceStory \/> : null/);
+});

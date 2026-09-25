@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node --experimental-strip-types scripts/generate-route-html.mjs",
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test \"src/**/*.test.mjs\"",
     "typecheck": "tsc --noEmit",

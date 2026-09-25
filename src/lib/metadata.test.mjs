@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { metadataFor, personJsonLd } from './metadata.ts';
+import {
+  creativeWorkJsonLd,
+  metadataFor,
+  personJsonLd,
+  websiteJsonLd,
+} from './metadata.ts';
 
 test('uses professional English metadata for home and cases', () => {
   const home = metadataFor({ kind: 'home' });
@@ -12,6 +17,45 @@ test('uses professional English metadata for home and cases', () => {
   const caseMeta = metadataFor({ kind: 'case', slug: 'doces-da-pati' });
   assert.match(caseMeta.title, /Doces da Pati/);
   assert.match(caseMeta.canonical, /\/work\/doces-da-pati$/);
+});
+
+test('publishes unique search and social metadata for every indexable route', () => {
+  const pages = [
+    metadataFor({ kind: 'home' }),
+    metadataFor({ kind: 'case', slug: 'emprega-co' }),
+    metadataFor({ kind: 'case', slug: 'doces-da-pati' }),
+    metadataFor({ kind: 'case', slug: 'helppet' }),
+  ];
+
+  assert.equal(new Set(pages.map((page) => page.title)).size, pages.length);
+  assert.equal(new Set(pages.map((page) => page.description)).size, pages.length);
+  assert.equal(new Set(pages.map((page) => page.canonical)).size, pages.length);
+  assert.equal(new Set(pages.map((page) => page.image)).size, pages.length);
+
+  for (const page of pages) {
+    assert.ok(page.title.length <= 60, `${page.title.length}: ${page.title}`);
+    assert.ok(
+      page.description.length >= 145 && page.description.length <= 160,
+      `${page.description.length}: ${page.description}`,
+    );
+    assert.match(page.image, /^https:\/\/eovitu\.com\.br\//);
+    assert.ok(page.imageAlt.length > 0);
+  }
+});
+
+test('publishes valid CreativeWork JSON-LD only for case-study routes', () => {
+  assert.equal(creativeWorkJsonLd({ kind: 'home' }), null);
+  assert.equal(creativeWorkJsonLd({ kind: 'notFound', path: '/missing' }), null);
+
+  for (const slug of ['emprega-co', 'doces-da-pati', 'helppet']) {
+    const value = creativeWorkJsonLd({ kind: 'case', slug });
+    assert.equal(value?.['@type'], 'CreativeWork');
+    assert.equal(value?.url, `https://eovitu.com.br/work/${slug}`);
+    assert.doesNotThrow(() => JSON.parse(JSON.stringify(value)));
+  }
+
+  assert.doesNotThrow(() => JSON.parse(JSON.stringify(personJsonLd())));
+  assert.doesNotThrow(() => JSON.parse(JSON.stringify(websiteJsonLd())));
 });
 
 test('publishes verified professional identity as structured data', () => {

@@ -121,6 +121,7 @@ export const Action = styled.a<{ $primary?: boolean }>`
   &:hover,
   &:focus-visible {
     border-color: ${({ theme }) => theme.colors.accent};
+    color: ${({ theme, $primary }) => ($primary ? theme.colors.bg : theme.colors.text)};
   }
 `;
 

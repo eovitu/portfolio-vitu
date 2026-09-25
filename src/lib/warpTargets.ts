@@ -13,9 +13,6 @@ import { getCore } from './gravityField';
 /** Elements the singularity can swallow. Marked in the section markup. */
 export const WARP = '[data-warp]';
 
-/** Top-level page compositions that move as one gravitational field. */
-export const GRAVITY_SECTIONS = '[data-gravity-section]';
-
 /**
  * Drop any target that lives inside another target.
  *

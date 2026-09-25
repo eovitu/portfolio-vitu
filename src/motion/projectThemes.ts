@@ -40,7 +40,11 @@ export interface CaseTheme {
   showcase: string;
   showcaseInk: string;
 
-  /* --- scene and chapter motion, consumed by the theater and the rig --- */
+  /*
+   * Scene and chapter groundwork. The future per-project choreography phase
+   * will connect easing, orbitOrder, mediaDepth and temperature; keep them
+   * declared here until that work is approved.
+   */
   dust: string;
   particleSpread: number;
   orbitOrder: number;
