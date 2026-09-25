@@ -15,7 +15,7 @@ export function ProjectMediaSurface({ project, active, reduced }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [onScreen, setOnScreen] = useState(true);
+  const [onScreen, setOnScreen] = useState(false);
 
   /**
    * A preview off screen is still being decoded.
@@ -28,7 +28,11 @@ export function ProjectMediaSurface({ project, active, reduced }: Props) {
    */
   useEffect(() => {
     const surface = surfaceRef.current;
-    if (!surface || typeof IntersectionObserver === 'undefined') return;
+    if (!surface) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setOnScreen(true);
+      return;
+    }
     const observer = new IntersectionObserver(
       ([entry]) => setOnScreen(entry.isIntersecting),
       { threshold: 0 },
@@ -76,7 +80,7 @@ export function ProjectMediaSurface({ project, active, reduced }: Props) {
         playsInline
         loop
         autoPlay={shouldPlay}
-        preload={active ? 'metadata' : 'none'}
+        preload={shouldPlay ? 'metadata' : 'none'}
         poster={project.media.poster}
         width={project.media.width}
         height={project.media.height}

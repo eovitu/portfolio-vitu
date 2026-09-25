@@ -125,7 +125,9 @@ test('a preview off screen stops decoding', () => {
   // Visibility only ever subtracts from the chapter's playback decision, it
   // can never start a video the theater was not already starting.
   assert.match(media, /const shouldPlay = active && !reduced && onScreen;/);
+  assert.match(media, /useState\(false\)/);
   assert.match(media, /if \(!shouldPlay\) \{\s*video\.pause\(\);/);
+  assert.match(media, /preload=\{shouldPlay \? 'metadata' : 'none'\}/);
   // Poster-first is unchanged: the poster clears on `playing`, nothing else.
   assert.match(media, /data-playing=\{playing\}/);
   assert.match(media, /onPlaying=\{\(\) => setPlaying\(true\)\}/);

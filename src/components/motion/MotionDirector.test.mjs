@@ -75,6 +75,10 @@ test('writes continuous values into the mutable store, never React state', () =>
   assert.doesNotMatch(director, /setState.*velocity/);
 });
 
+test('does not hand an empty target collection to GSAP during route cleanup', () => {
+  assert.match(director, /if \(targets\.length\) gsap\.set\(targets/);
+});
+
 test('keeps singularity lifecycle callbacks stable across intro state renders', () => {
   assert.match(director, /const onIntroLock = useCallback/);
   assert.match(director, /const onIntroRelease = useCallback/);

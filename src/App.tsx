@@ -1,11 +1,8 @@
 import styled, { ThemeProvider } from 'styled-components';
-import { useCallback } from 'react';
+import { lazy, Suspense, useCallback } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { LayoutGroup } from 'motion/react';
-import { CaseStudy } from './components/cases/CaseStudy';
 import { ConversationProvider } from './components/conversation/ConversationProvider';
-import { NotFound } from './components/routing/NotFound';
-import { HomePage } from './components/home/HomePage';
 import { SingularityStage } from './components/layout/SingularityStage';
 import { Header } from './components/navigation/Header';
 import { MotionDirector } from './components/motion/MotionDirector';
@@ -17,6 +14,16 @@ import {
 } from './components/routing/RouteTransitionProvider';
 import { GlobalStyle } from './styles/GlobalStyle';
 import { theme } from './styles/theme';
+
+const HomePage = lazy(() =>
+  import('./components/home/HomePage').then(({ HomePage }) => ({ default: HomePage })),
+);
+const CaseStudy = lazy(() =>
+  import('./components/cases/CaseStudy').then(({ CaseStudy }) => ({ default: CaseStudy })),
+);
+const NotFound = lazy(() =>
+  import('./components/routing/NotFound').then(({ NotFound }) => ({ default: NotFound })),
+);
 
 const SkipLink = styled.a`
   position: fixed;
@@ -33,6 +40,10 @@ const SkipLink = styled.a`
   &:focus {
     top: 12px;
   }
+`;
+
+const RouteFallback = styled.main`
+  min-height: 100svh;
 `;
 
 function Site() {
@@ -63,20 +74,22 @@ function Site() {
       <SingularityStage />
       <Header />
       <LayoutGroup id="singularity-route-layout">
-        <div
-          key={sceneKey}
-          ref={onSceneMount}
-          style={{ position: 'relative', zIndex: 1 }}
-          data-route-scene
-        >
-          {route.kind === 'notFound' ? (
-            <NotFound path={route.path} />
-          ) : project ? (
-            <CaseStudy project={project} />
-          ) : (
-            <HomePage />
-          )}
-        </div>
+        <Suspense fallback={<RouteFallback aria-label={content.ui.caseStudy.loading} />}>
+          <div
+            key={sceneKey}
+            ref={onSceneMount}
+            style={{ position: 'relative', zIndex: 1 }}
+            data-route-scene
+          >
+            {route.kind === 'notFound' ? (
+              <NotFound path={route.path} />
+            ) : project ? (
+              <CaseStudy project={project} />
+            ) : (
+              <HomePage />
+            )}
+          </div>
+        </Suspense>
       </LayoutGroup>
     </>
   );

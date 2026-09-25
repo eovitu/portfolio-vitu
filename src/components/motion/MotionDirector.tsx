@@ -139,7 +139,7 @@ export function MotionDirector({ children }: { children: ReactNode }) {
     );
     lastScrollY.current = window.scrollY;
     return () => {
-      gsap.set(targets, { skewY: 0, clearProps: 'transform' });
+      if (targets.length) gsap.set(targets, { skewY: 0, clearProps: 'transform' });
       skewSetters.current = [];
     };
   }, [reduced, route]);

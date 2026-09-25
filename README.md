@@ -22,7 +22,7 @@ Open the localhost URL printed by Vite. No API keys or environment variables are
 | `npm run typecheck`    | TypeScript validation                                       |
 | `npm run lint`         | ESLint checks                                               |
 | `npm run format:check` | Repository formatting checks                                |
-| `npm run build`        | TypeScript validation and production output in `dist/`      |
+| `npm run build`        | Validate types and generate route HTML in `dist/`           |
 | `npm run preview`      | Serve the production output locally                         |
 
 Run all checks before opening a pull request. CI installs from the lockfile and checks types, lint, tests, formatting and build. Some tests inspect source contracts; they do not replace browser testing.
@@ -50,7 +50,7 @@ Emprega.co's media is provisional. HelpPet's presentation media shows Figma work
 - `src/motion/` and `src/hooks/`: transition state, shared motion signals and lifecycle hooks.
 - `src/three/`: procedural scene, rendering policy, camera and device quality settings.
 - `public/media/`: project videos and poster images.
-- `src/lib/site.ts` and `src/lib/metadata.ts`: production origin and route metadata. Keep `public/sitemap.xml`, `public/robots.txt` and `public/llms.txt` aligned when changing URLs.
+- `src/lib/site.ts`, `src/lib/metadata.ts` and `src/lib/seoHtml.ts`: production origin, route metadata and generated route documents. Keep `public/sitemap.xml`, `public/robots.txt` and `public/llms.txt` aligned when changing URLs.
 
 ## Design and performance
 
@@ -58,11 +58,11 @@ React 18, TypeScript and Vite render the site, with styled-components for presen
 
 Selected work uses one sticky stage on suitable desktops and ordinary stacked articles on smaller screens or under reduced motion. Each chapter has a different composition. Mobile navigation has its own color tokens, scrollable content, safe-area padding and keyboard focus handling.
 
-Posters remain available when preview autoplay is blocked. Inactive previews pause. The WebGL scene has a static fallback, lower mobile rendering quality and a hidden-tab policy. Three.js stays in a separate deferred chunk; its size still produces a Vite warning. Do not interpret the main bundle size as the total download.
+Posters remain available when preview autoplay is blocked. Preview videos do not preload until their surface is both active and visible. The childhood photograph uses responsive WebP sources with the original JPEG as fallback. The WebGL scene has a static fallback, lower mobile rendering quality and a hidden-tab policy. Three.js stays in a separate deferred chunk; its size still produces a Vite warning. Do not interpret the main bundle size as the total download.
 
 ## Deployment
 
-The production output is `dist/`. `vercel.json` supplies SPA fallback routing, and the canonical origin is `https://devitu.vercel.app`. For another host, configure equivalent fallback routing and update the canonical origin and discovery files.
+The production output is `dist/`. The build creates static HTML entry documents for home, each case route and the custom 404, with route-specific search/social metadata and structured data before JavaScript runs. `vercel.json` adds security and cache headers; static route documents and `404.html` provide routing without a catch-all rewrite. The canonical origin is `https://eovitu.com.br`. For another host, preserve clean directory URLs and custom-404 handling, then update the canonical origin and discovery files.
 
 See [Architecture](docs/ARCHITECTURE.md) for motion ownership, data boundaries and verification limitations. The original procedural reference is retained at `docs/reference/black-hole.html` because its scene construction informs the renderer.
 

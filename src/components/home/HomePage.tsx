@@ -189,14 +189,21 @@ export function HomePage() {
         <S.SectionInner>
           <S.AboutGrid>
             <figure>
-              <img
-                src="/victor-2010.jpg"
-                width="720"
-                height="900"
-                alt={home.about.imageAlt}
-                loading="lazy"
-                decoding="async"
-              />
+              <picture>
+                <source
+                  type="image/webp"
+                  srcSet="/victor-2010-480.webp 480w, /victor-2010-720.webp 720w"
+                  sizes="(max-width: 760px) calc(100vw - 40px), 50vw"
+                />
+                <img
+                  src="/victor-2010.jpg"
+                  width="720"
+                  height="900"
+                  alt={home.about.imageAlt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
               <figcaption>{home.about.caption}</figcaption>
             </figure>
             <div>

@@ -93,3 +93,49 @@ test('publishes source access only for HelpPet', () => {
     },
   );
 });
+
+test('presents Doces da Pati as a production commerce system', () => {
+  const english = content.contentFor('en');
+  const portuguese = content.contentFor('pt');
+  const doces = english.projects.find((project) => project.slug === 'doces-da-pati');
+  const docesPt = portuguese.projects.find((project) => project.slug === 'doces-da-pati');
+
+  for (const value of [
+    doces.summary,
+    doces.outcome,
+    ...doces.sections.map(({ body }) => body),
+  ]) {
+    assert.match(
+      value,
+      /WhatsApp|Firestore|admin|zero(?:-| infrastructure )cost|GA4|structured data/i,
+    );
+  }
+  assert.match(doces.role, /FRONT-END/);
+  assert.match(doces.tech, /FIREBASE/);
+  assert.match(docesPt.outcome, /custo (?:de infraestrutura )?zero|R\$ 0/i);
+  assert.equal(english.ui.commerce.steps.length, 4);
+  assert.equal(portuguese.ui.commerce.steps.length, 4);
+});
+
+test('presents HelpPet gateway engineering alongside interface work', () => {
+  for (const locale of ['en', 'pt']) {
+    const localized = content.contentFor(locale);
+    const helppet = localized.projects.find((project) => project.slug === 'helppet');
+    const published = [
+      helppet.summary,
+      helppet.outcome,
+      helppet.role,
+      helppet.tech,
+      ...helppet.ownership,
+      ...helppet.sections.map(({ body }) => body),
+      localized.ui.integration.body,
+    ].join(' ');
+
+    assert.match(published, /Java/);
+    assert.match(published, /Spring/);
+    assert.match(published, /JWT/);
+    assert.match(published, /health/i);
+    assert.match(published, /gateway/i);
+    assert.match(published, /interface|UI\/UX/i);
+  }
+});

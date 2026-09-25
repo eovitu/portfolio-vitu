@@ -69,3 +69,13 @@ test('reduced motion removes the movement, not the machine', () => {
   assert.match(source, /machine\.advance\('occluding'\)/);
   assert.match(source, /machine\.advance\('revealing'\)/);
 });
+
+test('persists scroll history once scrolling settles instead of rewriting history each frame', () => {
+  assert.match(source, /addEventListener\('scrollend', saveScrollPosition/);
+  assert.match(source, /removeEventListener\('scrollend', saveScrollPosition/);
+  assert.doesNotMatch(source, /addEventListener\('scroll', saveScrollPosition/);
+  assert.doesNotMatch(
+    source,
+    /requestAnimationFrame\(\(\) => \{\s*pendingFrame = 0;\s*const state/s,
+  );
+});

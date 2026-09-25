@@ -138,6 +138,11 @@ export function useSingularityIntro(
     const ctx = gsap.context(() => {
       const lines = gsap.utils.toArray<HTMLElement>('[data-name-line]');
       const letters = gsap.utils.toArray<HTMLElement>(NAME);
+      const stage = gsap.utils.toArray<HTMLElement>('[data-gl]');
+      const nav = gsap.utils.toArray<HTMLElement>('[data-nav]');
+      const navItems = gsap.utils.toArray<HTMLElement>('[data-nav-item]');
+      const meta = gsap.utils.toArray<HTMLElement>('[data-meta]');
+      const stagedLines = gsap.utils.toArray<HTMLElement>('[data-line]');
 
       const settleStaged = () => {
         // NOT `clearProps`, these offsets come from CSS (`translateY(110%)`),
@@ -164,9 +169,11 @@ export function useSingularityIntro(
 
       if (reduce || (!isReload && !visible.length)) {
         settleStaged();
-        gsap.set(allWarp, { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 });
-        gsap.set(letters, { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 });
-        gsap.set('[data-gl]', { opacity: 1 });
+        if (allWarp.length)
+          gsap.set(allWarp, { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 });
+        if (letters.length)
+          gsap.set(letters, { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 });
+        if (stage.length) gsap.set(stage, { opacity: 1 });
         resetHeroSignal();
         ghosts?.destroy();
         releaseStaging();
@@ -192,7 +199,7 @@ export function useSingularityIntro(
        * Masks must be open while letters travel: they start far outside their
        * own line box and would be clipped away. Restored once the name lands.
        */
-      gsap.set(lines, { overflow: 'visible' });
+      if (lines.length) gsap.set(lines, { overflow: 'visible' });
 
       // Measure from the settled layout, before any intro transform.
       gsap.set(expelled, { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1 });
@@ -248,7 +255,7 @@ export function useSingularityIntro(
         window.clearTimeout(failSafeTimer);
         // Masks close only now: the letters are back at y: 0, so nothing
         // still in flight can be clipped away by them.
-        gsap.set(lines, { overflow: 'hidden' });
+        if (lines.length) gsap.set(lines, { overflow: 'hidden' });
         ghosts?.destroy();
         releaseStaging();
         veil.override = -1;
@@ -279,7 +286,7 @@ export function useSingularityIntro(
       if (isReload && ghosts) {
         // The phenomenon is already there on a reload, it must not be fading
         // up while it is supposed to be swallowing the page.
-        gsap.set('[data-gl]', { opacity: 1 });
+        if (stage.length) gsap.set(stage, { opacity: 1 });
 
         /**
          * The object is the destination of the journey, so it cannot be the
@@ -450,11 +457,13 @@ export function useSingularityIntro(
         // First visit: the core is the first thing on screen. It is what
         // everything else comes out of.
         releaseStaging();
-        tl.to(
-          '[data-gl]',
-          { opacity: 1, duration: HERO.canvas.duration, ease: HERO.canvas.ease },
-          HERO.canvas.at,
-        );
+        if (stage.length) {
+          tl.to(
+            stage,
+            { opacity: 1, duration: HERO.canvas.duration, ease: HERO.canvas.ease },
+            HERO.canvas.at,
+          );
+        }
         gsap.set(expelled, {
           x: (i: number) => outbound[i].x,
           y: (i: number) => outbound[i].y,
@@ -522,29 +531,35 @@ export function useSingularityIntro(
 
       if (!isReload) {
         // The rest of the composition arrives around the name.
-        tl.to('[data-nav]', { y: 0, duration: HERO.nav.duration }, expelAt)
-          // NOTE: the resting position of these elements comes from a CSS
-          // `translateY(110%)`. GSAP parses that into `y` in *pixels*, not
-          // into `yPercent`, tweening `yPercent` would silently do nothing.
-          .to(
-            '[data-meta]',
+        if (nav.length) tl.to(nav, { y: 0, duration: HERO.nav.duration }, expelAt);
+        // NOTE: the resting position of these elements comes from a CSS
+        // `translateY(110%)`. GSAP parses that into `y` in *pixels*, not
+        // into `yPercent`, tweening `yPercent` would silently do nothing.
+        if (meta.length) {
+          tl.to(
+            meta,
             { y: '0%', duration: HERO.meta.duration, stagger: HERO.meta.stagger },
             expelAt,
-          )
-          .to(
-            '[data-nav-item]',
+          );
+        }
+        if (navItems.length) {
+          tl.to(
+            navItems,
             {
               opacity: 1,
               duration: HERO.navItems.duration,
               stagger: HERO.navItems.stagger,
             },
-            '<0.35',
-          )
-          .to(
-            '[data-line]',
-            { y: '0%', duration: HERO.lines.duration, stagger: HERO.lines.stagger },
-            '<0.2',
+            meta.length ? '<0.35' : expelAt,
           );
+        }
+        if (stagedLines.length) {
+          tl.to(
+            stagedLines,
+            { y: '0%', duration: HERO.lines.duration, stagger: HERO.lines.stagger },
+            navItems.length || meta.length ? '<0.2' : expelAt,
+          );
+        }
       }
 
       // A visual intro must never be able to strand the real interface in its

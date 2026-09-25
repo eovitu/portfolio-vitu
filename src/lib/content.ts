@@ -115,10 +115,10 @@ export const projects: Project[] = [
     name: 'Doces da Pati',
     eyebrow: 'Mobile-first local storefront',
     summary:
-      'A lightweight storefront that turns a small confectionery catalogue into a clear mobile ordering journey.',
+      'A production storefront where customers browse the catalogue, build a cart and send the complete order through WhatsApp.',
     outcome:
-      'Shipped a public catalogue experience with product discovery and a direct path from selection to contact.',
-    ownership: ['Product design', 'Frontend engineering', 'Deployment'],
+      'Designed the deployed architecture for zero infrastructure cost on free hosting and Firebase tiers, within their quotas, with an authenticated admin and measurable discovery.',
+    ownership: ['Product design', 'Frontend engineering', 'Firebase architecture'],
     media: {
       video: '/media/doces-da-pati.mp4',
       poster: '/media/doces-da-pati-poster.webp',
@@ -129,19 +129,19 @@ export const projects: Project[] = [
     sections: [
       {
         title: 'Context',
-        body: 'The business needed a simple public catalogue that works well on phones and does not introduce operational infrastructure the owner cannot maintain.',
+        body: 'The client needed a mobile catalogue and cart that preserve her existing sales process: customers assemble the order on the site, then confirm it in a prepared WhatsApp conversation.',
       },
       {
         title: 'What I owned',
-        body: 'I designed and built the storefront, structured the catalogue and shaped the ordering path around the tools already used by the business.',
+        body: 'I designed and built the storefront, Firebase email authentication and an admin panel for creating, editing, ordering and deactivating products without a developer.',
       },
       {
         title: 'Engineering approach',
-        body: 'The implementation prioritizes mobile rendering, legible product information, low-friction contact and a deployment model that stays inexpensive to operate.',
+        body: 'Firestore access rules protect catalogue writes and constrain anonymous orders. Metadata, sitemap, structured data and GA4 with Consent Mode v2 make the public experience discoverable and measurable.',
       },
     ],
     actions: [{ label: 'Live Project', href: 'https://doces-da-pati.vercel.app/' }],
-    role: 'PRODUCT · FRONT-END',
+    role: 'PRODUCT · FRONT-END · FIREBASE',
     tech: 'NEXT.JS · TYPESCRIPT · FIREBASE',
     year: '2026',
     context: 'Client work',
@@ -153,10 +153,10 @@ export const projects: Project[] = [
     name: 'HelpPet',
     eyebrow: 'Pet care, connected through code',
     summary:
-      'An academic pet-care build exploring API consumption, a gateway and the connection between frontend and backend.',
+      'A Java and Spring Cloud API Gateway that routes the HelpPet microservices and authenticates protected requests with JWT.',
     outcome:
-      'Built the academic project and its interface system while learning to connect frontend and backend. No public deployment is available.',
-    ownership: ['Design system', 'Product flows', 'Interaction architecture'],
+      'Centralized routing, request security and aggregated health visibility for five service groups while contributing to the wider academic product. No public deployment is available.',
+    ownership: ['Gateway engineering', 'JWT authentication', 'Service health'],
     media: {
       video: '/media/helppet.mp4',
       poster: '/media/helppet-poster.webp',
@@ -167,15 +167,15 @@ export const projects: Project[] = [
     sections: [
       {
         title: 'Context',
-        body: 'A third-semester integrator project: bring a pet-care experience together while learning API consumption and frontend/backend integration.',
+        body: 'A third-semester integrator project split across pet-care microservices. The gateway became the single entry point for auth, users, pets, adoption, chat and notifications.',
       },
       {
         title: 'What I owned',
-        body: 'I organized the page flows and created the component rules, variants and visual foundations needed for the product to grow consistently.',
+        body: 'I built the reactive Java and Spring Cloud gateway, including declarative routes, Bearer JWT validation, authorization rules, retries, rate limiting and circuit-breaker fallbacks.',
       },
       {
-        title: 'Connecting the system',
-        body: 'The learning focus was the boundary between the interface, a gateway and the API. The Figma material documents the interface; it is not presented as footage of a deployed product.',
+        title: 'Operational visibility',
+        body: 'Actuator exposes health, liveness and readiness, while an aggregate endpoint checks the five downstream services and reports a degraded state when one is unavailable. The visual material documents the broader interface work, not a deployed product.',
       },
     ],
     actions: [
@@ -184,8 +184,8 @@ export const projects: Project[] = [
         href: 'https://github.com/orgs/HelpPetSENAI/repositories',
       },
     ],
-    role: 'PRODUCT · UI/UX',
-    tech: 'API INTEGRATION · GATEWAY · DESIGN SYSTEMS',
+    role: 'BACKEND · API GATEWAY · PRODUCT',
+    tech: 'JAVA 17 · SPRING BOOT · SPRING CLOUD GATEWAY · JWT',
     year: '2026',
     context: 'Academic, integrator project',
     status: 'Academic build',
@@ -292,10 +292,10 @@ const projectsPt: Project[] = [
     ...projects[1],
     eyebrow: 'Vitrine local pensada para mobile',
     summary:
-      'Uma vitrine leve que transforma o catálogo de uma pequena confeitaria em uma jornada clara de pedidos pelo celular.',
+      'Uma vitrine em produção onde clientes exploram o catálogo, montam o carrinho e enviam o pedido completo pelo WhatsApp.',
     outcome:
-      'Entreguei um catálogo público com descoberta de produtos e um caminho direto da escolha ao contato.',
-    ownership: ['Design de produto', 'Engenharia frontend', 'Deploy'],
+      'Projetei a arquitetura publicada para custo de infraestrutura zero nos planos gratuitos de hospedagem e Firebase, dentro das cotas, com admin autenticado e descoberta mensurável.',
+    ownership: ['Design de produto', 'Engenharia frontend', 'Arquitetura Firebase'],
     media: {
       ...projects[1].media,
       alt: 'Vitrine mobile e catálogo de produtos da Doces da Pati',
@@ -303,19 +303,19 @@ const projectsPt: Project[] = [
     sections: [
       {
         title: 'Contexto',
-        body: 'O negócio precisava de um catálogo público simples, eficiente em celulares e sem infraestrutura operacional difícil de manter.',
+        body: 'A cliente precisava de catálogo e carrinho no celular sem abandonar seu processo de venda: o pedido é montado no site e confirmado em uma conversa pronta no WhatsApp.',
       },
       {
         title: 'Minha responsabilidade',
-        body: 'Projetei e desenvolvi a vitrine, organizei o catálogo e desenhei o fluxo de pedidos em torno das ferramentas já usadas pelo negócio.',
+        body: 'Projetei e desenvolvi a vitrine, a autenticação por e-mail no Firebase e um painel administrativo para criar, editar, ordenar e desativar produtos sem depender de um desenvolvedor.',
       },
       {
         title: 'Abordagem de engenharia',
-        body: 'A implementação prioriza renderização mobile, informações legíveis, contato sem atrito e um modelo de deploy barato de operar.',
+        body: 'Regras do Firestore protegem a escrita do catálogo e restringem pedidos anônimos. Metadata, sitemap, dados estruturados e GA4 com Consent Mode v2 tornam a experiência encontrável e mensurável.',
       },
     ],
     actions: [{ label: 'Ver projeto', href: projects[1].actions[0].href }],
-    role: 'PRODUTO · FRONTEND',
+    role: 'PRODUTO · FRONTEND · FIREBASE',
     context: 'Trabalho para cliente',
     status: 'No ar',
   },
@@ -323,10 +323,10 @@ const projectsPt: Project[] = [
     ...projects[2],
     eyebrow: 'Cuidado animal conectado por código',
     summary:
-      'Um projeto acadêmico de cuidado animal explorando consumo de API, gateway e a conexão entre frontend e backend.',
+      'Um API Gateway em Java e Spring Cloud que roteia os microsserviços do HelpPet e autentica requisições protegidas com JWT.',
     outcome:
-      'Desenvolvi o projeto acadêmico e seu sistema de interface enquanto aprendia a conectar frontend e backend. Não há uma versão pública disponível.',
-    ownership: ['Design system', 'Fluxos de produto', 'Arquitetura de interação'],
+      'Centralizei roteamento, segurança das requisições e visibilidade de saúde para cinco grupos de serviços, contribuindo também com o produto acadêmico mais amplo. Não há deploy público.',
+    ownership: ['Engenharia do gateway', 'Autenticação JWT', 'Saúde dos serviços'],
     media: {
       ...projects[2].media,
       alt: 'Componentes do design system e fluxos de cuidado conectado do HelpPet',
@@ -334,19 +334,20 @@ const projectsPt: Project[] = [
     sections: [
       {
         title: 'Contexto',
-        body: 'Um projeto integrador do terceiro semestre: reunir uma experiência de cuidado animal enquanto aprendíamos consumo de API e integração entre frontend e backend.',
+        body: 'Um projeto integrador do terceiro semestre dividido em microsserviços de cuidado animal. O gateway se tornou a entrada única para autenticação, usuários, pets, adoção, chat e notificações.',
       },
       {
         title: 'Minha responsabilidade',
-        body: 'Organizei os fluxos das páginas e criei regras de componentes, variantes e fundamentos visuais para o produto crescer com consistência.',
+        body: 'Construí o gateway reativo em Java e Spring Cloud, com rotas declarativas, validação JWT Bearer, regras de autorização, retentativas, rate limiting e fallback por circuit breaker.',
       },
       {
-        title: 'Conectando o sistema',
-        body: 'O foco de aprendizado estava na fronteira entre a interface, um gateway e a API. O material do Figma documenta a interface e não é apresentado como gravação de um produto publicado.',
+        title: 'Visibilidade operacional',
+        body: 'O Actuator expõe health, liveness e readiness, enquanto um endpoint agregado verifica os cinco serviços e sinaliza degradação. O material visual documenta o trabalho de interface do produto mais amplo, não um sistema publicado.',
       },
     ],
     actions: [{ label: 'Ver código', href: projects[2].actions[0].href }],
-    role: 'PRODUTO · UI/UX',
+    role: 'BACKEND · API GATEWAY · PRODUTO',
+    tech: 'JAVA 17 · SPRING BOOT · SPRING CLOUD GATEWAY · JWT',
     context: 'Projeto acadêmico integrador',
     status: 'Projeto acadêmico',
   },
@@ -557,14 +558,39 @@ const sharedUiEn = {
       ],
     ],
   },
-  integration: {
-    title: 'The interesting part is in between.',
+  commerce: {
+    kicker: 'From a real brief to daily operation',
+    title: 'A storefront that ends where the sale already happens.',
     intro:
-      'An interface is one piece of the product. This academic build was an opportunity to learn what happens across its boundaries.',
-    areasLabel: 'Integration areas explored in the project',
-    areas: ['Interface', 'Gateway', 'API'],
-    note: 'Learning to connect the pieces.',
-    body: 'The available visual material comes from Figma. It shows the interface system, while the project’s engineering focus was connecting frontend and backend.',
+      'The architecture follows the client’s workflow instead of replacing it with checkout infrastructure she does not need.',
+    steps: [
+      [
+        'Discover',
+        'A fast catalogue, technical metadata and structured data help customers find the right product.',
+      ],
+      [
+        'Assemble',
+        'The cart keeps quantities, options and totals clear on the device where most orders begin.',
+      ],
+      [
+        'Hand off',
+        'One action opens WhatsApp with the complete order ready for the customer to review and send.',
+      ],
+      [
+        'Operate',
+        'Firebase Auth, guarded Firestore writes and the admin keep the catalogue maintainable on free tiers.',
+      ],
+    ],
+    note: 'GA4 measures the journey only after Consent Mode v2 records the visitor’s choice.',
+  },
+  integration: {
+    title: 'One entry point. Five service groups.',
+    intro:
+      'The gateway concentrates the cross-cutting decisions that should not be repeated across every HelpPet service.',
+    areasLabel: 'Gateway responsibilities',
+    areas: ['Route', 'Authenticate', 'Observe'],
+    note: 'Java 17 · Spring Boot · Spring Cloud Gateway · WebFlux',
+    body: 'Declarative routes connect five service groups; JWT protects non-public requests; retries, rate limiting and circuit breakers manage failures; aggregated health checks expose the system state. The case media preserves the wider interface contribution without presenting it as deployed footage.',
   },
 };
 
@@ -725,14 +751,39 @@ const sharedUiPt: SiteUi = {
       ],
     ],
   },
-  integration: {
-    title: 'A parte interessante está no meio.',
+  commerce: {
+    kicker: 'De um briefing real para a operação diária',
+    title: 'Uma vitrine que termina onde a venda já acontece.',
     intro:
-      'Uma interface é apenas uma parte do produto. Este projeto acadêmico foi uma oportunidade para aprender o que acontece entre suas fronteiras.',
-    areasLabel: 'Áreas de integração exploradas no projeto',
-    areas: ['Interface', 'Gateway', 'API'],
-    note: 'Aprendendo a conectar as partes.',
-    body: 'O material visual disponível vem do Figma e mostra o sistema de interface. O foco de engenharia do projeto foi conectar frontend e backend.',
+      'A arquitetura acompanha o processo da cliente em vez de substituí-lo por uma infraestrutura de checkout que ela não precisa.',
+    steps: [
+      [
+        'Descobrir',
+        'Catálogo rápido, metadata técnica e dados estruturados ajudam a encontrar o produto certo.',
+      ],
+      [
+        'Montar',
+        'O carrinho mantém quantidades, opções e total claros no dispositivo onde a maioria dos pedidos começa.',
+      ],
+      [
+        'Transferir',
+        'Uma ação abre o WhatsApp com o pedido completo para a pessoa revisar e enviar.',
+      ],
+      [
+        'Operar',
+        'Firebase Auth, escritas protegidas no Firestore e o admin mantêm o catálogo nos planos gratuitos.',
+      ],
+    ],
+    note: 'O GA4 mede a jornada somente depois que o Consent Mode v2 registra a escolha da pessoa visitante.',
+  },
+  integration: {
+    title: 'Uma entrada. Cinco grupos de serviços.',
+    intro:
+      'O gateway concentra decisões transversais que não devem ser repetidas em cada serviço do HelpPet.',
+    areasLabel: 'Responsabilidades do gateway',
+    areas: ['Rotear', 'Autenticar', 'Observar'],
+    note: 'Java 17 · Spring Boot · Spring Cloud Gateway · WebFlux',
+    body: 'Rotas declarativas conectam cinco grupos de serviços; JWT protege requisições não públicas; retentativas, rate limiting e circuit breakers tratam falhas; health checks agregados expõem o estado do sistema. A mídia do case preserva a contribuição mais ampla de interface sem apresentá-la como produto publicado.',
   },
 };
 

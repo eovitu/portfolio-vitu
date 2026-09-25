@@ -2,15 +2,58 @@ import { contentFor, type Locale } from './content.ts';
 import type { Route } from './routes.ts';
 import { SITE_ORIGIN as ORIGIN } from './site.ts';
 
-const HOME_TITLE = 'Vitu (Victor Hugo) — Backend Developer & Product Engineer';
+const HOME_TITLE = 'Victor Hugo | Junior Java & Spring Backend Developer';
 const HOME_DESCRIPTION =
-  'Vitu, aka Victor Hugo, is a backend developer building reliable digital products from system architecture to expressive interfaces.';
+  'Portfolio of Victor Hugo (Vitu), a junior backend developer in São Paulo building Java, Spring Boot, API, PostgreSQL and digital product projects in Brazil.';
 
-interface PageMetadata {
+const CASE_METADATA = {
+  en: {
+    'emprega-co': {
+      title: 'Emprega.co | Employment Platform by Victor Hugo',
+      description:
+        'Emprega.co case study: an employment platform with candidate and employer journeys, product architecture and integration across web and mobile applications.',
+    },
+    'doces-da-pati': {
+      title: 'Doces da Pati | Firebase Storefront by Victor Hugo',
+      description:
+        'Doces da Pati case study: mobile catalogue, WhatsApp cart handoff, Firebase administration, access rules, technical SEO and analytics with GA4 consent.',
+    },
+    helppet: {
+      title: 'HelpPet | Spring API Gateway by Victor Hugo',
+      description:
+        'HelpPet case study: a reactive Java and Spring Cloud API Gateway with JWT authentication, microservice routing, resilience and aggregated health checks.',
+    },
+  },
+  pt: {
+    'emprega-co': {
+      title: 'Emprega.co | Plataforma de empregos por Victor Hugo',
+      description:
+        'Case da Emprega.co: plataforma de empregos com jornadas para candidatos e empresas, arquitetura de produto e integração entre aplicações web e mobile.',
+    },
+    'doces-da-pati': {
+      title: 'Doces da Pati | Loja Firebase por Victor Hugo',
+      description:
+        'Case da Doces da Pati: catálogo mobile, carrinho enviado por WhatsApp, administração Firebase, regras de acesso, SEO e analytics com consentimento GA4.',
+    },
+    helppet: {
+      title: 'HelpPet | API Gateway Spring por Victor Hugo',
+      description:
+        'Case HelpPet: API Gateway reativo em Java e Spring Cloud, com autenticação JWT, rotas para microsserviços, resiliência e health checks agregados do sistema.',
+    },
+  },
+} as const;
+
+export interface PageMetadata {
   lang: 'en' | 'pt-BR';
   title: string;
   description: string;
   canonical: string;
+  image: string;
+  imageAlt: string;
+  imageWidth: number;
+  imageHeight: number;
+  openGraphType: 'website' | 'article';
+  openGraphLocale: 'en_US' | 'pt_BR';
   /**
    * The value for `<meta name="robots">`.
    *
@@ -46,23 +89,49 @@ export function websiteJsonLd() {
   } as const;
 }
 
+export function creativeWorkJsonLd(route: Route, locale: Locale = 'en') {
+  if (route.kind !== 'case') return null;
+  const page = metadataFor(route, locale);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: page.title.split(' | ')[0],
+    headline: page.title,
+    description: page.description,
+    url: page.canonical,
+    image: page.image,
+    inLanguage: page.lang,
+    creator: {
+      '@type': 'Person',
+      name: 'Victor Hugo',
+      alternateName: ['Vitu', 'eovitu'],
+      url: `${ORIGIN}/`,
+    },
+  } as const;
+}
+
 export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
   const localized = contentFor(locale);
   const homeTitle =
-    locale === 'pt'
-      ? 'Victor Hugo, Desenvolvedor Backend e Engenheiro de Produto'
-      : HOME_TITLE;
+    locale === 'pt' ? 'Victor Hugo | Desenvolvedor Backend Java e Spring Boot' : HOME_TITLE;
   const homeDescription =
     locale === 'pt'
-      ? 'Desenvolvedor backend criando produtos digitais confiáveis, da arquitetura de sistemas às interfaces expressivas.'
+      ? 'Portfólio de Victor Hugo (Vitu), desenvolvedor backend júnior em São Paulo, com projetos reais em Java, Spring Boot, APIs, PostgreSQL e produtos digitais.'
       : HOME_DESCRIPTION;
   const lang = locale === 'pt' ? 'pt-BR' : 'en';
+  const openGraphLocale = locale === 'pt' ? 'pt_BR' : 'en_US';
   if (route.kind === 'home') {
     return {
       lang,
       title: homeTitle,
       description: homeDescription,
       canonical: `${ORIGIN}/`,
+      image: `${ORIGIN}/og.png`,
+      imageAlt: homeTitle,
+      imageWidth: 1200,
+      imageHeight: 630,
+      openGraphType: 'website',
+      openGraphLocale,
       robots: INDEXABLE,
     };
   }
@@ -81,16 +150,29 @@ export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
       // Canonical points home: the missing page has no address of its own
       // worth pointing a crawler at.
       canonical: `${ORIGIN}/`,
+      image: `${ORIGIN}/og.png`,
+      imageAlt: homeTitle,
+      imageWidth: 1200,
+      imageHeight: 630,
+      openGraphType: 'website',
+      openGraphLocale,
       robots: 'noindex, follow',
     };
   }
 
-  const project = localized.projects.find((item) => item.slug === route.slug);
+  const project = localized.projects.find((item) => item.slug === route.slug)!;
+  const seo = CASE_METADATA[locale][route.slug];
   return {
     lang,
-    title: `${project?.name ?? (locale === 'pt' ? 'Case' : 'Case Study')}, Victor Hugo`,
-    description: project?.summary ?? homeDescription,
+    title: seo.title,
+    description: seo.description,
     canonical: `${ORIGIN}/work/${route.slug}`,
+    image: `${ORIGIN}${project.media.poster}`,
+    imageAlt: project.media.alt,
+    imageWidth: project.media.width,
+    imageHeight: project.media.height,
+    openGraphType: 'article',
+    openGraphLocale,
     robots: INDEXABLE,
   };
 }
@@ -118,8 +200,16 @@ export function applyMetadata(route: Route, locale: Locale = 'en'): void {
   meta('meta[property="og:title"]', 'property', page.title);
   meta('meta[property="og:description"]', 'property', page.description);
   meta('meta[property="og:url"]', 'property', page.canonical);
+  meta('meta[property="og:type"]', 'property', page.openGraphType);
+  meta('meta[property="og:locale"]', 'property', page.openGraphLocale);
+  meta('meta[property="og:image"]', 'property', page.image);
+  meta('meta[property="og:image:alt"]', 'property', page.imageAlt);
+  meta('meta[property="og:image:width"]', 'property', String(page.imageWidth));
+  meta('meta[property="og:image:height"]', 'property', String(page.imageHeight));
   meta('meta[name="twitter:title"]', 'name', page.title);
   meta('meta[name="twitter:description"]', 'name', page.description);
+  meta('meta[name="twitter:image"]', 'name', page.image);
+  meta('meta[name="twitter:image:alt"]', 'name', page.imageAlt);
   meta('meta[name="robots"]', 'name', page.robots);
 
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
@@ -130,21 +220,23 @@ export function applyMetadata(route: Route, locale: Locale = 'en'): void {
   }
   canonical.href = page.canonical;
 
-  let structuredData = document.head.querySelector<HTMLScriptElement>('#person-jsonld');
-  if (!structuredData) {
-    structuredData = document.createElement('script');
-    structuredData.id = 'person-jsonld';
-    structuredData.type = 'application/ld+json';
-    document.head.append(structuredData);
+  const structured = [
+    ['person-jsonld', route.kind === 'notFound' ? null : personJsonLd()],
+    ['website-jsonld', route.kind === 'home' ? websiteJsonLd() : null],
+    ['creative-work-jsonld', creativeWorkJsonLd(route, locale)],
+  ] as const;
+  for (const [id, value] of structured) {
+    let element = document.head.querySelector<HTMLScriptElement>(`#${id}`);
+    if (!value) {
+      element?.remove();
+      continue;
+    }
+    if (!element) {
+      element = document.createElement('script');
+      element.id = id;
+      element.type = 'application/ld+json';
+      document.head.append(element);
+    }
+    element.text = JSON.stringify(value);
   }
-  structuredData.text = JSON.stringify(personJsonLd());
-
-  let websiteData = document.head.querySelector<HTMLScriptElement>('#website-jsonld');
-  if (!websiteData) {
-    websiteData = document.createElement('script');
-    websiteData.id = 'website-jsonld';
-    websiteData.type = 'application/ld+json';
-    document.head.append(websiteData);
-  }
-  websiteData.text = JSON.stringify(websiteJsonLd());
 }

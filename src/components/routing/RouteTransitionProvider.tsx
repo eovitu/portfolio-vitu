@@ -459,25 +459,21 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         savedScrollY: state?.scrollY,
       }).catch(() => undefined);
     };
-    let pendingFrame = 0;
     const saveScrollPosition = () => {
-      if (pendingFrame) return;
-      pendingFrame = window.requestAnimationFrame(() => {
-        pendingFrame = 0;
-        const state = normalizeHistoryState(history.state);
-        history.replaceState(
-          { path: state?.path ?? window.location.pathname, scrollY: window.scrollY },
-          '',
-          window.location.href,
-        );
-      });
+      const state = normalizeHistoryState(history.state);
+      history.replaceState(
+        { path: state?.path ?? window.location.pathname, scrollY: window.scrollY },
+        '',
+        window.location.href,
+      );
     };
     window.addEventListener('popstate', onPopState);
-    window.addEventListener('scroll', saveScrollPosition, { passive: true });
+    // Persist the settled position once. Writing history on every scroll frame
+    // exhausts Chromium's History API budget during Lenis-driven transitions.
+    window.addEventListener('scrollend', saveScrollPosition, { passive: true });
     return () => {
       window.removeEventListener('popstate', onPopState);
-      window.removeEventListener('scroll', saveScrollPosition);
-      if (pendingFrame) window.cancelAnimationFrame(pendingFrame);
+      window.removeEventListener('scrollend', saveScrollPosition);
     };
   }, [locale, navigate]);
 

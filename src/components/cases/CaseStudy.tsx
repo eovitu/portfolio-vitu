@@ -9,6 +9,7 @@ import * as S from './CaseStudy.styles';
 import { useLanguage } from '../providers/LanguageProvider';
 
 const EmploymentJourney = lazy(() => import('./EmploymentJourney'));
+const CommerceStory = lazy(() => import('./CommerceStory'));
 const IntegrationStory = lazy(() => import('./IntegrationStory'));
 
 export function CaseStudy({ project }: { project: Project }) {
@@ -69,6 +70,7 @@ export function CaseStudy({ project }: { project: Project }) {
 
       <Suspense fallback={<S.Loading role="status">{copy.loading}</S.Loading>}>
         {project.slug === 'emprega-co' ? <EmploymentJourney /> : null}
+        {project.slug === 'doces-da-pati' ? <CommerceStory /> : null}
         {project.slug === 'helppet' ? <IntegrationStory /> : null}
       </Suspense>
 
