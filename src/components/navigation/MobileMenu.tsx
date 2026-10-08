@@ -1,3 +1,5 @@
+import { flushSync } from 'react-dom';
+import { isEligibleInternalClick } from '../../motion/routeIntent';
 import { useCallback, useRef, type MouseEvent, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
@@ -79,6 +81,23 @@ const MenuLink = styled(motion.a)`
     color: var(--accent);
   }
 `;
+const ProjectLinks = styled.ul`
+  display: grid;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 18px;
+  }
+  a:hover,
+  a:focus-visible {
+    color: var(--accent);
+  }
+`;
 const MenuTalk = styled(TalkToMeButton)`
   justify-self: start;
 `;
@@ -148,41 +167,20 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
 
   const handleNavigation = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
-      if (
-        event.button !== 0 ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey
-      ) {
+      if (!isEligibleInternalClick(event, event.currentTarget, window.location.origin))
         return;
-      }
 
       event.preventDefault();
       const trigger = event.currentTarget;
-      /*
-       * Release the scroll lock synchronously, before the target is
-       * requested.
-       *
-       * `useDialogSurface`'s own cleanup effect also releases it, via
-       * `start()`, but only once React commits the `onClose()` state
-       * update, a tick or two after this handler returns. Lenis's
-       * `start()` resets ANY in-flight scroll animation as a side effect
-       * (see its `internalStart` -> `reset`), so if the `navigate()` call
-       * below has already armed the smooth-scroll to the section, that
-       * later, delayed `start()` lands mid-flight and kills it, silently:
-       * the URL changes, the menu closes, but the page never moves.
-       *
-       * Calling `start()` here first front-runs that: `scrollTo` then runs
-       * against a lock that is already released, so nothing arrives
-       * afterward to reset what it just armed. The lock is reference
-       * counted, so the effect's own later `start()` call is a no-op by
-       * then, not a second unlock.
-       */
+      const href = trigger.href;
       start();
-      onClose();
-      void navigate(event.currentTarget.href, { cause: 'hash', trigger }).catch(
-        () => undefined,
+      flushSync(onClose);
+      // Dialog cleanup restores focus on the next frame. Navigate afterward,
+      // so its destination focus wins even for same-route section links.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          void navigate(href, { cause: 'hash', trigger }).catch(() => undefined);
+        }),
       );
     },
     [navigate, onClose, start],
@@ -226,14 +224,26 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
           </Top>
           <Links aria-label={ui.menu.navigation}>
             {nav.links.map((link) => (
-              <MenuLink
-                key={link.href}
-                href={`/${link.href}`}
-                variants={linkMotion}
-                onClick={handleNavigation}
-              >
-                {link.label}
-              </MenuLink>
+              <div key={link.href}>
+                <MenuLink
+                  href={`/${link.href}`}
+                  variants={linkMotion}
+                  onClick={handleNavigation}
+                >
+                  {link.label}
+                </MenuLink>
+                {link.href === '#work' && (
+                  <ProjectLinks aria-label={nav.links[0].label}>
+                    {content.projects.map((project) => (
+                      <li key={project.slug}>
+                        <a href={`/#work-${project.slug}`} onClick={handleNavigation}>
+                          {project.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ProjectLinks>
+                )}
+              </div>
             ))}
           </Links>
           {/* Closes the menu and opens the drawer in one commit: React runs the

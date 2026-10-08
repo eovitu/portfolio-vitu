@@ -1,3 +1,4 @@
+import { WorkDisclosure } from './WorkDisclosure';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from '../../lib/gsap';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
@@ -187,16 +188,20 @@ export function Header() {
             </Brand>
           </BrandPosition>
           <DesktopNav aria-label={ui.menu.primary}>
-            {nav.links.map((link) => (
-              <a
-                key={link.href}
-                href={`/${link.href}`}
-                data-transition-cause="hash"
-                data-nav-item
-              >
-                {link.label}
-              </a>
-            ))}
+            {nav.links.map((link) =>
+              link.href === '#work' ? (
+                <WorkDisclosure key={link.href} label={link.label} href={`/${link.href}`} />
+              ) : (
+                <a
+                  key={link.href}
+                  href={`/${link.href}`}
+                  data-transition-cause="hash"
+                  data-nav-item
+                >
+                  {link.label}
+                </a>
+              ),
+            )}
           </DesktopNav>
           <TalkPosition data-talk-position>
             <LanguageSwitch />

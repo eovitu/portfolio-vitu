@@ -54,7 +54,7 @@ test('the scroll lock is restored to what it was, not to a guess', () => {
 
 test('mobile links own navigation before the closing menu can unmount them', () => {
   assert.match(menu, /event\.preventDefault\(\)/);
-  assert.match(menu, /navigate\(event\.currentTarget\.href/);
+  assert.match(menu, /const href = trigger\.href/);
   assert.doesNotMatch(menu, /data-transition-cause="hash"\s+onClick=\{onClose\}/);
 });
 
@@ -74,5 +74,10 @@ test('a mobile link releases the scroll lock before it navigates', () => {
   // flight, silently: the URL changes, the menu closes, the page never
   // moves. `start()` has to run before `navigate()`, in the same handler.
   assert.match(menu, /const \{ start \} = useSmoothScroll\(\);/);
-  assert.match(menu, /start\(\);\s*onClose\(\);\s*void navigate\(/);
+  assert.match(menu, /start\(\);\s*flushSync\(onClose\);/);
+});
+
+test('destination navigation waits until dialog focus restoration has run', () => {
+  assert.match(menu, /requestAnimationFrame\(\(\) =>\s*requestAnimationFrame\(\(\) =>/);
+  assert.match(menu, /navigate\(href, \{ cause: 'hash', trigger \}\)/);
 });
