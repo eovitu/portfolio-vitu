@@ -1,6 +1,6 @@
 # devitu, Victor Hugo's portfolio
 
-A portfolio for backend and product engineering, built around three case studies and a persistent procedural black hole. The homepage combines large typography, distinct project colors, an engineering profile and direct contact.
+A portfolio for backend and product engineering, built around four case studies and a persistent procedural black hole. The homepage combines large typography, distinct project colors, an engineering profile and direct contact.
 
 ## Run locally
 
@@ -29,16 +29,19 @@ Run all checks before opening a pull request. CI installs from the lockfile and 
 
 ## Projects and routes
 
-| Route                 | Project                                         | Status                     |
-| --------------------- | ----------------------------------------------- | -------------------------- |
-| `/`                   | Home, selected work, profile, about and contact | Portfolio                  |
-| `/work/emprega-co`    | Candidate and employer journeys                 | NGO project in development |
-| `/work/doces-da-pati` | Confectionery storefront                        | Live client project        |
-| `/work/helppet`       | Pet-care product and API integration            | Academic build             |
+| Route                   | Project                                         | Status                     |
+| ----------------------- | ----------------------------------------------- | -------------------------- |
+| `/`                     | Home, selected work, profile, about and contact | Portfolio                  |
+| `/work/emprega-co`      | Candidate and employer journeys                 | NGO project in development |
+| `/work/torneio-pebolim` | Match events, standings and brackets            | Personal project           |
+| `/work/doces-da-pati`   | Confectionery storefront                        | Live client project        |
+| `/work/helppet`         | Pet-care product and API integration            | Academic build             |
+
+The Work disclosure and mobile project list link to all four home chapters, including when opened from a case or 404. A general editable résumé is available at `/cv/victor-hugo-backend.docx`; direct email, LinkedIn and GitHub remain available.
 
 Unknown paths show a dedicated recovery page. The application supports direct case URLs, browser back/forward and section anchors.
 
-Emprega.co's media is provisional. HelpPet's presentation media shows Figma work; the academic build explored frontend/backend integration and a gateway. Public links are listed only when available in the project data.
+Four demonstration videos use explicit playback. HelpPet uses recreated screens and demonstration data; its case focuses on the Java gateway contribution. Public links are listed only when available in the project data.
 
 ## Where to edit
 
@@ -58,7 +61,9 @@ React 18, TypeScript and Vite render the site, with styled-components for presen
 
 Selected work uses one sticky stage on suitable desktops and ordinary stacked articles on smaller screens or under reduced motion. Each chapter has a different composition. Mobile navigation has its own color tokens, scrollable content, safe-area padding and keyboard focus handling.
 
-Posters remain available when preview autoplay is blocked. Preview videos do not preload until their surface is both active and visible. The childhood photograph uses responsive WebP sources with the original JPEG as fallback. The WebGL scene has a static fallback, lower mobile rendering quality and a hidden-tab policy. Three.js stays in a separate deferred chunk; its size still produces a Vite warning. Do not interpret the main bundle size as the total download.
+Wheel and touch briefly hold at color endings: forward aligns the viewport bottom with the flow color edge, while backward aligns its top. Sticky chapter holds use the actual active-band geometry. Color interiors, Contact and the page footer have no independent stops; unreachable scroll targets are discarded. Reduced motion and explicit navigation bypass the hold. Physical gesture and rendered viewport verification remain pending.
+
+Posters remain visible until deliberate playback. No MP4 source is attached before play; videos pause outside the viewport or when the tab becomes hidden, without automatic resumption. Case controls support seeking, retry and fullscreen. The childhood photograph uses responsive WebP sources with the original JPEG as fallback. The WebGL scene has a static fallback, lower mobile rendering quality and a hidden-tab policy. Three.js stays in a separate deferred chunk; its size still produces a Vite warning. Do not interpret the main bundle size as the total download.
 
 ## Deployment
 
