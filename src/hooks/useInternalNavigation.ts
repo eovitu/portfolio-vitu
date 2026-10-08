@@ -1,3 +1,4 @@
+import type { ProjectSlug } from '../lib/content';
 import { useEffect } from 'react';
 import { isPublicPath } from '../lib/routes';
 import { isEligibleInternalClick, type NavigationCause } from '../motion/routeIntent';
@@ -6,7 +7,7 @@ export interface NavigationContext {
   cause: NavigationCause;
   trigger?: HTMLElement;
   mediaFrame?: HTMLElement;
-  projectSlug?: 'emprega-co' | 'doces-da-pati' | 'helppet';
+  projectSlug?: ProjectSlug;
   savedScrollY?: number;
 }
 

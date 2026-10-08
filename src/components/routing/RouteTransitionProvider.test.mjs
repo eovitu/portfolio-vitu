@@ -20,7 +20,7 @@ test('owns popstate, history updates, abort cleanup and focus restoration', () =
   assert.match(source, /controllerRef\.current\?\.abort/);
   assert.match(source, /activePromiseRef\.current = lifecycle/);
   assert.match(source, /focusRouteTarget/);
-  assert.match(source, /restoreInitialHash/);
+  assert.match(source, /observeInitialHash/);
   assert.match(source, /finally/);
 });
 

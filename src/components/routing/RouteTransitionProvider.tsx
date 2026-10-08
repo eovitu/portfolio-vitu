@@ -1,3 +1,5 @@
+import { observeInitialHash } from '../../motion/initialHash';
+import { resolveChapterTarget, safeSelector } from '../../motion/chapterTarget';
 /* eslint-disable react-refresh/only-export-components -- provider and hook form one public boundary */
 import {
   createContext,
@@ -153,7 +155,7 @@ function scheduleHashStrip(hash: string, delayMs = 1800): void {
 
 function focusRouteTarget(route: Route, hash: string, projectSlug?: ProjectSlug): void {
   let target: HTMLElement | null = null;
-  if (hash) target = document.querySelector<HTMLElement>(hash);
+  if (hash) target = safeSelector(hash);
   if (!target && route.kind === 'case') {
     target = document.querySelector<HTMLElement>('[data-route-heading]');
   }
@@ -181,10 +183,12 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   const machineRef = useRef<TransitionMachine | null>(null);
   const routeMountedRef = useRef<(() => void) | null>(null);
   const swapListeners = useRef(new Set<() => void>());
+  const sceneMountedRef = useRef(false);
   const { scrollTo, scrollToImmediate, smooth, stop, start } = useSmoothScroll();
 
   /** Resolved by the destination scene ref, after its DOM is committed. */
   const notifyRouteMounted = useCallback(() => {
+    sceneMountedRef.current = true;
     // Synchronously, before anything can paint the new scene.
     swapListeners.current.forEach((listener) => listener());
     const resolve = routeMountedRef.current;
@@ -255,8 +259,9 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         if (target.kind === 'top') scrollToImmediate(0);
         if (target.kind === 'saved') scrollToImmediate(target.value);
         if (target.kind === 'selector') {
-          const element = document.querySelector<HTMLElement>(target.value);
-          if (element) scrollTo(element, context.cause === 'popstate' ? 0 : 1.65);
+          const chapter = resolveChapterTarget(target.value);
+          const element = chapter?.position ?? safeSelector(target.value);
+          if (element !== null) scrollTo(element, context.cause === 'popstate' ? 0 : 1.65);
         }
         focusRouteTarget(targetRoute, url.hash);
         scheduleHashStrip(url.hash);
@@ -339,8 +344,9 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         if (target.kind === 'top') scrollToImmediate(0);
         if (target.kind === 'saved') scrollToImmediate(target.value);
         if (target.kind === 'selector') {
-          const element = document.querySelector<HTMLElement>(target.value);
-          if (element) scrollToImmediate(element);
+          const chapter = resolveChapterTarget(target.value);
+          const element = chapter?.position ?? safeSelector(target.value);
+          if (element !== null) scrollToImmediate(element);
         }
 
         machine.advance('revealing');
@@ -417,32 +423,30 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     const hash = window.location.hash;
     if (!hash) return;
 
-    let secondFrame = 0;
-    const restoreInitialHash = () => {
-      secondFrame = window.requestAnimationFrame(() => {
-        const target = document.querySelector<HTMLElement>(hash);
-        if (!target) return;
+    return observeInitialHash({
+      isMounted: () => sceneMountedRef.current,
+      isDocumentReady: () => document.readyState === 'complete',
+      onMounted: onRouteMounted,
+      onDocumentReady: (listener) => {
+        window.addEventListener('load', listener, { once: true });
+        return () => window.removeEventListener('load', listener);
+      },
+      requestFrame: (listener) => window.requestAnimationFrame(listener),
+      cancelFrame: (frame) => window.cancelAnimationFrame(frame),
+      resolve: () => {
+        if (window.location.hash !== hash) return null;
+        const chapter = resolveChapterTarget(hash);
+        if (chapter) return { element: chapter.element, position: chapter.position };
+        const element = safeSelector(hash);
+        return element ? { element, position: element } : null;
+      },
+      restore: (target) => {
+        scrollToImmediate(target.position);
         focusRouteTarget(routeRef.current, hash);
-        scrollToImmediate(target);
         scheduleHashStrip(hash);
-      });
-    };
-    let firstFrame = 0;
-    let settleTimer = 0;
-    const scheduleRestore = () => {
-      settleTimer = window.setTimeout(() => {
-        firstFrame = window.requestAnimationFrame(restoreInitialHash);
-      }, 0);
-    };
-    if (document.readyState === 'complete') scheduleRestore();
-    else window.addEventListener('load', scheduleRestore, { once: true });
-    return () => {
-      window.removeEventListener('load', scheduleRestore);
-      window.clearTimeout(settleTimer);
-      if (firstFrame) window.cancelAnimationFrame(firstFrame);
-      if (secondFrame) window.cancelAnimationFrame(secondFrame);
-    };
-  }, [scrollToImmediate, smooth]);
+      },
+    });
+  }, [onRouteMounted, scrollToImmediate, smooth]);
 
   useEffect(() => {
     applyMetadata(routeRef.current, locale);
