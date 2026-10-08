@@ -16,6 +16,7 @@ const coreView = new THREE.Vector3();
 const FIELD_VISIBLE = 0.3;
 const themeDustColors = {
   'emprega-co': new THREE.Color(PROJECT_THEMES['emprega-co'].dust),
+  'torneio-pebolim': new THREE.Color(PROJECT_THEMES['torneio-pebolim'].dust),
   'doces-da-pati': new THREE.Color(PROJECT_THEMES['doces-da-pati'].dust),
   helppet: new THREE.Color(PROJECT_THEMES.helppet.dust),
 };

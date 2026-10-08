@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { projects } from '../src/lib/content.ts';
 import { renderSeoHtml } from '../src/lib/seoHtml.ts';
 
 const root = resolve(import.meta.dirname, '..');
@@ -7,9 +8,7 @@ const dist = resolve(root, 'dist');
 const shell = await readFile(resolve(dist, 'index.html'), 'utf8');
 const documents = [
   ['index.html', { kind: 'home' }],
-  ['work/emprega-co/index.html', { kind: 'case', slug: 'emprega-co' }],
-  ['work/doces-da-pati/index.html', { kind: 'case', slug: 'doces-da-pati' }],
-  ['work/helppet/index.html', { kind: 'case', slug: 'helppet' }],
+  ...projects.map(({ slug }) => [`work/${slug}/index.html`, { kind: 'case', slug }]),
   ['404.html', { kind: 'notFound', path: '/404' }],
 ];
 

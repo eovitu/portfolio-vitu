@@ -50,11 +50,11 @@ test('the support colour is marked decorative because it cannot carry text', () 
   assert.notEqual(doces.accent, doces.accentAlt);
 });
 
-test('the three projects are three expressions of one system', () => {
+test('the four projects use the existing compositions of one system', () => {
   const layouts = Object.values(PROJECT_THEMES).map((t) => t.layout);
-  assert.deepEqual(layouts, ['flow', 'editorial', 'organic']);
+  assert.deepEqual(layouts, ['flow', 'flow', 'organic', 'editorial']);
   const eases = new Set(Object.values(PROJECT_THEMES).map((t) => t.easing));
-  assert.equal(eases.size, 3, 'each project has its own temperature of movement');
+  assert.equal(eases.size, 3, 'the new project reuses an existing movement composition');
   const surfaces = Object.values(PROJECT_THEMES).map((t) => t.surface);
   assert.equal(surfaces.filter((s) => s === '#F2E9DE').length, 1, 'exactly one light case');
 });

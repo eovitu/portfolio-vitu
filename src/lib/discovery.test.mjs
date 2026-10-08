@@ -10,6 +10,7 @@ test('publishes canonical routes in a lean sitemap', () => {
   const canonicalRoutes = [
     'https://eovitu.com.br/',
     'https://eovitu.com.br/work/emprega-co',
+    'https://eovitu.com.br/work/torneio-pebolim',
     'https://eovitu.com.br/work/doces-da-pati',
     'https://eovitu.com.br/work/helppet',
   ];
@@ -20,7 +21,7 @@ test('publishes canonical routes in a lean sitemap', () => {
 
   assert.equal((sitemap.match(/<loc>/g) ?? []).length, canonicalRoutes.length);
   assert.equal((sitemap.match(/<lastmod>/g) ?? []).length, canonicalRoutes.length);
-  assert.equal((sitemap.match(/<lastmod>2026-09-24<\/lastmod>/g) ?? []).length, 4);
+  assert.equal((sitemap.match(/<lastmod>2026-10-08<\/lastmod>/g) ?? []).length, 5);
   assert.doesNotMatch(sitemap, /404|not-found|nao-existe/);
   assert.doesNotMatch(sitemap, /<(?:priority|changefreq)>/);
 });

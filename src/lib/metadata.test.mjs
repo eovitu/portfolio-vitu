@@ -23,6 +23,7 @@ test('publishes unique search and social metadata for every indexable route', ()
   const pages = [
     metadataFor({ kind: 'home' }),
     metadataFor({ kind: 'case', slug: 'emprega-co' }),
+    metadataFor({ kind: 'case', slug: 'torneio-pebolim' }),
     metadataFor({ kind: 'case', slug: 'doces-da-pati' }),
     metadataFor({ kind: 'case', slug: 'helppet' }),
   ];
@@ -47,7 +48,7 @@ test('publishes valid CreativeWork JSON-LD only for case-study routes', () => {
   assert.equal(creativeWorkJsonLd({ kind: 'home' }), null);
   assert.equal(creativeWorkJsonLd({ kind: 'notFound', path: '/missing' }), null);
 
-  for (const slug of ['emprega-co', 'doces-da-pati', 'helppet']) {
+  for (const slug of ['emprega-co', 'torneio-pebolim', 'helppet', 'doces-da-pati']) {
     const value = creativeWorkJsonLd({ kind: 'case', slug });
     assert.equal(value?.['@type'], 'CreativeWork');
     assert.equal(value?.url, `https://eovitu.com.br/work/${slug}`);

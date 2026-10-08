@@ -2,16 +2,21 @@ import { contentFor, type Locale } from './content.ts';
 import type { Route } from './routes.ts';
 import { SITE_ORIGIN as ORIGIN } from './site.ts';
 
-const HOME_TITLE = 'Victor Hugo | Junior Java & Spring Backend Developer';
+const HOME_TITLE = 'Victor Hugo | Java & Spring Backend Developer';
 const HOME_DESCRIPTION =
-  'Portfolio of Victor Hugo (Vitu), a junior backend developer in São Paulo building Java, Spring Boot, API, PostgreSQL and digital product projects in Brazil.';
+  'Portfolio of Victor Hugo (Vitu), a backend developer in São Paulo building Java, Spring Boot, API, PostgreSQL and digital product projects in Brazil.';
 
 const CASE_METADATA = {
   en: {
     'emprega-co': {
       title: 'Emprega.co | Employment Platform by Victor Hugo',
       description:
-        'Emprega.co case study: an employment platform with candidate and employer journeys, product architecture and integration across web and mobile applications.',
+        'Emprega.co: volunteer team work on Java/Spring APIs, PostgreSQL application rules and a React Native app. Payments are implemented in a test environment.',
+    },
+    'torneio-pebolim': {
+      title: 'Torneio Pebolim | Tournament Domain by Victor Hugo',
+      description:
+        'Torneio Pebolim: event-derived scores, standings and brackets with PostgreSQL and Supabase. Personal project; domain test results from October 8, 2026.',
     },
     'doces-da-pati': {
       title: 'Doces da Pati | Firebase Storefront by Victor Hugo',
@@ -28,12 +33,17 @@ const CASE_METADATA = {
     'emprega-co': {
       title: 'Emprega.co | Plataforma de empregos por Victor Hugo',
       description:
-        'Case da Emprega.co: plataforma de empregos com jornadas para candidatos e empresas, arquitetura de produto e integração entre aplicações web e mobile.',
+        'Emprega.co: contribuição voluntária em APIs Java/Spring, regras de candidatura no PostgreSQL e aplicativo React Native. Pagamentos em ambiente de teste.',
+    },
+    'torneio-pebolim': {
+      title: 'Torneio Pebolim | Domínio de torneios, Victor Hugo',
+      description:
+        'Projeto pessoal de torneios com placar derivado de eventos, classificação, chaves, PostgreSQL, Supabase RLS e Realtime. Snapshot de testes: 8 de outubro de 2026.',
     },
     'doces-da-pati': {
-      title: 'Doces da Pati | Loja Firebase por Victor Hugo',
+      title: 'Doces da Pati | Catálogo Firebase por Victor Hugo',
       description:
-        'Case da Doces da Pati: catálogo mobile, carrinho enviado por WhatsApp, administração Firebase, regras de acesso, SEO e analytics com consentimento GA4.',
+        'Case da Doces da Pati: catálogo mobile, carrinho que prepara mensagem de WhatsApp, administração Firebase, regras de acesso, SEO e analytics com consentimento GA4.',
     },
     helppet: {
       title: 'HelpPet | API Gateway Spring por Victor Hugo',
@@ -72,7 +82,7 @@ export function personJsonLd() {
     '@type': 'Person',
     name: 'Victor Hugo',
     alternateName: ['Vitu', 'eovitu'],
-    jobTitle: 'Backend Developer & Product Engineer',
+    jobTitle: 'Backend Developer',
     url: `${ORIGIN}/`,
     email: 'mailto:eovitu7@gmail.com',
     sameAs: ['https://github.com/eovitu', 'https://www.linkedin.com/in/eovitu/'],
@@ -116,7 +126,7 @@ export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
     locale === 'pt' ? 'Victor Hugo | Desenvolvedor Backend Java e Spring Boot' : HOME_TITLE;
   const homeDescription =
     locale === 'pt'
-      ? 'Portfólio de Victor Hugo (Vitu), desenvolvedor backend júnior em São Paulo, com projetos reais em Java, Spring Boot, APIs, PostgreSQL e produtos digitais.'
+      ? 'Portfólio de Victor Hugo (Vitu), desenvolvedor backend em São Paulo, com projetos reais em Java, Spring Boot, APIs, PostgreSQL e produtos digitais.'
       : HOME_DESCRIPTION;
   const lang = locale === 'pt' ? 'pt-BR' : 'en';
   const openGraphLocale = locale === 'pt' ? 'pt_BR' : 'en_US';
