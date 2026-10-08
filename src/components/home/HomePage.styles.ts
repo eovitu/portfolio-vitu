@@ -74,9 +74,12 @@ export const HeroGrid = styled.div`
   grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.55fr);
   gap: clamp(24px, 3vw, 60px);
   align-items: end;
+  > * {
+    min-width: 0;
+  }
 
   @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 40px;
   }
 `;
@@ -114,10 +117,13 @@ export const HeroLines = styled.span`
  * multiplying them in JavaScript is what keeps a stranded transform impossible:
  * each node has exactly one author.
  */
-export const HeroWord = styled.span`
+export const HeroWord = styled.span<{ $long?: boolean }>`
   display: block;
   transform-origin: 0% 50%;
   white-space: nowrap;
+  @media (max-width: 900px) {
+    ${({ $long }) => $long && 'font-size: clamp(32px, 9.2vw, 83px); letter-spacing: -0.075em;'}
+  }
   &:nth-child(2) {
     color: #ff9b6a;
   }
@@ -208,7 +214,11 @@ export const Action = styled.a<{ $primary?: boolean }>`
 
 export const Section = styled.section`
   position: relative;
-  padding: clamp(96px, 12vw, 180px) ${({ theme }) => theme.space.gutter};
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  scroll-margin-top: 0;
+  padding: 108px ${({ theme }) => theme.space.gutter} 40px;
 
   ${({ theme }) => theme.media.mobile} {
     padding-inline: 20px;
@@ -225,7 +235,7 @@ export const SectionHead = styled.div`
   grid-template-columns: minmax(0, 0.65fr) minmax(300px, 1fr);
   gap: 32px;
   align-items: end;
-  margin-bottom: clamp(54px, 8vw, 110px);
+  margin-bottom: clamp(28px, 4vh, 48px);
 
   h2 {
     margin: 0;
@@ -272,8 +282,11 @@ export const Profile = styled(Section)`
 
 export const CapabilityGrid = styled.div`
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
   ${({ theme }) => theme.media.mobile} {
     grid-template-columns: 1fr;
@@ -281,77 +294,49 @@ export const CapabilityGrid = styled.div`
 `;
 
 export const Capability = styled.article`
-  padding: 32px;
+  padding: clamp(20px, 2vw, 32px);
   background: #1d30a7;
   border-radius: 8px;
   > svg {
-    display: block;
-    width: 50px;
-    height: 50px;
-    stroke-width: 1.75;
+    width: 36px;
+    height: 36px;
     color: #d7ef92;
-    margin-bottom: 44px;
+    margin-bottom: 24px;
   }
   &:first-child {
-    grid-row: span 2;
-    display: flex;
-    flex-direction: column;
     background: #d7ef92;
     color: #172014;
   }
   &:first-child > svg {
     color: #172014;
-    width: 100px;
-    height: 100px;
-    margin-bottom: auto;
-    padding-bottom: 60px;
   }
   &:first-child p {
     color: #35402a;
   }
-  &:last-child {
-    grid-column: 2 / 4;
-  }
-
   h3 {
-    margin: 0 0 18px;
-    font-size: clamp(25px, 2.5vw, 40px);
+    margin: 0 0 14px;
+    font-size: clamp(25px, 2.2vw, 34px);
     letter-spacing: -0.04em;
     font-weight: 500;
   }
   p {
     margin: 0;
-    max-width: 42ch;
     color: #e2e5ff;
-    line-height: 1.6;
+    line-height: 1.5;
   }
   small {
     display: block;
-    margin-top: 36px;
+    margin-top: 24px;
     font: 400 11px/1.6 ${({ theme }) => theme.fonts.mono};
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-  }
-
-  @media (max-width: 760px) {
-    min-height: 0;
-    padding: 28px;
-    grid-column: 1 / -1 !important;
-    grid-row: auto !important;
-    > svg,
-    &:first-child > svg {
-      width: 42px;
-      height: 42px;
-      margin-bottom: 24px;
-      padding: 0;
-    }
   }
 `;
 
 export const About = styled(Section)`
   background: #f2b7a3;
   color: #2b231e;
-  overflow: clip;
+  overflow: visible;
   ${Kicker} {
     color: #58362b;
   }
@@ -378,6 +363,7 @@ export const AboutGrid = styled.div`
   img {
     width: 100%;
     aspect-ratio: 4 / 5;
+    max-height: 58svh;
     object-fit: cover;
   }
   h2 {
@@ -409,7 +395,7 @@ export const Contact = styled(Section)`
   padding-bottom: 24px;
 
   > ${SectionInner} {
-    min-height: calc(100svh - clamp(96px, 12vw, 180px) - 24px);
+    min-height: calc(100svh - 108px - 24px);
     display: flex;
     flex-direction: column;
   }
@@ -420,7 +406,7 @@ export const Contact = styled(Section)`
 `;
 
 export const ContactTitle = styled.h2`
-  margin: clamp(60px, 10vh, 140px) 0 46px;
+  margin: clamp(28px, 5vh, 64px) 0 32px;
   max-width: 11ch;
   font-size: clamp(54px, 9vw, 144px);
   line-height: 0.84;

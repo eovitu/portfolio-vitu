@@ -30,24 +30,24 @@ import { useLanguage } from '../providers/LanguageProvider';
 const capabilities = [
   {
     icon: Code,
-    stack: 'Java · Spring Boot · PostgreSQL · REST',
+    stack: 'Java · REST APIs · Spring Boot · Docker',
   },
   {
     icon: FlowArrow,
-    stack: 'System design · Product flows · Delivery',
+    stack: 'PostgreSQL · Flyway · MySQL · MongoDB',
   },
   {
     icon: Command,
-    stack: 'TypeScript · React · Next.js · Design systems',
+    stack: 'Cypress · GitHub Actions · Azure · Mercado Pago',
   },
   {
     icon: Sparkle,
-    stack: 'Three.js · R3F · GSAP · GLSL',
+    stack: 'React · React Native · Next.js · TypeScript',
   },
 ] as const;
 
 export function HomePage() {
-  const { content } = useLanguage();
+  const { content, locale } = useLanguage();
   const { home } = content.ui;
   const heroRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
@@ -122,7 +122,7 @@ export function HomePage() {
               <span className="visually-hidden">{home.hero.title}</span>
               <S.HeroLines aria-hidden="true">
                 {home.hero.lines.map((word) => (
-                  <S.HeroWord key={word} data-hero-word>
+                  <S.HeroWord key={word} data-hero-word $long={word.length > 13}>
                     {Array.from(word).map((glyph, index) => (
                       <S.HeroGlyph
                         key={`${word}-${index}`}
@@ -147,6 +147,10 @@ export function HomePage() {
               <S.Action href="mailto:eovitu7@gmail.com">
                 {home.hero.contactCta} <ArrowUpRight aria-hidden="true" />
               </S.Action>
+              <S.Action href="/cv/victor-hugo-backend.docx" download>
+                {locale === 'pt' ? 'Baixar currículo' : 'Download résumé'}{' '}
+                <ArrowDownRight aria-hidden="true" />
+              </S.Action>
             </S.Actions>
           </S.HeroAside>
         </S.HeroGrid>
@@ -159,6 +163,7 @@ export function HomePage() {
         id="profile"
         aria-labelledby="profile-title"
         data-gravity-section
+        data-scroll-boundary
       >
         <S.SectionInner>
           <S.SectionHead>
@@ -185,7 +190,13 @@ export function HomePage() {
         </S.SectionInner>
       </S.Profile>
 
-      <S.About ref={aboutRef} id="about" aria-labelledby="about-title" data-gravity-section>
+      <S.About
+        ref={aboutRef}
+        id="about"
+        aria-labelledby="about-title"
+        data-gravity-section
+        data-scroll-boundary
+      >
         <S.SectionInner>
           <S.AboutGrid>
             <figure>

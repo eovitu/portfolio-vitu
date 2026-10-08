@@ -13,6 +13,14 @@ import {
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { prefersReducedMotion } from '../../lib/prefersReducedMotion';
 import { LENIS_OPTIONS } from '../../lib/motion';
+import {
+  crossedBoundary,
+  canReleaseBoundary,
+  GESTURE_GAP_MS,
+  colorBoundaryTargets,
+} from '../../motion/scrollSettle';
+import { resolveChapterBoundary } from '../../motion/chapterTarget';
+import { observeScrollGeometry } from '../../motion/scrollGeometry';
 
 /**
  * THE frame loop of the application.
@@ -72,10 +80,13 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const lockCount = useRef(0);
   const frameCallbacks = useRef(new Set<FrameCallback>());
   const [smooth, setSmooth] = useState(false);
+  const settleSuppressedUntil = useRef(0);
+  const cancelSettle = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const reduce = prefersReducedMotion();
     let lastTime = 0;
+    let cleanupSettle: (() => void) | undefined;
 
     const tick = (time: number) => {
       const now = time * 1000;
@@ -88,7 +99,56 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     };
 
     if (!reduce) {
+      let heldBoundary: number | null = null;
+      let heldAt = 0;
+      let lastWheel = -Infinity;
+      let wheelActive = false;
+      let previousScroll = window.scrollY;
+      const blocked = () =>
+        prefersReducedMotion() ||
+        lockCount.current > 0 ||
+        performance.now() < settleSuppressedUntil.current ||
+        !!document.documentElement.dataset.transitionPhase ||
+        !!document.querySelector('[role="dialog"][aria-modal="true"], dialog[open]');
       const lenis = new Lenis({
+        virtualScroll: ({ event }) => {
+          if (event.type === 'touchmove') {
+            if (blocked()) {
+              heldBoundary = null;
+              wheelActive = false;
+              return true;
+            }
+            if (heldBoundary !== null) {
+              event.preventDefault();
+              return false;
+            }
+            return true;
+          }
+          if (event.type !== 'wheel') return true;
+          // Trackpad pinch arrives as ctrl-wheel; let Lenis preserve native zoom.
+          if (event.ctrlKey) {
+            heldBoundary = null;
+            wheelActive = false;
+            lastWheel = -Infinity;
+            return true;
+          }
+          const now = performance.now();
+          const newGesture = now - lastWheel >= GESTURE_GAP_MS;
+          lastWheel = now;
+          if (blocked()) {
+            heldBoundary = null;
+            wheelActive = false;
+            return true;
+          }
+          wheelActive = true;
+          if (heldBoundary === null) return true;
+          if (canReleaseBoundary({ now, heldAt, newGesture })) {
+            heldBoundary = null;
+            return true;
+          }
+          event.preventDefault();
+          return false;
+        },
         duration: LENIS_OPTIONS.duration,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         wheelMultiplier: LENIS_OPTIONS.wheelMultiplier,
@@ -96,6 +156,122 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       });
       lenisRef.current = lenis;
       lenis.on('scroll', ScrollTrigger.update);
+      const cancel = () => {
+        heldBoundary = null;
+        wheelActive = false;
+        lastWheel = -Infinity;
+        previousScroll = lenis.scroll;
+      };
+      const cleanupGeometry = observeScrollGeometry(cancel);
+      cancelSettle.current = cancel;
+      const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      reducedQuery.addEventListener('change', cancel);
+      const click = (event: Event) => {
+        cancel();
+        if ((event.target as Element | null)?.closest('a, button, input, textarea, select'))
+          settleSuppressedUntil.current = performance.now() + 2000;
+      };
+      const layoutTop = (element: HTMLElement) => {
+        let top = 0;
+        for (
+          let node: HTMLElement | null = element;
+          node;
+          node = node.offsetParent as HTMLElement | null
+        )
+          top += node.offsetTop;
+        return top;
+      };
+      let previousLimit = lenis.limit;
+      let previousViewportHeight = window.innerHeight;
+      const observeBoundary = () => {
+        const current = lenis.scroll;
+        // Lenis can emit its resize scroll before our window/observer callback.
+        if (
+          previousLimit !== lenis.limit ||
+          previousViewportHeight !== window.innerHeight
+        ) {
+          previousLimit = lenis.limit;
+          previousViewportHeight = window.innerHeight;
+          cancel();
+        }
+        if (heldBoundary !== null && !blocked() && Math.abs(current - heldBoundary) > 0.5) {
+          lenis.scrollTo(heldBoundary, { immediate: true });
+          return;
+        }
+        if (!wheelActive || blocked() || heldBoundary !== null) {
+          previousScroll = current;
+          return;
+        }
+        const edges = Array.from(
+          document.querySelectorAll<HTMLElement>('[data-scroll-boundary]'),
+        ).flatMap((element) => [
+          layoutTop(element),
+          layoutTop(element) + element.offsetHeight,
+        ]);
+        const stickyEdges: number[] = [];
+        document
+          .querySelectorAll<HTMLElement>('[data-theater-chapter]')
+          .forEach((chapter) => {
+            const run = chapter.closest<HTMLElement>('[data-theater-run]');
+            if (run?.dataset.enhanced === 'true') {
+              const chapters = run.querySelectorAll('[data-theater-chapter]');
+              if (chapter === chapters[0]) edges.push(layoutTop(run));
+              else stickyEdges.push(resolveChapterBoundary(chapter));
+              // The last color leaves the sticky stage at bottom-bottom.
+              if (chapter === chapters[chapters.length - 1])
+                edges.push(layoutTop(run) + run.offsetHeight);
+            } else {
+              edges.push(layoutTop(chapter), layoutTop(chapter) + chapter.offsetHeight);
+            }
+          });
+        const targets = colorBoundaryTargets({
+          edges,
+          stickyEdges,
+          forward: current > previousScroll,
+          viewportHeight: window.innerHeight,
+          maxScroll: lenis.limit,
+        });
+        const target = crossedBoundary({
+          from: previousScroll,
+          to: current,
+          targets,
+          reduced: false,
+          blocked: false,
+        });
+        previousScroll = current;
+        if (target === null) return;
+        heldBoundary = target;
+        heldAt = performance.now();
+        previousScroll = target;
+        lenis.scrollTo(target, { immediate: true });
+      };
+      lenis.on('scroll', observeBoundary);
+      window.addEventListener('keydown', cancel);
+      const touchStart = () => {
+        if (
+          heldBoundary !== null &&
+          !canReleaseBoundary({ now: performance.now(), heldAt, newGesture: true })
+        )
+          return;
+        cancel();
+        wheelActive = true;
+      };
+      window.addEventListener('touchstart', touchStart, { passive: true });
+      const pointerDown = (event: PointerEvent) => {
+        if (event.pointerType !== 'touch') cancel();
+      };
+      window.addEventListener('pointerdown', pointerDown, { passive: true });
+      window.addEventListener('click', click, true);
+      cleanupSettle = () => {
+        cleanupGeometry();
+        cancelSettle.current = null;
+        reducedQuery.removeEventListener('change', cancel);
+        lenis.off('scroll', observeBoundary);
+        window.removeEventListener('keydown', cancel);
+        window.removeEventListener('touchstart', touchStart);
+        window.removeEventListener('pointerdown', pointerDown);
+        window.removeEventListener('click', click, true);
+      };
       setSmooth(true);
     }
 
@@ -103,6 +279,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      cleanupSettle?.();
       gsap.ticker.remove(tick);
       lenisRef.current?.destroy();
       lenisRef.current = null;
@@ -112,6 +289,9 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const scrollTo = useCallback((target: string | HTMLElement | number, duration = 1.5) => {
+    cancelSettle.current?.();
+    settleSuppressedUntil.current =
+      performance.now() + Math.max(2000, duration * 1000 + 400);
     const element =
       typeof target === 'string'
         ? document.querySelector<HTMLElement>(target)
@@ -164,6 +344,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   );
 
   const stop = useCallback(() => {
+    cancelSettle.current?.();
     lockCount.current += 1;
     if (lockCount.current === 1) lenisRef.current?.stop();
   }, []);

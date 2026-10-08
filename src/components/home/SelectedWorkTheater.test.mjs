@@ -10,14 +10,14 @@ import * as theaterChapters from '../../motion/theaterChapters.ts';
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
 const theater = read('./SelectedWorkTheater.tsx');
 const motion = read('../../hooks/useProjectTheaterMotion.ts');
-const media = read('./ProjectMediaSurface.tsx');
+const media = read('./MediaPlayback.tsx');
 
 test('keeps the three projects semantic and ordered inside one theater', () => {
   assert.match(theater, /<S\.Theater/);
   assert.match(theater, /<h2/);
   assert.match(theater, /projects\.map/);
   assert.match(theater, /data-project/);
-  assert.match(media, /data-project-media/);
+  assert.match(read('./ProjectMediaSurface.tsx'), /data-project-media/);
   assert.match(theater, /data-project-link/);
   assert.match(theater, /data-transition-project/);
   assert.match(theater, /TheaterStage/);
@@ -59,15 +59,12 @@ test('enhances notebook-sized viewports regardless of their pointer hardware', (
   assert.doesNotMatch(motion, /\(hover: hover\)|\(pointer: fine\)/);
 });
 
-test('keeps poster-first, one-video playback policy', () => {
-  assert.match(media, /muted/);
-  assert.match(media, /playsInline/);
-  assert.match(media, /loop/);
-  assert.match(media, /onPlaying/);
-  assert.match(media, /\.play\(\)/);
-  assert.match(media, /\.pause\(\)/);
-  assert.doesNotMatch(media, /controls/);
-  assert.doesNotMatch(media, /currentTime/);
+test('keeps lazy source attachment for eligible playback', () => {
+  assert.match(media, /preload="none"/);
+  assert.doesNotMatch(media, /autoPlay/);
+  assert.doesNotMatch(media, /<source/);
+  assert.match(media, /createMediaPlayback/);
+  assert.match(theater, /active=\{!enhanced \|\| reduced \|\| isActive\}/);
 });
 
 test('numbered navigation targets the middle of each chapter band', () => {
@@ -119,16 +116,9 @@ test('the active index keeps a single author', () => {
   assert.doesNotMatch(theater, /setActive\(/);
 });
 
-test('a preview off screen stops decoding', () => {
+test('a preview off screen or hidden pauses through shared playback policy', () => {
   assert.match(media, /IntersectionObserver/);
-  assert.match(media, /observer\.disconnect\(\)/);
-  // Visibility only ever subtracts from the chapter's playback decision, it
-  // can never start a video the theater was not already starting.
-  assert.match(media, /const shouldPlay = active && !reduced && onScreen;/);
-  assert.match(media, /useState\(false\)/);
-  assert.match(media, /if \(!shouldPlay\) \{\s*video\.pause\(\);/);
-  assert.match(media, /preload=\{shouldPlay \? 'metadata' : 'none'\}/);
-  // Poster-first is unchanged: the poster clears on `playing`, nothing else.
-  assert.match(media, /data-playing=\{playing\}/);
-  assert.match(media, /onPlaying=\{\(\) => setPlaying\(true\)\}/);
+  assert.match(media, /visibilitychange/);
+  assert.match(media, /policy\.suspend\(\)/);
+  assert.match(media, /observer\?\.disconnect\(\)/);
 });

@@ -2,7 +2,8 @@ import styled from 'styled-components';
 import { useLanguage } from '../providers/LanguageProvider';
 
 const Story = styled.section`
-  padding: clamp(64px, 9vw, 140px) clamp(20px, 5vw, 80px);
+  min-height: 100svh;
+  padding: 108px clamp(20px, 5vw, 80px);
   background: #3b2318;
   color: #f2e9de;
 
@@ -11,7 +12,7 @@ const Story = styled.section`
     grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
     gap: clamp(28px, 6vw, 96px);
     align-items: end;
-    margin-bottom: clamp(56px, 8vw, 112px);
+    margin-bottom: 32px;
   }
 
   small,
@@ -47,6 +48,7 @@ const Story = styled.section`
   }
 
   li {
+    scroll-margin-top: 108px;
     min-height: 270px;
     padding: 28px clamp(18px, 2.5vw, 36px);
     border-inline-start: 1px solid #7a4428;
@@ -57,7 +59,7 @@ const Story = styled.section`
   }
 
   h3 {
-    margin: 76px 0 18px;
+    margin: 28px 0 18px;
     font-size: clamp(26px, 3vw, 42px);
     line-height: 1;
     letter-spacing: -0.045em;
@@ -80,10 +82,15 @@ const Story = styled.section`
     ol {
       grid-template-columns: 1fr;
     }
+    li {
+      min-height: calc(100svh - 108px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
     li,
     li:first-child {
-      min-height: auto;
       border-inline-start: 0;
       border-block-start: 1px solid #7a4428;
     }
@@ -103,7 +110,7 @@ export default function CommerceStory() {
   const copy = content.ui.commerce;
 
   return (
-    <Story aria-labelledby="commerce-title">
+    <Story data-scroll-boundary aria-labelledby="commerce-title">
       <header>
         <div>
           <small>{copy.kicker}</small>

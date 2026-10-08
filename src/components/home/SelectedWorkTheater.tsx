@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState, type MouseEvent } from 'react';
+import { resolveChapterTarget } from '../../motion/chapterTarget';
+import { useCallback, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { ArrowBendDownRight, ArrowUpRight } from '@phosphor-icons/react';
 import { hrefForCase } from '../../lib/routes';
 import { PROJECT_THEMES } from '../../motion/projectThemes';
@@ -6,7 +7,6 @@ import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useReveal } from '../../hooks/useReveal';
 import { useProjectTheaterMotion } from '../../hooks/useProjectTheaterMotion';
 import {
-  chapterScrollTarget,
   canEnhanceProjectTheater,
   PROJECT_THEATER_MEDIA_QUERY,
 } from '../../motion/theaterChapters';
@@ -21,15 +21,39 @@ import { useLanguage } from '../providers/LanguageProvider';
 export function SelectedWorkTheater() {
   const { content } = useLanguage();
   const { projects } = content;
-  const projectCount = projects.length;
   const copy = content.ui.home.work;
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
   const reduced = useReducedMotion();
   const viewportMatches = useMediaQuery(PROJECT_THEATER_MEDIA_QUERY);
-  const enhanced = canEnhanceProjectTheater({ viewportMatches, reducedMotion: reduced });
+  const [contentFits, setContentFits] = useState(false);
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const copies = Array.from(section.querySelectorAll<HTMLElement>('[data-chapter-copy]'));
+    const media = Array.from(section.querySelectorAll<HTMLElement>('[data-project-media]'));
+    const measure = () =>
+      setContentFits(
+        copies.every((copy) => copy.scrollHeight + 208 <= window.innerHeight) &&
+          media.every(
+            (surface) =>
+              surface.offsetHeight + surface.offsetWidth * 0.08 + 208 <= window.innerHeight,
+          ),
+      );
+    const observer = new ResizeObserver(measure);
+    copies.forEach((copy) => observer.observe(copy));
+    media.forEach((surface) => observer.observe(surface));
+    window.addEventListener('resize', measure);
+    measure();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [content]);
+  const enhanced =
+    canEnhanceProjectTheater({ viewportMatches, reducedMotion: reduced }) && contentFits;
   const { scrollTo } = useSmoothScroll();
-  useProjectTheaterMotion(sectionRef, setActive);
+  useProjectTheaterMotion(sectionRef, setActive, contentFits);
   useReveal(sectionRef);
   useReloadColorReveal(sectionRef, '#08080a');
 
@@ -47,24 +71,22 @@ export function SelectedWorkTheater() {
    */
   const openChapter = useCallback(
     (index: number) => (event: MouseEvent<HTMLAnchorElement>) => {
-      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey)
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.altKey ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey
+      )
         return;
       const run = sectionRef.current?.querySelector<HTMLElement>('[data-theater-run]');
       if (!run || run.dataset.enhanced !== 'true') return;
       event.preventDefault();
-      const rect = run.getBoundingClientRect();
-      scrollTo(
-        chapterScrollTarget({
-          runTop: rect.top + window.scrollY,
-          runHeight: rect.height,
-          viewportHeight: window.innerHeight,
-          index,
-          count: projectCount,
-        }),
-        0.9,
-      );
+      const target = resolveChapterTarget(`#work-${projects[index].slug}`);
+      if (target) scrollTo(target.position, 0.9);
     },
-    [projectCount, scrollTo],
+    [projects, scrollTo],
   );
 
   return (
@@ -109,12 +131,13 @@ export function SelectedWorkTheater() {
                 <S.ChapterNumber aria-hidden="true">{project.n}</S.ChapterNumber>
                 <ProjectMediaSurface
                   project={project}
-                  active={isActive}
+                  active={!enhanced || reduced || isActive}
                   reduced={reduced}
                 />
-                <S.Copy>
+                <S.Copy data-chapter-copy>
                   <span data-project-kicker>
-                    {project.context} · {project.status}
+                    {project.context}
+                    {project.status !== project.context && <> · {project.status}</>}
                   </span>
                   <h3>{project.name}</h3>
                   <p>{project.summary}</p>

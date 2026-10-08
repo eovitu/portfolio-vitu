@@ -2,13 +2,14 @@ import styled from 'styled-components';
 import { useLanguage } from '../providers/LanguageProvider';
 
 const Integration = styled.section`
-  padding: clamp(64px, 9vw, 140px) clamp(20px, 5vw, 80px);
+  min-height: 100svh;
+  padding: 108px clamp(20px, 5vw, 80px);
   background: #c5edad;
   color: #193825;
   h2 {
     max-width: 13ch;
     margin: 0 0 40px;
-    font-size: clamp(48px, 8vw, 128px);
+    font-size: clamp(48px, 6vw, 96px);
     line-height: 0.94;
     letter-spacing: -0.06em;
     font-weight: 500;
@@ -59,7 +60,7 @@ export default function IntegrationStory() {
   const { content } = useLanguage();
   const copy = content.ui.integration;
   return (
-    <Integration aria-labelledby="integration-title">
+    <Integration data-scroll-boundary aria-labelledby="integration-title">
       <h2 id="integration-title">{copy.title}</h2>
       <p>{copy.intro}</p>
       <ol aria-label={copy.areasLabel}>
