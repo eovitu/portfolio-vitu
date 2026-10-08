@@ -4,46 +4,34 @@ import test from 'node:test';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const raw = read('./CaseMedia.tsx');
-// Prose about the native control bar is worth keeping; assertions about what
-// the element actually carries run against code with the comments removed.
-const media = raw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+const wrapper = raw;
+const media = read('../home/MediaPlayback.tsx');
 const study = read('./CaseStudy.tsx');
 const styles = read('./CaseStudy.styles.ts');
 
-test('the film carries our controls, never the browser chrome', () => {
-  // Assert against the <video> element itself rather than the whole file:
-  // our own bar is legitimately named `data-case-controls`.
-  const videoTag = media.slice(media.indexOf('<video'), media.indexOf('</video>'));
-  assert.ok(videoTag.length > 0);
+test('film uses click and keyboard controls, with fullscreen as the only permanent button', () => {
+  const videoTag = media.match(/<video[\s\S]*?\/>/)?.[0] ?? '';
   assert.doesNotMatch(videoTag, /\bcontrols\b/);
-  assert.match(media, /aria-label=\{playing \? copy\.pause : copy\.play\}/);
-  assert.match(media, /aria-label=\{copy\.seek\}/);
-  assert.match(media, /aria-label=\{muted \? copy\.unmute : copy\.mute\}/);
-  assert.match(media, /aria-valuetext=/);
+  assert.match(media, /onClick=\{toggle\}/);
+  assert.match(media, /event.key === 'Enter'/);
+  assert.match(media, /event.key === ' '/);
+  assert.match(media, /aria-describedby=/);
+  assert.doesNotMatch(media, /<S.Seek|copy.seek|copy.mute/);
+  assert.match(media, /requestFullscreen/);
 });
 
-test('keyboard reaches play, seek and mute', () => {
-  assert.match(media, /event\.key === ' ' \|\| event\.key === 'k'/);
-  assert.match(media, /event\.key === 'ArrowRight'/);
-  assert.match(media, /event\.key === 'ArrowLeft'/);
-  assert.match(media, /event\.key === 'm' \|\| event\.key === 'M'/);
-  // The seek slider keeps the arrows while it is focused.
-  assert.match(media, /tagName === 'INPUT'\) return;/);
-});
-
-test('off screen it pauses, and never restarts itself', () => {
+test('offscreen and document visibility are reconciled through shared eligibility', () => {
   assert.match(media, /IntersectionObserver/);
-  assert.match(media, /if \(!entry\.isIntersecting\) videoRef\.current\?\.pause\(\)/);
-  assert.match(media, /observer\.disconnect\(\)/);
-  // No resume branch: nothing calls play() from the observer.
-  assert.doesNotMatch(media, /isIntersecting\) [^\n]*play\(\)/);
+  assert.match(media, /entry.isIntersecting && entry.intersectionRatio >= 0.15/);
+  assert.match(media, /contextRef.current.documentVisible = !document.hidden/);
+  assert.match(media, /observer\?\.disconnect\(\)/);
 });
 
 test('the transition contract on the media survives the rewrite', () => {
-  assert.match(media, /data-case-media/);
+  assert.match(wrapper, /data-case-media/);
   assert.match(media, /data-project-poster/);
-  assert.match(media, /data-warp/);
-  assert.match(media, /layoutId=\{`project-media-\$\{project\.slug\}`\}/);
+  assert.match(wrapper, /data-warp/);
+  assert.match(wrapper, /layoutId=\{`project-media-\$\{project\.slug\}`\}/);
 });
 
 test('the case header identifies the project', () => {
@@ -55,4 +43,28 @@ test('the case header identifies the project', () => {
   assert.match(study, /<dt>\{copy\.context\}<\/dt>/);
   // The controls float inside the media; no extra frame is introduced.
   assert.doesNotMatch(styles, /export const Controls[\s\S]{0,400}?border: 1px/);
+});
+
+test('fullscreen fits the full film without the editorial frame', () => {
+  for (const selector of ['&&:fullscreen', '&&:-webkit-full-screen']) {
+    const block = styles.slice(styles.indexOf(selector), styles.indexOf(selector) + 420);
+    assert.ok(styles.includes(selector));
+    assert.match(block, /object-fit: contain/);
+    assert.match(block, /background: #000/);
+    assert.match(block, /rotate: 0/);
+    assert.match(block, /margin: 0/);
+    assert.match(block, /border-radius: 0/);
+    assert.match(block, /box-shadow: none/);
+  }
+});
+
+test('a rejected autoplay after prior playback exposes the poster until playback succeeds', () => {
+  const expression = media.match(/opacity: ([^}]+) \}\}/)?.[1];
+  assert.ok(expression, 'video opacity expression is present');
+  const opacity = new Function('started', 'error', 'blocked', `return (${expression});`);
+  assert.equal(opacity(false, false, false), 0, 'initial poster');
+  assert.equal(opacity(true, false, false), 1, 'successful playback');
+  assert.equal(opacity(true, false, true), 0, 'blocked replay returns to poster');
+  assert.equal(opacity(true, true, false), 0, 'media failure returns to poster');
+  assert.equal(opacity(true, false, false), 1, 'successful manual retry displays video');
 });
