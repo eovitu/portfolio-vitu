@@ -24,7 +24,11 @@ export function CaseStudy({ project }: { project: Project }) {
   const next = projects[(index + 1) % projects.length];
 
   return (
-    <S.Page id="case-content" data-layout={PROJECT_THEMES[project.slug].layout}>
+    <S.Page
+      id="case-content"
+      data-project={project.slug}
+      data-layout={PROJECT_THEMES[project.slug].layout}
+    >
       <S.Hero data-warp data-gravity-section>
         <S.Width>
           <S.Back
@@ -66,7 +70,9 @@ export function CaseStudy({ project }: { project: Project }) {
         </S.Width>
       </S.Hero>
 
-      <CaseMedia project={project} />
+      <S.MediaStage>
+        <CaseMedia project={project} />
+      </S.MediaStage>
 
       <Suspense fallback={<S.Loading role="status">{copy.loading}</S.Loading>}>
         {project.slug === 'emprega-co' ? <EmploymentJourney /> : null}
@@ -83,7 +89,7 @@ export function CaseStudy({ project }: { project: Project }) {
             </S.Section>
           ))}
         </S.Sections>
-        <S.Outcome>
+        <S.Outcome data-scroll-boundary>
           <span>{copy.outcome}</span>
           <p>{project.outcome}</p>
         </S.Outcome>

@@ -7,7 +7,7 @@ const chapterArrival = keyframes`
 
 export const Theater = styled.section`
   position: relative;
-  padding: clamp(72px, 9vw, 132px) 0 0;
+  padding: 0;
   overflow: clip;
   --theater-velocity: 0;
   --theater-tilt: 0deg;
@@ -15,11 +15,13 @@ export const Theater = styled.section`
 
 export const Intro = styled.div`
   width: min(calc(100% - 64px), 1500px);
-  margin: 0 auto clamp(42px, 5vw, 76px);
+  min-height: 100svh;
+  padding-block: 108px 48px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 1.4fr 0.6fr;
   gap: 40px;
-  align-items: end;
+  align-content: center;
   h2 {
     margin: 0;
     max-width: 14ch;
@@ -117,11 +119,11 @@ export const Chapter = styled.article`
   [data-theater-run][data-enhanced='false'] & {
     position: relative;
     inset: auto;
-    min-height: 85svh;
+    min-height: 100svh;
     visibility: visible;
     pointer-events: auto;
     animation: none;
-    padding-block: 64px;
+    padding-block: 108px 48px;
   }
   @media (max-width: 1000px) {
     gap: 24px;
@@ -131,7 +133,7 @@ export const Chapter = styled.article`
     &,
     &[data-layout='editorial'] {
       grid-template-columns: 1fr;
-      padding: 56px 20px;
+      padding: 108px 20px 40px;
     }
   }
 `;
@@ -239,10 +241,6 @@ export const Copy = styled.div`
     h3 {
       font-size: clamp(48px, 6vw, 90px);
     }
-    ul,
-    [data-project-meta] {
-      display: none;
-    }
   }
 `;
 
@@ -279,14 +277,22 @@ export const MediaSurface = styled.div`
     transition: opacity 360ms ease;
   }
   video {
-    z-index: 1;
+    z-index: 3;
     opacity: 0;
   }
-  &[data-playing='true'] img {
-    opacity: 0;
-  }
-  &[data-playing='true'] video {
-    opacity: 1;
+  &&:fullscreen,
+  &&:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    rotate: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+    img,
+    video {
+      object-fit: contain;
+    }
   }
   @media (max-width: 760px) {
     margin: 16px 8px 12px;

@@ -14,6 +14,9 @@ export const Page = styled.main`
   &[data-layout='flow'] h1 {
     color: #e99569;
   }
+  &[data-project='torneio-pebolim'] h1 {
+    color: var(--accent);
+  }
   &[data-layout='organic'] h1 {
     color: #c5edad;
   }
@@ -28,9 +31,10 @@ export const Hero = styled.header`
    * word of the case, measured at 1440x900 before this was cut. The header
    * bar is 68px, so the top padding only needs to clear it and breathe.
    */
+  min-height: 100svh;
   display: grid;
-  align-items: end;
-  padding: 118px ${({ theme }) => theme.space.gutter} 62px;
+  align-items: center;
+  padding: 108px ${({ theme }) => theme.space.gutter} 62px;
   border-bottom: 1px solid var(--line);
 
   ${({ theme }) => theme.media.mobile} {
@@ -84,7 +88,7 @@ export const Title = styled.h1`
 `;
 
 export const Thesis = styled.div`
-  margin-top: 54px;
+  margin-top: 32px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.6fr);
   gap: 42px;
@@ -120,10 +124,17 @@ export const Thesis = styled.div`
   }
 `;
 
+export const MediaStage = styled.section`
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  padding-block: 108px 48px;
+`;
+
 export const Media = styled.figure`
   position: relative;
-  width: min(calc(100% - 64px), 1500px);
-  margin: clamp(44px, 6vw, 90px) auto;
+  width: min(calc(100% - 64px), calc((100svh - 180px) * 16 / 9), 1500px);
+  margin: 0 auto;
   aspect-ratio: 16 / 9;
   /*
    * No border. The film is already a screen recording inside a browser
@@ -134,13 +145,13 @@ export const Media = styled.figure`
   overflow: hidden;
   border-radius: 12px;
   [data-layout='editorial'] & {
-    width: min(calc(100% - 80px), 1200px);
+    width: min(calc(100% - 80px), calc((100svh - 180px) * 16 / 9), 1200px);
     rotate: -2deg;
     box-shadow: 18px 20px 0 #d98c8c;
-    margin-bottom: 110px;
+    margin-bottom: 20px;
   }
   [data-layout='organic'] & {
-    width: min(calc(100% - 64px), 1000px);
+    width: min(calc(100% - 64px), calc((100svh - 180px) * 16 / 9), 1000px);
   }
 
   video,
@@ -160,52 +171,56 @@ export const Media = styled.figure`
   ${({ theme }) => theme.media.mobile} {
     width: calc(100% - 40px);
   }
+
+  &&:fullscreen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    rotate: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+    video,
+    img {
+      object-fit: contain;
+    }
+  }
+
+  &&:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    rotate: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+    video,
+    img {
+      object-fit: contain;
+    }
+  }
 `;
 
-/**
- * The film's own controls, floating inside the media rather than framing it.
- *
- * Transform and opacity only, and always reachable: the bar is visible on
- * hover, on focus within, and whenever the film is paused, so it never
- * becomes a control the reader has to discover.
- */
 export const Controls = styled.div`
-  --ink: #f2eee6;
-  --ink-muted: #d9d4cd;
-  --border: #8e8d88;
   position: absolute;
-  z-index: 2;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  z-index: 4;
+  right: 8px;
+  bottom: 8px;
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: linear-gradient(to top, rgba(8, 8, 10, 0.86), rgba(8, 8, 10, 0));
-  opacity: 0;
-  transform: translate3d(0, 8px, 0);
-  transition:
-    opacity 260ms ease,
-    transform 260ms cubic-bezier(0.16, 1, 0.36, 1);
+  color: #f2eee6;
+`;
 
-  figure:hover &,
-  figure:focus-within &,
-  figure[data-playing='false'] & {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    opacity: 1;
-    transform: none;
-  }
-
-  ${({ theme }) => theme.media.mobile} {
-    gap: 10px;
-    padding: 10px 12px;
-  }
+export const MediaHint = styled.span`
+  position: absolute;
+  z-index: 4;
+  bottom: 16px;
+  left: 16px;
+  max-width: calc(100% - 80px);
+  padding: 6px 10px;
+  background: #08080acc;
+  color: #f2eee6;
+  font-size: 12px;
+  cursor: pointer;
 `;
 
 export const ControlButton = styled.button`
@@ -216,10 +231,11 @@ export const ControlButton = styled.button`
   align-items: center;
   justify-content: center;
   padding: 0 10px;
-  border: 1px solid var(--border);
+  border: 0;
+  border-radius: 50%;
   background: rgba(8, 8, 10, 0.6);
-  color: var(--ink);
-  font: 400 10px/1 ${({ theme }) => theme.fonts.mono};
+  color: #f2eee6;
+  font: 400 16px/1 ${({ theme }) => theme.fonts.mono};
   letter-spacing: 0.14em;
   cursor: pointer;
   transition: border-color 180ms ease;
@@ -227,6 +243,8 @@ export const ControlButton = styled.button`
   &:hover,
   &:focus-visible {
     border-color: var(--ink);
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
   }
 `;
 
@@ -280,7 +298,7 @@ export const Time = styled.span`
 `;
 
 export const Body = styled.section`
-  padding: clamp(90px, 12vw, 180px) ${({ theme }) => theme.space.gutter};
+  padding: 0 ${({ theme }) => theme.space.gutter} 48px;
   ${({ theme }) => theme.media.mobile} {
     padding-inline: 20px;
   }
@@ -315,7 +333,7 @@ export const Sections = styled.div`
   display: grid;
   [data-layout='editorial'] & {
     width: min(100%, 1280px);
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 40px;
     @media (max-width: 860px) {
       grid-template-columns: 1fr;
@@ -327,7 +345,9 @@ export const Section = styled.section`
   display: grid;
   grid-template-columns: minmax(180px, 0.42fr) minmax(0, 1fr);
   gap: 36px;
-  padding: clamp(42px, 7vw, 84px) 0;
+  min-height: 100svh;
+  align-content: center;
+  padding: 108px 0 48px;
   border-top: 1px solid var(--line);
   [data-layout='editorial'] & {
     display: block;
@@ -365,8 +385,12 @@ export const Section = styled.section`
 `;
 
 export const Outcome = styled.div`
+  scroll-margin-top: 108px;
   width: min(100%, 1120px);
-  margin: 48px auto 0;
+  min-height: calc(100svh - 108px);
+  display: grid;
+  align-content: center;
+  margin: 0 auto;
   padding: clamp(36px, 6vw, 76px);
   /* The one inverted block on the page. Written from the surface tokens so it
      flips with the ground instead of being a hardcoded light panel that turns
@@ -398,6 +422,8 @@ export const Outcome = styled.div`
 `;
 
 export const Nav = styled.nav`
+  scroll-margin-top: 108px;
+  min-height: calc(100svh - 108px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border-top: 1px solid var(--line);

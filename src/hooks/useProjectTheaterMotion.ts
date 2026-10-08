@@ -17,13 +17,16 @@ import { useReducedMotion } from './useReducedMotion';
 export function useProjectTheaterMotion(
   sectionRef: RefObject<HTMLElement>,
   setActive: (index: number) => void,
+  contentFits = true,
 ): void {
   const reduced = useReducedMotion();
   const viewportMatches = useMediaQuery(PROJECT_THEATER_MEDIA_QUERY);
-  const theaterEnabled = canEnhanceProjectTheater({
-    viewportMatches,
-    reducedMotion: reduced,
-  });
+  const theaterEnabled =
+    contentFits &&
+    canEnhanceProjectTheater({
+      viewportMatches,
+      reducedMotion: reduced,
+    });
   useLayoutEffect(() => {
     const section = sectionRef.current;
     const run = section?.querySelector<HTMLElement>('[data-theater-run]');
