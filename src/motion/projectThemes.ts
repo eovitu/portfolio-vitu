@@ -1,7 +1,7 @@
 import type { ProjectSlug } from '../lib/content.ts';
 
 /**
- * One system, three expressions.
+ * One system, four expressions.
  *
  * Everything that makes a project look and move like itself is declared here
  * and nowhere else: the surface it lives on, the ink that reads on that
@@ -74,6 +74,36 @@ export const PROJECT_THEMES: Record<ProjectSlug, CaseTheme> = {
     mediaDepth: 0.36,
     temperature: 0.68,
   },
+  'torneio-pebolim': {
+    surface: '#102820',
+    ink: DEFAULT_INK,
+    accent: '#F4A261',
+    easing: 'power3.out',
+    layout: 'flow',
+    showcase: '#F4A261',
+    showcaseInk: '#102820',
+    dust: '#C9A272',
+    particleSpread: 0.9,
+    orbitOrder: 2,
+    mediaDepth: 0.34,
+    temperature: 0.58,
+  },
+  helppet: {
+    surface: DEFAULT_SURFACE,
+    ink: DEFAULT_INK,
+    // 10.59:1 on the dark surface.
+    accent: '#4FD48A',
+    // Springy and short.
+    easing: 'back.out(1.6)',
+    layout: 'organic',
+    showcase: '#C5EDAD',
+    showcaseInk: '#193825',
+    dust: '#9BD6A2',
+    particleSpread: 1.1,
+    orbitOrder: 3,
+    mediaDepth: 0.44,
+    temperature: 0.32,
+  },
   'doces-da-pati': {
     /*
      * The only light case, and deliberately so: terracotta and cacao are
@@ -92,24 +122,8 @@ export const PROJECT_THEMES: Record<ProjectSlug, CaseTheme> = {
     showcaseInk: '#3B2318',
     dust: '#D2A2BC',
     particleSpread: 0.72,
-    orbitOrder: 2,
+    orbitOrder: 4,
     mediaDepth: 0.22,
     temperature: 0.54,
-  },
-  helppet: {
-    surface: DEFAULT_SURFACE,
-    ink: DEFAULT_INK,
-    // 10.59:1 on the dark surface.
-    accent: '#4FD48A',
-    // Springy and short.
-    easing: 'back.out(1.6)',
-    layout: 'organic',
-    showcase: '#C5EDAD',
-    showcaseInk: '#193825',
-    dust: '#9BD6A2',
-    particleSpread: 1.1,
-    orbitOrder: 3,
-    mediaDepth: 0.44,
-    temperature: 0.32,
   },
 };

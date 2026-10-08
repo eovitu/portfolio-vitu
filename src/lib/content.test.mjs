@@ -12,7 +12,7 @@ test('serves complete English and Portuguese interface copy', () => {
 
   assert.equal(english.nav.links[0].label, 'WORK');
   assert.equal(portuguese.nav.links[0].label, 'PROJETOS');
-  assert.equal(portuguese.ui.home.hero.title, 'Código com pulso humano.');
+  assert.equal(portuguese.ui.home.hero.title, 'VITU Dev Backend');
   assert.equal(portuguese.projects.length, english.projects.length);
   assert.deepEqual(
     portuguese.projects.map((project) => project.slug),
@@ -43,10 +43,10 @@ test('publishes localized footer contact links', () => {
   assert.deepEqual(portuguese.links, english.links);
 });
 
-test('publishes exactly three complete, uniquely addressed cases', () => {
+test('publishes exactly four complete, uniquely addressed cases', () => {
   assert.deepEqual(
     projects.map((project) => project.slug),
-    ['emprega-co', 'doces-da-pati', 'helppet'],
+    ['emprega-co', 'torneio-pebolim', 'helppet', 'doces-da-pati'],
   );
   for (const project of projects) {
     assert.ok(project.summary.length > 30);
@@ -58,8 +58,8 @@ test('publishes exactly three complete, uniquely addressed cases', () => {
 
 test('describes the final project films and their real poster fallbacks', () => {
   for (const project of projects) {
-    assert.equal(project.media.width, 1280);
-    assert.equal(project.media.height, 720);
+    assert.equal(project.media.width, 1920);
+    assert.equal(project.media.height, 1080);
     assert.equal(project.media.width / project.media.height, 16 / 9);
     assert.ok(
       existsSync(new URL(`../../public${project.media.poster}`, import.meta.url)),
@@ -77,24 +77,24 @@ test('does not expose placeholder links', () => {
   }
 });
 
-test('publishes source access only for HelpPet', () => {
+test('publishes direct gateway source without inventing a client repository', () => {
   const doces = projects.find((project) => project.slug === 'doces-da-pati');
   const helppet = projects.find((project) => project.slug === 'helppet');
 
   assert.equal(
-    doces.actions.some((action) => action.label === 'View Source'),
+    doces.actions.some((action) => action.label === 'View gateway source'),
     false,
   );
   assert.deepEqual(
-    helppet.actions.find((action) => action.label === 'View Source'),
+    helppet.actions.find((action) => action.label === 'View gateway source'),
     {
-      label: 'View Source',
-      href: 'https://github.com/orgs/HelpPetSENAI/repositories',
+      label: 'View gateway source',
+      href: 'https://github.com/HelpPetSENAI/gateway-help-pet-g8',
     },
   );
 });
 
-test('presents Doces da Pati as a production commerce system', () => {
+test('describes the client catalogue, administration and deliberate WhatsApp handoff', () => {
   const english = content.contentFor('en');
   const portuguese = content.contentFor('pt');
   const doces = english.projects.find((project) => project.slug === 'doces-da-pati');
@@ -112,12 +112,12 @@ test('presents Doces da Pati as a production commerce system', () => {
   }
   assert.match(doces.role, /FRONT-END/);
   assert.match(doces.tech, /FIREBASE/);
-  assert.match(docesPt.outcome, /custo (?:de infraestrutura )?zero|R\$ 0/i);
+  assert.match(docesPt.outcome, /Planos gratuitos.*cotas/i);
   assert.equal(english.ui.commerce.steps.length, 4);
   assert.equal(portuguese.ui.commerce.steps.length, 4);
 });
 
-test('presents HelpPet gateway engineering alongside interface work', () => {
+test('describes gateway engineering and the recreated presentation honestly', () => {
   for (const locale of ['en', 'pt']) {
     const localized = content.contentFor(locale);
     const helppet = localized.projects.find((project) => project.slug === 'helppet');
@@ -136,6 +136,6 @@ test('presents HelpPet gateway engineering alongside interface work', () => {
     assert.match(published, /JWT/);
     assert.match(published, /health/i);
     assert.match(published, /gateway/i);
-    assert.match(published, /interface|UI\/UX/i);
+    assert.match(published, /recreated screens|telas recriadas/i);
   }
 });

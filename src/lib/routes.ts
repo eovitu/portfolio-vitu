@@ -12,7 +12,7 @@ export type Route =
   | { kind: 'case'; slug: ProjectSlug }
   | { kind: 'notFound'; path: string };
 
-const CASE_PATH = /^\/work\/(emprega-co|doces-da-pati|helppet)$/;
+const CASE_PATH = /^\/work\/(emprega-co|torneio-pebolim|helppet|doces-da-pati)$/;
 
 export function isPublicPath(pathname: string): boolean {
   const normalized = pathname !== '/' ? pathname.replace(/\/+$/, '') : pathname;

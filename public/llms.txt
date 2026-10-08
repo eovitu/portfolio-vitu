@@ -1,6 +1,6 @@
 # Victor Hugo, Portfolio
 
-> Personal portfolio for Victor Hugo, a backend developer and product engineer based in São Paulo.
+> Personal portfolio for Victor Hugo, a backend developer based in São Paulo.
 
 ## Canonical site
 
@@ -12,6 +12,7 @@
 
 - Homepage: https://eovitu.com.br/
 - Emprega.co case study: https://eovitu.com.br/work/emprega-co
+- Torneio Pebolim case study: https://eovitu.com.br/work/torneio-pebolim
 - Doces da Pati case study: https://eovitu.com.br/work/doces-da-pati
 - HelpPet case study: https://eovitu.com.br/work/helppet
 

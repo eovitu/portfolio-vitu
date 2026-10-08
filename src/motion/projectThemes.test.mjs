@@ -3,8 +3,13 @@ import test from 'node:test';
 import { PROJECT_THEMES } from './projectThemes.ts';
 
 test('defines a distinct complete theme for every project', () => {
-  assert.deepEqual(Object.keys(PROJECT_THEMES), ['emprega-co', 'doces-da-pati', 'helppet']);
-  assert.equal(new Set(Object.values(PROJECT_THEMES).map((theme) => theme.accent)).size, 3);
+  assert.deepEqual(Object.keys(PROJECT_THEMES), [
+    'emprega-co',
+    'torneio-pebolim',
+    'helppet',
+    'doces-da-pati',
+  ]);
+  assert.equal(new Set(Object.values(PROJECT_THEMES).map((theme) => theme.accent)).size, 4);
   for (const theme of Object.values(PROJECT_THEMES)) {
     assert.equal(typeof theme.dust, 'string');
     assert.equal(Number.isFinite(theme.particleSpread), true);
