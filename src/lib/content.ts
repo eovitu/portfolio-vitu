@@ -581,8 +581,8 @@ const sharedUiEn = {
         ],
         [
           'Data',
-          'PostgreSQL and Flyway in Emprega.co. MySQL in spring-ecommerce-api; MongoDB in marketplace-digital.',
-          'PostgreSQL · Flyway · MySQL · MongoDB',
+          'PostgreSQL and Flyway in Emprega.co and spring-ecommerce-api; MongoDB in marketplace-digital.',
+          'PostgreSQL · Flyway · SQL · MongoDB',
         ],
         [
           'Tests and delivery',
@@ -766,8 +766,8 @@ const sharedUiPt: SiteUi = {
         ],
         [
           'Dados',
-          'PostgreSQL e Flyway no Emprega.co. MySQL no spring-ecommerce-api; MongoDB no marketplace-digital.',
-          'PostgreSQL · Flyway · MySQL · MongoDB',
+          'PostgreSQL e Flyway no Emprega.co e no spring-ecommerce-api; MongoDB no marketplace-digital.',
+          'PostgreSQL · Flyway · SQL · MongoDB',
         ],
         [
           'Testes e entrega',
