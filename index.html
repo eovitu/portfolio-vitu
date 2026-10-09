@@ -15,6 +15,24 @@
         padding: 0;
         background: #000;
       }
+      #entry-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 115;
+        pointer-events: none;
+        background: #08080a;
+        animation: entry-cover-expire 0s 1.5s forwards;
+      }
+      @keyframes entry-cover-expire {
+        to {
+          visibility: hidden;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #entry-cover {
+          display: none;
+        }
+      }
     </style>
 
     <title>eovitu | Victor Hugo Araujo, desenvolvedor back-end Java</title>
@@ -98,6 +116,7 @@
     </style>
   </head>
   <body>
+    <div id="entry-cover" aria-hidden="true"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

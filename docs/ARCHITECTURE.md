@@ -27,6 +27,8 @@ The Latin WOFF2 fonts are hosted in public/fonts: Archivo at weights 400 and 500
 
 The provider briefly holds wheel/touch at measured color edges. Flow edges align with the viewport bottom on forward travel and its top on backward travel. Enhanced theater switches instead use the `top top` / `bottom bottom` progress bands and a half-pixel margin on the current color side. The first and last theater edges remain ordinary flow edges. Contact, footer and whole-page wrappers are not markers; offsets outside the real Lenis scroll range are discarded. A new gesture after 180 ms releases a hold; explicit navigation and native zoom cancel it.
 
+The static document includes an initial decorative cover outside the hydration root. CSS hides it after 1.5 seconds even without JavaScript; reduced motion hides it immediately. The entry layer takes over in its layout effect. If the CSS fallback has already expired when the runtime arrives, the director keeps the readable static composition instead of covering it again.
+
 All essential content remains visible under `prefers-reduced-motion: reduce`. WebGL animation and color holds are disabled there rather than merely slowed down.
 
 ## Case studies and media

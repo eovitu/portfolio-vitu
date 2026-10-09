@@ -24,6 +24,8 @@ for (const file of [
   );
   assert.match(html, /<html lang="pt-BR"/, `${file}: Portuguese initial document`);
   assert.doesNotMatch(html, /data-entry-overlay/, `${file}: no opaque browser intro cover`);
+  assert.match(html, /id="entry-cover"/, `${file}: initial cover present`);
+  assert.match(html, /entry-cover-expire/, `${file}: CSS-only fallback present`);
   const schemas = [
     ...html.matchAll(/type="application\/ld\+json">([\s\S]*?)<\/script>/g),
   ].map((match) => JSON.parse(match[1]));
