@@ -40,8 +40,14 @@ for (const file of [
   }
 }
 const sitemap = await readFile(resolve(dist, 'sitemap.xml'), 'utf8');
-assert.equal([...sitemap.matchAll(/<loc>/g)].length, 4);
-assert.doesNotMatch(sitemap, /torneio-pebolim|404/);
-for (const path of ['/', '/work/emprega-co', '/work/doces-da-pati', '/work/helppet'])
+assert.equal([...sitemap.matchAll(/<loc>/g)].length, 5);
+assert.doesNotMatch(sitemap, /404/);
+for (const path of [
+  '/',
+  '/work/emprega-co',
+  '/work/doces-da-pati',
+  '/work/helppet',
+  '/work/torneio-pebolim',
+])
   assert.ok(sitemap.includes(`${SITE_ORIGIN}${path}</loc>`));
-console.log('Prerender: 6 documents and 4 verified-production sitemap URLs passed.');
+console.log('Prerender: 6 documents and 5 verified-production sitemap URLs passed.');

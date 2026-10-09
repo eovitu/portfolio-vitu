@@ -13,6 +13,7 @@ test('publishes canonical routes in a lean sitemap', () => {
     'https://www.eovitu.com.br/work/emprega-co',
     'https://www.eovitu.com.br/work/doces-da-pati',
     'https://www.eovitu.com.br/work/helppet',
+    'https://www.eovitu.com.br/work/torneio-pebolim',
   ];
 
   for (const route of canonicalRoutes) {
@@ -20,8 +21,8 @@ test('publishes canonical routes in a lean sitemap', () => {
   }
 
   assert.equal((sitemap.match(/<loc>/g) ?? []).length, canonicalRoutes.length);
-  assert.equal(publishedPaths.length, 4);
-  assert.doesNotMatch(sitemap, /404|not-found|nao-existe|torneio-pebolim/);
+  assert.equal(publishedPaths.length, 5);
+  assert.doesNotMatch(sitemap, /404|not-found|nao-existe/);
   assert.doesNotMatch(sitemap, /<lastmod>/);
   assert.doesNotMatch(sitemap, /<(?:priority|changefreq)>/);
 });
