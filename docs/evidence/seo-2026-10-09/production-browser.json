@@ -1,0 +1,132 @@
+[
+  {
+    "mode": "desktop",
+    "errors": [],
+    "failed": [
+      {
+        "url": "https://www.eovitu.com.br/media/emprega-co.mp4",
+        "error": "net::ERR_ABORTED"
+      }
+    ],
+    "lang": "pt-BR",
+    "h1": "Victor Hugo Araujo · eovitu · Desenvolvedor back-end\nVITU\nDev\nBackend",
+    "overflow": false,
+    "overlay": false,
+    "cover": false,
+    "videosPaused": true,
+    "fonts": [
+      {
+        "family": "Archivo",
+        "weight": "400 500",
+        "status": "loaded"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400",
+        "status": "loaded"
+      }
+    ],
+    "googleFonts": false,
+    "caseH1": "Emprega.co"
+  },
+  {
+    "mode": "mobile",
+    "errors": [],
+    "failed": [],
+    "lang": "pt-BR",
+    "h1": "Victor Hugo Araujo · eovitu · Desenvolvedor back-end\nVITU\nDev\nBackend",
+    "overflow": false,
+    "overlay": false,
+    "cover": false,
+    "videosPaused": true,
+    "fonts": [
+      {
+        "family": "Archivo",
+        "weight": "400 500",
+        "status": "loaded"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400",
+        "status": "loaded"
+      }
+    ],
+    "googleFonts": false,
+    "ENsaved": {
+      "lang": "en",
+      "saved": "en"
+    }
+  },
+  {
+    "mode": "reduced",
+    "errors": [],
+    "failed": [],
+    "lang": "pt-BR",
+    "h1": "Victor Hugo Araujo · eovitu · Desenvolvedor back-end\nVITU\nDev\nBackend",
+    "overflow": false,
+    "overlay": false,
+    "cover": false,
+    "videosPaused": true,
+    "fonts": [
+      {
+        "family": "Archivo",
+        "weight": "400 500",
+        "status": "loaded"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400",
+        "status": "loaded"
+      }
+    ],
+    "googleFonts": false
+  },
+  {
+    "mode": "saved-en",
+    "errors": [],
+    "failed": [],
+    "lang": "en",
+    "h1": "Victor Hugo Araujo · eovitu · Backend developer\nVITU\nDev\nBackend",
+    "overflow": false,
+    "overlay": false,
+    "cover": false,
+    "videosPaused": true,
+    "fonts": [
+      {
+        "family": "Archivo",
+        "weight": "400 500",
+        "status": "loaded"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400",
+        "status": "loaded"
+      }
+    ],
+    "googleFonts": false
+  },
+  {
+    "mode": "nojs",
+    "errors": [],
+    "failed": [],
+    "lang": "pt-BR",
+    "h1": "Victor Hugo Araujo · eovitu · Desenvolvedor back-end\nVITU\nDev\nBackend",
+    "overflow": false,
+    "overlay": false,
+    "cover": false,
+    "videosPaused": true,
+    "fonts": [
+      {
+        "family": "Archivo",
+        "weight": "400 500",
+        "status": "loaded"
+      },
+      {
+        "family": "JetBrains Mono",
+        "weight": "400",
+        "status": "loaded"
+      }
+    ],
+    "googleFonts": false
+  }
+]

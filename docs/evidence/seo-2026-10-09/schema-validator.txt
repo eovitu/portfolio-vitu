@@ -1,0 +1,177 @@
+Schema.org
+DocumentationSchemasValidateAbout
+	
+public
+https://www.eovitu.com.br/work/helppet
+Testar de novo
+language_japanese_kana
+info
+1
+<!doctype html>
+2
+<html lang="pt-BR">
+3
+  <head>
+4
+    <meta charset="UTF-8" />
+5
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+6
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+7
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+8
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
+9
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+10
+    <style>
+11
+      html,
+12
+      body {
+13
+        margin: 0;
+14
+        padding: 0;
+15
+        background: #000;
+16
+      }
+17
+    </style>
+18
+    <title>HelpPet | API Gateway Spring por Victor Hugo</title>
+19
+    <meta name="description" content="Case HelpPet: API Gateway reativo em Java e Spring Cloud, com autenticação JWT, rotas para microsserviços, resiliência e health checks agregados do sistema." />
+20
+    <meta name="theme-color" content="#08080A" />
+21
+    <meta name="author" content="Victor Hugo Araujo (Vitu, eovitu)" />
+22
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+23
+    <meta
+24
+      name="google-site-verification"
+25
+      content="OkT1hO5kPhsCp6MqJnKpXjNYbMIKQSmUIFZXUrp34Ks"
+26
+    />
+27
+    <meta property="og:type" content="article" />
+28
+    <meta property="og:title" content="HelpPet | API Gateway Spring por Victor Hugo" />
+29
+    <meta property="og:description" content="Case HelpPet: API Gateway reativo em Java e Spring Cloud, com autenticação JWT, rotas para microsserviços, resiliência e health checks agregados do sistema." />
+30
+    <meta property="og:image" content="https://www.eovitu.com.br/og.png" />
+31
+    <meta property="og:image:width" content="1200" />
+32
+    <meta property="og:image:height" content="630" />
+33
+    <meta property="og:image:alt" content="eovitu | Victor Hugo Araujo, desenvolvedor back-end Java" />
+34
+    <meta property="og:locale" content="pt_BR" />
+35
+    <meta property="og:url" content="https://www.eovitu.com.br/work/helppet" />
+36
+    <meta property="og:site_name" content="eovitu" />
+37
+    <link rel="canonical" href="https://www.eovitu.com.br/work/helppet" />
+38
+    <meta name="twitter:card" content="summary_large_image" />
+39
+    <meta name="twitter:title" content="HelpPet | API Gateway Spring por Victor Hugo" />
+40
+    <meta name="twitter:description" content="Case HelpPet: API Gateway reativo em Java e Spring Cloud, com autenticação JWT, rotas para microsserviços, resiliência e health checks agregados do sistema." />
+CreativeWork
+All (1)arrow_drop_down
+CreativeWork
+0 ERROS
+0 AVISOS
+expand_less
+@type	
+CreativeWork
+
+name	
+HelpPet
+
+headline	
+HelpPet | API Gateway Spring por Victor Hugo
+
+description	
+Case HelpPet: API Gateway reativo em Java e Spring Cloud, com autenticação JWT, rotas para microsserviços, resiliência e health checks agregados do sistema.
+
+url	
+https://www.eovitu.com.br/work/helppet
+
+image	
+https://www.eovitu.com.br/og.png
+
+inLanguage	
+pt-BR
+
+creator	
+
+@type	
+Person
+
+@id	
+https://www.eovitu.com.br/#person
+
+name	
+Victor Hugo Araujo
+
+alternateName	
+Vitu
+
+alternateName	
+eovitu
+
+alternateName	
+Victor Hugo
+
+jobTitle	
+Desenvolvedor back-end
+
+knowsAbout	
+Java
+
+knowsAbout	
+Spring Boot
+
+knowsAbout	
+PostgreSQL
+
+knowsAbout	
+REST APIs
+
+knowsAbout	
+React
+
+knowsAbout	
+TypeScript
+
+url	
+https://www.eovitu.com.br/
+
+email	
+mailto:eovitu7@gmail.com
+
+sameAs	
+https://github.com/eovitu
+
+sameAs	
+https://www.linkedin.com/in/eovitu/
+
+address	
+
+@type	
+PostalAddress
+
+addressLocality	
+São Paulo
+play_arrow
+VALIDAR

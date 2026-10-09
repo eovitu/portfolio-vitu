@@ -1,0 +1,488 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "sha256": "0000e6fc68f634142cacad4a792d78ae9dc31b0db881e8ebeeccba0e952373e4",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"8d0a4d6c473f0a64b73562f653735a8f\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": [
+      "Victor Hugo Araujo · eovitu · Desenvolvedor back-end V I T U D e v B a c k e n d"
+    ],
+    "title": "eovitu | Victor Hugo Araujo, desenvolvedor back-end Java",
+    "description": [
+      "Portfólio de Victor Hugo Araujo (Vitu, eovitu), desenvolvedor back-end em São Paulo. Projetos em Java, Spring Boot, PostgreSQL e interfaces que usam essas APIs."
+    ],
+    "canonical": ["https://www.eovitu.com.br/"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://www.eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": "https://www.eovitu.com.br/#person",
+        "name": "Victor Hugo Araujo",
+        "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+        "jobTitle": "Desenvolvedor back-end",
+        "knowsAbout": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL",
+          "REST APIs",
+          "React",
+          "TypeScript"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "São Paulo"
+        },
+        "url": "https://www.eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://www.eovitu.com.br/#website",
+        "name": "eovitu",
+        "alternateName": ["Vitu", "Portfólio de Victor Hugo Araujo"],
+        "url": "https://www.eovitu.com.br/"
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/emprega-co",
+    "status": 200,
+    "sha256": "06ac3d699fa2a94f8463720203f086bed815a5b7cfd986fa6b8e91a9b87403b1",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"ce8c110a5e8f410a1b7716d775fd0c5b\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": ["Emprega.co"],
+    "title": "Emprega.co | Plataforma de empregos por Victor Hugo",
+    "description": [
+      "Emprega.co: contribuição voluntária em APIs Java/Spring, regras de candidatura no PostgreSQL e aplicativo React Native. Pagamentos em ambiente de teste."
+    ],
+    "canonical": ["https://www.eovitu.com.br/work/emprega-co"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://www.eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": "https://www.eovitu.com.br/#person",
+        "name": "Victor Hugo Araujo",
+        "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+        "jobTitle": "Desenvolvedor back-end",
+        "knowsAbout": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL",
+          "REST APIs",
+          "React",
+          "TypeScript"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "São Paulo"
+        },
+        "url": "https://www.eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "Emprega.co",
+        "headline": "Emprega.co | Plataforma de empregos por Victor Hugo",
+        "description": "Emprega.co: contribuição voluntária em APIs Java/Spring, regras de candidatura no PostgreSQL e aplicativo React Native. Pagamentos em ambiente de teste.",
+        "url": "https://www.eovitu.com.br/work/emprega-co",
+        "image": "https://www.eovitu.com.br/og.png",
+        "inLanguage": "pt-BR",
+        "creator": {
+          "@type": "Person",
+          "@id": "https://www.eovitu.com.br/#person",
+          "name": "Victor Hugo Araujo",
+          "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+          "url": "https://www.eovitu.com.br/"
+        }
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/helppet",
+    "status": 200,
+    "sha256": "eeb3a5e7bd843286c9eca19162b7d1fe76c45550a71e45a5c8d92f78ed147dec",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"d23e058a92b6ebaaf000c9b21e3c58ea\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": ["HelpPet"],
+    "title": "HelpPet | API Gateway Spring por Victor Hugo",
+    "description": [
+      "Case HelpPet: API Gateway reativo em Java e Spring Cloud, com autenticação JWT, rotas para microsserviços, resiliência e health checks agregados do sistema."
+    ],
+    "canonical": ["https://www.eovitu.com.br/work/helppet"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://www.eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": "https://www.eovitu.com.br/#person",
+        "name": "Victor Hugo Araujo",
+        "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+        "jobTitle": "Desenvolvedor back-end",
+        "knowsAbout": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL",
+          "REST APIs",
+          "React",
+          "TypeScript"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "São Paulo"
+        },
+        "url": "https://www.eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "HelpPet",
+        "headline": "HelpPet | API Gateway Spring por Victor Hugo",
+        "description": "Case HelpPet: API Gateway reativo em Java e Spring Cloud, com autenticação JWT, rotas para microsserviços, resiliência e health checks agregados do sistema.",
+        "url": "https://www.eovitu.com.br/work/helppet",
+        "image": "https://www.eovitu.com.br/og.png",
+        "inLanguage": "pt-BR",
+        "creator": {
+          "@type": "Person",
+          "@id": "https://www.eovitu.com.br/#person",
+          "name": "Victor Hugo Araujo",
+          "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+          "url": "https://www.eovitu.com.br/"
+        }
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/doces-da-pati",
+    "status": 200,
+    "sha256": "dd8f577cf7e29890acc072b2e03baac9d0e3f404a1dd3f3dd38461a188281293",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"5ff741fe08b2367b24632fcf34cc7ea8\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": ["Doces da Pati"],
+    "title": "Doces da Pati | Catálogo Firebase por Victor Hugo",
+    "description": [
+      "Case da Doces da Pati: catálogo mobile, carrinho que prepara mensagem de WhatsApp, administração Firebase, regras de acesso, SEO e analytics com consentimento GA4."
+    ],
+    "canonical": ["https://www.eovitu.com.br/work/doces-da-pati"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://www.eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": "https://www.eovitu.com.br/#person",
+        "name": "Victor Hugo Araujo",
+        "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+        "jobTitle": "Desenvolvedor back-end",
+        "knowsAbout": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL",
+          "REST APIs",
+          "React",
+          "TypeScript"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "São Paulo"
+        },
+        "url": "https://www.eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "Doces da Pati",
+        "headline": "Doces da Pati | Catálogo Firebase por Victor Hugo",
+        "description": "Case da Doces da Pati: catálogo mobile, carrinho que prepara mensagem de WhatsApp, administração Firebase, regras de acesso, SEO e analytics com consentimento GA4.",
+        "url": "https://www.eovitu.com.br/work/doces-da-pati",
+        "image": "https://www.eovitu.com.br/og.png",
+        "inLanguage": "pt-BR",
+        "creator": {
+          "@type": "Person",
+          "@id": "https://www.eovitu.com.br/#person",
+          "name": "Victor Hugo Araujo",
+          "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+          "url": "https://www.eovitu.com.br/"
+        }
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/torneio-pebolim",
+    "status": 200,
+    "sha256": "7c5c5845f786dcee4575f97288f263618a2ebfc10d9785cfe3ea14955571b69f",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"a7db2b19685ac74c3ff680da6c29b6b7\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": ["Torneio Pebolim"],
+    "title": "Torneio Pebolim | Domínio de torneios, Victor Hugo",
+    "description": [
+      "Projeto pessoal de torneios com placar derivado de eventos, classificação, chaves, PostgreSQL, Supabase RLS e Realtime. Snapshot de testes: 8 de outubro de 2026."
+    ],
+    "canonical": ["https://www.eovitu.com.br/work/torneio-pebolim"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://www.eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": "https://www.eovitu.com.br/#person",
+        "name": "Victor Hugo Araujo",
+        "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+        "jobTitle": "Desenvolvedor back-end",
+        "knowsAbout": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL",
+          "REST APIs",
+          "React",
+          "TypeScript"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "São Paulo"
+        },
+        "url": "https://www.eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "Torneio Pebolim",
+        "headline": "Torneio Pebolim | Domínio de torneios, Victor Hugo",
+        "description": "Projeto pessoal de torneios com placar derivado de eventos, classificação, chaves, PostgreSQL, Supabase RLS e Realtime. Snapshot de testes: 8 de outubro de 2026.",
+        "url": "https://www.eovitu.com.br/work/torneio-pebolim",
+        "image": "https://www.eovitu.com.br/og.png",
+        "inLanguage": "pt-BR",
+        "creator": {
+          "@type": "Person",
+          "@id": "https://www.eovitu.com.br/#person",
+          "name": "Victor Hugo Araujo",
+          "alternateName": ["Vitu", "eovitu", "Victor Hugo"],
+          "url": "https://www.eovitu.com.br/"
+        }
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/auditoria-rota-inexistente",
+    "status": 404,
+    "sha256": "565cd4222bf59d67c48dc2c07b884191778ccb2c8b68f3ab391c4b777241e003",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"37694a473ab757bfc075c1aecabb6d9a\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": ["Página não encontrada."],
+    "title": "Página não encontrada | eovitu, Victor Hugo Araujo",
+    "description": ["Este endereço não existe. Volte aos projetos selecionados."],
+    "canonical": ["https://www.eovitu.com.br/"],
+    "robots": ["noindex, follow"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://www.eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [],
+    "cover": false
+  },
+  {
+    "path": "/robots.txt",
+    "status": 200,
+    "sha256": "db3fcab0e0987f22e37de8b0418dbe52d40bbf06a5631220395097b869e7c031",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/plain; charset=utf-8",
+      "Etag: \"590fa9d8e41ed098191524202c1ceda8\"",
+      "X-Vercel-Cache: MISS"
+    ]
+  },
+  {
+    "path": "/sitemap.xml",
+    "status": 200,
+    "sha256": "d6068acb309c3d111ba2846c143d7f031b40ec1c275da370c5f0eb7b1c936d03",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: application/xml",
+      "Etag: \"f512e566cf5b90b0df867e1b66c9da21\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "urls": [
+      "https://www.eovitu.com.br/",
+      "https://www.eovitu.com.br/work/emprega-co",
+      "https://www.eovitu.com.br/work/doces-da-pati",
+      "https://www.eovitu.com.br/work/helppet",
+      "https://www.eovitu.com.br/work/torneio-pebolim"
+    ]
+  },
+  {
+    "path": "/_vercel/insights/script.js",
+    "status": 200,
+    "sha256": "b1fa9fc8104da15958badc63bbebe46eeea4d9ce88e587d7732b2c4f4238d8af",
+    "headers": [
+      "Age: 12395",
+      "Cache-Control: public, max-age=2678400",
+      "Content-Type: application/javascript; charset=utf-8",
+      "Etag: \"6be0c422f96c4b51cca8f8aa30aa2498\"",
+      "X-Vercel-Cache: HIT"
+    ]
+  },
+  {
+    "path": "/fonts/archivo-latin.woff2",
+    "status": 200,
+    "sha256": "8f704806dbedeaaeca334b11ec348bc3ac3a439d6431544b3afb54f534ee4967",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: font/woff2",
+      "Etag: \"cd56e2ec63d7a63df092f824f981253c\"",
+      "X-Vercel-Cache: MISS"
+    ]
+  },
+  {
+    "path": "/fonts/jetbrains-mono-latin.woff2",
+    "status": 200,
+    "sha256": "14425ba9c695763c1547f48a206b7aa60350a33ae23de09f0407877f3fcd89eb",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: font/woff2",
+      "Etag: \"caf0dfde4e448468f09b7bed230206a4\"",
+      "X-Vercel-Cache: MISS"
+    ]
+  },
+  {
+    "path": "/og.png",
+    "status": 200,
+    "sha256": "beea0d3df521b41e1515839cee9dbec61ae6fcdf523599494be3532393e38ee2",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: image/png",
+      "Etag: \"8b45c32b43efaa9924dd012446dfa2e3\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "dimensions": [1200, 630]
+  }
+]
