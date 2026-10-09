@@ -274,7 +274,7 @@ export const footer = {
     },
   ],
   items: [
-    '© 2026, VICTOR HUGO',
+    '© 2026, VICTOR HUGO ARAUJO · EOVITU',
     'SÃO PAULO · BACKEND DEVELOPMENT',
     'JAVA · SPRING BOOT · POSTGRESQL',
   ],
@@ -550,7 +550,7 @@ const sharedUiEn = {
   talkToMe: 'Talk to me',
   home: {
     hero: {
-      title: 'VITU Dev Backend',
+      title: 'Victor Hugo Araujo · eovitu · Backend developer',
       lines: ['VITU', 'Dev', 'Backend'],
       note: 'Java · Spring Boot · PostgreSQL',
       kicker: 'Backend developer in São Paulo',
@@ -600,7 +600,7 @@ const sharedUiEn = {
       kicker: 'About',
       title: ['Victor Hugo.', 'Backend developer.'],
       body: [
-        'I’m Victor Hugo, a backend developer in São Paulo. I work with Java, Spring Boot and PostgreSQL, as well as the interfaces that use those APIs. The cases describe my contribution and the technical decisions involved.',
+        'I’m Victor Hugo Araujo, also known as Vitu or eovitu, a backend developer in São Paulo. I work with Java, Spring Boot and PostgreSQL, as well as the interfaces that use those APIs. The cases describe my contribution and the technical decisions involved.',
         'I’m looking for backend and software development opportunities. I’m studying Systems Development at SENAI Suíço-Brasileira, with completion expected in December 2026. English B1; AWS fundamentals coursework. Reach me through email, LinkedIn or GitHub.',
       ],
       imageAlt: 'Victor Hugo as a child at a playground',
@@ -735,7 +735,7 @@ const sharedUiPt: SiteUi = {
   talkToMe: 'Fale comigo',
   home: {
     hero: {
-      title: 'VITU Dev Backend',
+      title: 'Victor Hugo Araujo · eovitu · Desenvolvedor back-end',
       lines: ['VITU', 'Dev', 'Backend'],
       note: 'Java · Spring Boot · PostgreSQL',
       kicker: 'Desenvolvedor backend em São Paulo',
@@ -785,7 +785,7 @@ const sharedUiPt: SiteUi = {
       kicker: 'Sobre',
       title: ['Victor Hugo.', 'Desenvolvedor backend.'],
       body: [
-        'Sou Victor Hugo, desenvolvedor backend em São Paulo. Trabalho com Java, Spring Boot e PostgreSQL e também com as interfaces que usam essas APIs. Os cases mostram minha contribuição e as decisões técnicas envolvidas.',
+        'Sou Victor Hugo Araujo, também conhecido como Vitu ou eovitu, desenvolvedor back-end em São Paulo. Trabalho com Java, Spring Boot e PostgreSQL e também com as interfaces que usam essas APIs. Os cases mostram minha contribuição e as decisões técnicas envolvidas.',
         'Busco oportunidades de backend e desenvolvimento de software. Formação técnica em Desenvolvimento de Sistemas no SENAI Suíço-Brasileira, com conclusão prevista para dezembro de 2026. Inglês B1 e curso de fundamentos AWS. Para conversar, use e-mail, LinkedIn ou GitHub.',
       ],
       imageAlt: 'Victor Hugo criança em um parquinho',
@@ -936,7 +936,7 @@ const contentByLocale: Record<Locale, SiteContent> = {
         },
       ],
       items: [
-        '© 2026, VICTOR HUGO',
+        '© 2026, VICTOR HUGO ARAUJO · EOVITU',
         'SÃO PAULO · DESENVOLVIMENTO BACKEND',
         'JAVA · SPRING BOOT · POSTGRESQL',
       ],

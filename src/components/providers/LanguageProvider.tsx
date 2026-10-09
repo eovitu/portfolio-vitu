@@ -22,9 +22,9 @@ const LanguageContext = createContext<LanguageApi | null>(null);
 
 function storedLocale(): Locale {
   try {
-    return parseLocale(window.localStorage.getItem(STORAGE_KEY)) ?? 'en';
+    return parseLocale(window.localStorage.getItem(STORAGE_KEY)) ?? 'pt';
   } catch {
-    return 'en';
+    return 'pt';
   }
 }
 
@@ -34,8 +34,14 @@ export function useLanguage(): LanguageApi {
   return value;
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, updateLocale] = useState<Locale>(storedLocale);
+export function LanguageProvider({
+  children,
+  initialLocale,
+}: {
+  children: ReactNode;
+  initialLocale?: Locale;
+}) {
+  const [locale, updateLocale] = useState<Locale>(() => initialLocale ?? storedLocale());
 
   const setLocale = useCallback((nextLocale: Locale) => {
     updateLocale(nextLocale);

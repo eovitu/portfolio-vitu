@@ -170,9 +170,17 @@ function focusRouteTarget(route: Route, hash: string, projectSlug?: ProjectSlug)
   target.focus({ preventScroll: true });
 }
 
-export function RouteTransitionProvider({ children }: { children: ReactNode }) {
+export function RouteTransitionProvider({
+  children,
+  initialRoute,
+}: {
+  children: ReactNode;
+  initialRoute?: Route;
+}) {
   const { locale } = useLanguage();
-  const [route, setRoute] = useState<Route>(() => resolveRoute(window.location.pathname));
+  const [route, setRoute] = useState<Route>(
+    () => initialRoute ?? resolveRoute(window.location.pathname),
+  );
   const [phase, setPhase] = useState<TransitionPhase>('idle');
   const routeRef = useRef(route);
   const overlayRef = useRef<HTMLDivElement>(null);

@@ -104,6 +104,15 @@ export const HeroTitle = styled.h1`
   }
 `;
 
+export const HeroIdentity = styled.span`
+  display: block;
+  max-width: 48ch;
+  margin-bottom: 20px;
+  color: ${({ theme }) => theme.colors.textMuted};
+  font: 400 13px/1.5 ${({ theme }) => theme.fonts.mono};
+  letter-spacing: 0;
+`;
+
 export const HeroLines = styled.span`
   display: block;
 `;

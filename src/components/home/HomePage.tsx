@@ -19,14 +19,6 @@ import { useEditorialMotion } from '../../hooks/useEditorialMotion';
 import * as S from './HomePage.styles';
 import { useLanguage } from '../providers/LanguageProvider';
 
-/**
- * The heading, twice.
- *
- * `HERO_TITLE_TEXT` is what a screen reader announces: one intact string, in a
- * visually hidden span. The split below it is decoration and is `aria-hidden`,
- * because a heading spelled out one glyph per element is announced one glyph at
- * a time. The two must stay in sync, they are the same sentence.
- */
 const capabilities = [
   {
     icon: Code,
@@ -93,7 +85,7 @@ export function HomePage() {
     <>
       <S.Hero id="top" ref={heroRef} aria-labelledby="hero-title" data-gravity-section>
         <S.HeroNote href="#about">
-          Victor Hugo
+          Victor Hugo Araujo
           <span>
             {home.hero.note} <ArrowDownRight aria-hidden="true" weight="regular" />
           </span>
@@ -119,7 +111,7 @@ export function HomePage() {
             {/* `id`, `data-route-heading` and `tabIndex` are the route
                 transition director's focus target. They stay. */}
             <S.HeroTitle id="hero-title" data-route-heading tabIndex={-1}>
-              <span className="visually-hidden">{home.hero.title}</span>
+              <S.HeroIdentity>{home.hero.title}</S.HeroIdentity>
               <S.HeroLines aria-hidden="true">
                 {home.hero.lines.map((word) => (
                   <S.HeroWord key={word} data-hero-word $long={word.length > 13}>

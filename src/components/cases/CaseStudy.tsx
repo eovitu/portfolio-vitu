@@ -1,5 +1,5 @@
 import type { Project } from '../../lib/content';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ComponentType } from 'react';
 import { ArrowLeft, ArrowUpRight } from '@phosphor-icons/react';
 import { PROJECT_THEMES } from '../../motion/projectThemes';
 import { useRouteScrollRefresh } from '../../hooks/useRouteScrollRefresh';
@@ -12,7 +12,34 @@ const EmploymentJourney = lazy(() => import('./EmploymentJourney'));
 const CommerceStory = lazy(() => import('./CommerceStory'));
 const IntegrationStory = lazy(() => import('./IntegrationStory'));
 
-export function CaseStudy({ project }: { project: Project }) {
+/** Load only the direct-entry story before replacing the prerendered document. */
+// eslint-disable-next-line react-refresh/only-export-components -- direct-entry bootstrap prepares this component boundary
+export async function prepareCaseStudy(slug: Project['slug']) {
+  const Story =
+    slug === 'emprega-co'
+      ? (await import('./EmploymentJourney')).default
+      : slug === 'doces-da-pati'
+        ? (await import('./CommerceStory')).default
+        : slug === 'helppet'
+          ? (await import('./IntegrationStory')).default
+          : undefined;
+  return function PreparedCaseStudy({ project }: { project: Project }) {
+    return (
+      <CaseStudy
+        project={project}
+        initialStory={project.slug === slug ? Story : undefined}
+      />
+    );
+  };
+}
+
+export function CaseStudy({
+  project,
+  initialStory: InitialStory,
+}: {
+  project: Project;
+  initialStory?: ComponentType;
+}) {
   const { content } = useLanguage();
   const { projects } = content;
   const copy = content.ui.caseStudy;
@@ -75,9 +102,15 @@ export function CaseStudy({ project }: { project: Project }) {
       </S.MediaStage>
 
       <Suspense fallback={<S.Loading role="status">{copy.loading}</S.Loading>}>
-        {project.slug === 'emprega-co' ? <EmploymentJourney /> : null}
-        {project.slug === 'doces-da-pati' ? <CommerceStory /> : null}
-        {project.slug === 'helppet' ? <IntegrationStory /> : null}
+        {InitialStory ? (
+          <InitialStory />
+        ) : (
+          <>
+            {project.slug === 'emprega-co' ? <EmploymentJourney /> : null}
+            {project.slug === 'doces-da-pati' ? <CommerceStory /> : null}
+            {project.slug === 'helppet' ? <IntegrationStory /> : null}
+          </>
+        )}
       </Suspense>
 
       <S.Body data-gravity-section>

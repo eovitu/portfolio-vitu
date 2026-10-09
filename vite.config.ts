@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  ssr: { noExternal: ['gsap', '@phosphor-icons/react', 'styled-components', 'motion'] },
   build: {
     target: 'es2020',
     rollupOptions: {

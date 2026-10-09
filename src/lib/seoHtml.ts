@@ -38,7 +38,7 @@ function jsonLd(id: string, value: object): string {
   return `<script id="${id}" type="application/ld+json">${json}</script>`;
 }
 
-export function renderSeoHtml(shell: string, route: Route, locale: Locale = 'en'): string {
+export function renderSeoHtml(shell: string, route: Route, locale: Locale = 'pt'): string {
   const page = metadataFor(route, locale);
   let html = shell
     .replace(/<html\s+lang="[^"]*"/i, `<html lang="${page.lang}"`)

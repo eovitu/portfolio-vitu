@@ -121,6 +121,7 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
     return () => window.cancelAnimationFrame(frame);
   }, [messages, open, pending, reducedMotion]);
 
+  if (typeof document === 'undefined') return null;
   return (
     <>
       {createPortal(
@@ -203,7 +204,10 @@ export function ConversationHub({ open, onClose, triggerRef }: Props) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: [0.35, 1, 0.35] }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: reducedMotion ? 0 : 0.8, repeat: Infinity }}
+                        transition={{
+                          duration: reducedMotion ? 0 : 0.8,
+                          repeat: Infinity,
+                        }}
                       >
                         {ui.conversation.receiving}
                       </S.Typing>
