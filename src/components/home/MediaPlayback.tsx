@@ -21,7 +21,7 @@ export function MediaPlayback({
   const contextRef = useRef({
     visible: false,
     active,
-    documentVisible: !document.hidden,
+    documentVisible: typeof document === 'undefined' || !document.hidden,
     reducedMotion: !!reduced,
   });
   const [playing, setPlaying] = useState(false);

@@ -202,6 +202,7 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
    * lived inside it would make itself unreachable. This is also what the
    * conversation drawer does, for the same reason.
    */
+  if (typeof document === 'undefined') return null;
   return createPortal(
     <AnimatePresence initial={false}>
       {open && (

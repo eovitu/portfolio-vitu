@@ -1,5 +1,7 @@
 import styled, { ThemeProvider } from 'styled-components';
-import { lazy, Suspense, useCallback } from 'react';
+import { lazy, Suspense, useCallback, type ComponentType } from 'react';
+import type { Locale, Project } from './lib/content';
+import type { Route } from './lib/routes';
 import { Analytics } from '@vercel/analytics/react';
 import { LayoutGroup } from 'motion/react';
 import { ConversationProvider } from './components/conversation/ConversationProvider';
@@ -46,7 +48,16 @@ const RouteFallback = styled.main`
   min-height: 100svh;
 `;
 
-function Site() {
+export interface RouteComponents {
+  HomePage?: ComponentType;
+  CaseStudy?: ComponentType<{ project: Project }>;
+  NotFound?: ComponentType<{ path: string }>;
+}
+
+function Site({ components }: { components?: RouteComponents }) {
+  const Home = components?.HomePage ?? HomePage;
+  const Case = components?.CaseStudy ?? CaseStudy;
+  const Missing = components?.NotFound ?? NotFound;
   const { route, notifyRouteMounted } = useRouteTransition();
   const { content } = useLanguage();
   const onSceneMount = useCallback(
@@ -79,14 +90,15 @@ function Site() {
             key={sceneKey}
             ref={onSceneMount}
             style={{ position: 'relative', zIndex: 1 }}
+            role={route.kind === 'home' ? 'main' : undefined}
             data-route-scene
           >
             {route.kind === 'notFound' ? (
-              <NotFound path={route.path} />
+              <Missing path={route.path} />
             ) : project ? (
-              <CaseStudy project={project} />
+              <Case project={project} />
             ) : (
-              <HomePage />
+              <Home />
             )}
           </div>
         </Suspense>
@@ -95,16 +107,20 @@ function Site() {
   );
 }
 
-export default function App() {
+export default function App({
+  initialRoute,
+  initialLocale,
+  components,
+}: { initialRoute?: Route; initialLocale?: Locale; components?: RouteComponents } = {}) {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <LanguageProvider>
+      <LanguageProvider initialLocale={initialLocale}>
         <SmoothScrollProvider>
-          <RouteTransitionProvider>
+          <RouteTransitionProvider initialRoute={initialRoute}>
             <MotionDirector>
               <ConversationProvider>
-                <Site />
+                <Site components={components} />
               </ConversationProvider>
             </MotionDirector>
           </RouteTransitionProvider>

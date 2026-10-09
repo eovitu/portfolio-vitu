@@ -76,8 +76,8 @@ export function MotionDirector({ children }: { children: ReactNode }) {
       reduced: prefersReducedMotion(),
     }),
   );
-  const [revealing, setRevealing] = useState(false);
-  const [released, setReleased] = useState(false);
+  const [revealing, setRevealing] = useState(typeof window === 'undefined');
+  const [released, setReleased] = useState(typeof window === 'undefined');
   const [introReady, setIntroReady] = useState(false);
   const onReveal = useCallback(() => setRevealing(true), []);
   const onRelease = useCallback(() => setReleased(true), []);
@@ -164,7 +164,8 @@ export function MotionDirector({ children }: { children: ReactNode }) {
   return (
     <MotionContext.Provider value={value}>
       {children}
-      {!released && !reloadGhosts && (
+      {/* Browser-only decoration must not cover the readable static document. */}
+      {typeof window !== 'undefined' && !released && !reloadGhosts && (
         <EntrySequence mode={mode} onReveal={onReveal} onRelease={onRelease} />
       )}
     </MotionContext.Provider>

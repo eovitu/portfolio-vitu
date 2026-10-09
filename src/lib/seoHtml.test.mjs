@@ -9,26 +9,29 @@ const shell = `<!doctype html><html lang="en"><head>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Home">
 <meta property="og:description" content="home">
-<meta property="og:image" content="https://eovitu.com.br/og.png">
+<meta property="og:image" content="https://www.eovitu.com.br/og.png">
 <meta property="og:image:alt" content="Home">
 <meta property="og:locale" content="en_US">
-<meta property="og:url" content="https://eovitu.com.br/">
-<link rel="canonical" href="https://eovitu.com.br/">
+<meta property="og:url" content="https://www.eovitu.com.br/">
+<link rel="canonical" href="https://www.eovitu.com.br/">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="home">
-<meta name="twitter:image" content="https://eovitu.com.br/og.png">
+<meta name="twitter:image" content="https://www.eovitu.com.br/og.png">
 <meta name="twitter:image:alt" content="Home">
 </head><body></body></html>`;
 
 test('renders crawler-visible metadata and valid case JSON-LD into a route document', () => {
   const html = renderSeoHtml(shell, { kind: 'case', slug: 'helppet' });
 
-  assert.match(html, /<title>HelpPet \| Spring API Gateway by Victor Hugo<\/title>/);
-  assert.match(html, /rel="canonical" href="https:\/\/eovitu\.com\.br\/work\/helppet"/);
+  assert.match(html, /<title>HelpPet \| API Gateway Spring por Victor Hugo<\/title>/);
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/www\.eovitu\.com\.br\/work\/helppet"/,
+  );
   assert.match(html, /property="og:type" content="article"/);
   assert.match(
     html,
-    /property="og:image" content="https:\/\/eovitu\.com\.br\/media\/helppet-poster\.webp"/,
+    /property="og:image" content="https:\/\/www\.eovitu\.com\.br\/og\.png"/,
   );
 
   const scripts = [

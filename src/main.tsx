@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { resolveRoute } from './lib/routes';
 import {
   consumeSnapshot,
   initReloadSnapshot,
@@ -48,8 +49,24 @@ if (layer) {
   markFirstUsefulFrame(prefersReducedMotion() ? 'reduced' : 'first-visit', 0, 0);
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+// Keep the prerendered interface painted until its route module is available.
+// The other routes and WebGL remain lazy; saved locale is still read by the provider.
+async function mount() {
+  const route = resolveRoute(window.location.pathname);
+  const components =
+    route.kind === 'home'
+      ? { HomePage: (await import('./components/home/HomePage')).HomePage }
+      : route.kind === 'case'
+        ? {
+            CaseStudy: await (
+              await import('./components/cases/CaseStudy')
+            ).prepareCaseStudy(route.slug),
+          }
+        : { NotFound: (await import('./components/routing/NotFound')).NotFound };
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App components={components} />
+    </StrictMode>,
+  );
+}
+void mount();

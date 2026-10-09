@@ -12,7 +12,11 @@ test('serves complete English and Portuguese interface copy', () => {
 
   assert.equal(english.nav.links[0].label, 'WORK');
   assert.equal(portuguese.nav.links[0].label, 'PROJETOS');
-  assert.equal(portuguese.ui.home.hero.title, 'VITU Dev Backend');
+  assert.match(
+    portuguese.ui.home.hero.title,
+    /Victor Hugo Araujo.*eovitu.*Desenvolvedor back-end/,
+  );
+  assert.match(english.ui.home.hero.title, /Victor Hugo Araujo.*eovitu.*Backend developer/);
   assert.equal(portuguese.projects.length, english.projects.length);
   assert.deepEqual(
     portuguese.projects.map((project) => project.slug),

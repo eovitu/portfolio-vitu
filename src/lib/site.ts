@@ -5,4 +5,4 @@
  * The production domain is the source of truth for canonical URLs even while
  * the site is being previewed locally or on a temporary Vercel URL.
  */
-export const SITE_ORIGIN = 'https://eovitu.com.br';
+export const SITE_ORIGIN = 'https://www.eovitu.com.br';

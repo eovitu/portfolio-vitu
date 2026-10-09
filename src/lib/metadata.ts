@@ -1,10 +1,10 @@
-import { contentFor, type Locale } from './content.ts';
+import { type Locale } from './content.ts';
 import type { Route } from './routes.ts';
 import { SITE_ORIGIN as ORIGIN } from './site.ts';
 
-const HOME_TITLE = 'Victor Hugo | Java & Spring Backend Developer';
+const HOME_TITLE = 'eovitu | Victor Hugo Araujo, Java Backend Developer';
 const HOME_DESCRIPTION =
-  'Portfolio of Victor Hugo (Vitu), a backend developer in São Paulo building Java, Spring Boot, API, PostgreSQL and digital product projects in Brazil.';
+  'Portfolio of Victor Hugo Araujo (Vitu, eovitu), a backend developer in São Paulo. Java, Spring Boot, PostgreSQL and interfaces that use these APIs.';
 
 const CASE_METADATA = {
   en: {
@@ -67,9 +67,7 @@ export interface PageMetadata {
   /**
    * The value for `<meta name="robots">`.
    *
-   * The host rewrites every unmatched path to `index.html`, so a wrong URL is
-   * answered with HTTP 200 and cannot be a hard 404. `noindex` is what keeps
-   * a mistyped address out of the index anyway.
+   * Missing routes have a dedicated 404 document with noindex.
    */
   robots: 'index, follow, max-image-preview:large' | 'noindex, follow';
 }
@@ -80,9 +78,12 @@ export function personJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: 'Victor Hugo',
-    alternateName: ['Vitu', 'eovitu'],
-    jobTitle: 'Backend Developer',
+    '@id': `${ORIGIN}/#person`,
+    name: 'Victor Hugo Araujo',
+    alternateName: ['Vitu', 'eovitu', 'Victor Hugo'],
+    jobTitle: 'Desenvolvedor back-end',
+    knowsAbout: ['Java', 'Spring Boot', 'PostgreSQL', 'REST APIs', 'React', 'TypeScript'],
+    address: { '@type': 'PostalAddress', addressLocality: 'São Paulo' },
     url: `${ORIGIN}/`,
     email: 'mailto:eovitu7@gmail.com',
     sameAs: ['https://github.com/eovitu', 'https://www.linkedin.com/in/eovitu/'],
@@ -93,13 +94,14 @@ export function websiteJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Vitu',
-    alternateName: ['eovitu', 'Victor Hugo'],
+    '@id': `${ORIGIN}/#website`,
+    name: 'eovitu',
+    alternateName: ['Vitu', 'Portfólio de Victor Hugo Araujo'],
     url: `${ORIGIN}/`,
   } as const;
 }
 
-export function creativeWorkJsonLd(route: Route, locale: Locale = 'en') {
+export function creativeWorkJsonLd(route: Route, locale: Locale = 'pt') {
   if (route.kind !== 'case') return null;
   const page = metadataFor(route, locale);
   return {
@@ -113,20 +115,22 @@ export function creativeWorkJsonLd(route: Route, locale: Locale = 'en') {
     inLanguage: page.lang,
     creator: {
       '@type': 'Person',
-      name: 'Victor Hugo',
-      alternateName: ['Vitu', 'eovitu'],
+      '@id': `${ORIGIN}/#person`,
+      name: 'Victor Hugo Araujo',
+      alternateName: ['Vitu', 'eovitu', 'Victor Hugo'],
       url: `${ORIGIN}/`,
     },
   } as const;
 }
 
-export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
-  const localized = contentFor(locale);
+export function metadataFor(route: Route, locale: Locale = 'pt'): PageMetadata {
   const homeTitle =
-    locale === 'pt' ? 'Victor Hugo | Desenvolvedor Backend Java e Spring Boot' : HOME_TITLE;
+    locale === 'pt'
+      ? 'eovitu | Victor Hugo Araujo, desenvolvedor back-end Java'
+      : HOME_TITLE;
   const homeDescription =
     locale === 'pt'
-      ? 'Portfólio de Victor Hugo (Vitu), desenvolvedor backend em São Paulo, com projetos reais em Java, Spring Boot, APIs, PostgreSQL e produtos digitais.'
+      ? 'Portfólio de Victor Hugo Araujo (Vitu, eovitu), desenvolvedor back-end em São Paulo. Projetos em Java, Spring Boot, PostgreSQL e interfaces que usam essas APIs.'
       : HOME_DESCRIPTION;
   const lang = locale === 'pt' ? 'pt-BR' : 'en';
   const openGraphLocale = locale === 'pt' ? 'pt_BR' : 'en_US';
@@ -151,8 +155,8 @@ export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
       lang,
       title:
         locale === 'pt'
-          ? 'Além do horizonte, Victor Hugo'
-          : 'Past the horizon, Victor Hugo',
+          ? 'Página não encontrada | eovitu, Victor Hugo Araujo'
+          : 'Page not found | eovitu, Victor Hugo Araujo',
       description:
         locale === 'pt'
           ? 'Este endereço não existe. Volte aos projetos selecionados.'
@@ -170,17 +174,16 @@ export function metadataFor(route: Route, locale: Locale = 'en'): PageMetadata {
     };
   }
 
-  const project = localized.projects.find((item) => item.slug === route.slug)!;
   const seo = CASE_METADATA[locale][route.slug];
   return {
     lang,
     title: seo.title,
     description: seo.description,
     canonical: `${ORIGIN}/work/${route.slug}`,
-    image: `${ORIGIN}${project.media.poster}`,
-    imageAlt: project.media.alt,
-    imageWidth: project.media.width,
-    imageHeight: project.media.height,
+    image: `${ORIGIN}/og.png`,
+    imageAlt: homeTitle,
+    imageWidth: 1200,
+    imageHeight: 630,
     openGraphType: 'article',
     openGraphLocale,
     robots: INDEXABLE,
@@ -202,7 +205,7 @@ function meta(
   return element;
 }
 
-export function applyMetadata(route: Route, locale: Locale = 'en'): void {
+export function applyMetadata(route: Route, locale: Locale = 'pt'): void {
   const page = metadataFor(route, locale);
   document.documentElement.lang = page.lang;
   document.title = page.title;
