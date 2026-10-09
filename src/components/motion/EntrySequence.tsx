@@ -61,8 +61,6 @@ export function EntrySequence({ mode, onReveal, onRelease }: Props) {
   onReleaseRef.current = onRelease;
 
   useLayoutEffect(() => {
-    // The React layer is now in the DOM; hand off without an uncovered frame.
-    document.getElementById('entry-cover')?.remove();
     let settled = false;
     let revealed = false;
     let ctx: ReturnType<typeof gsap.context> | null = null;
