@@ -74,6 +74,13 @@ export function MotionDirector({ children }: { children: ReactNode }) {
   const [revealing, setRevealing] = useState(true);
   const [released, setReleased] = useState(true);
   useEffect(() => {
+    const cover = document.getElementById('entry-cover');
+    // Once the CSS fallback has revealed the page, never cover it again.
+    if (cover && getComputedStyle(cover).visibility === 'hidden') {
+      cover.remove();
+      setMode('static');
+      return;
+    }
     setMode(
       visitMode({
         seen: readVisitSeen(currentVisitStorage()) || isReloadNavigation(),
