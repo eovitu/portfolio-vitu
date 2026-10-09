@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouteScrollRefresh } from '../../hooks/useRouteScrollRefresh';
 import { hrefForCase } from '../../lib/routes';
 import { prefersReducedMotion } from '../../lib/prefersReducedMotion';
@@ -21,6 +21,10 @@ import { useLanguage } from '../providers/LanguageProvider';
  * exactly what it looked for.
  */
 export function NotFound({ path }: { path: string }) {
+  // One static 404 document serves arbitrary missing URLs. Restore the actual
+  // requested path only after its shared markup has hydrated.
+  const [displayPath, setDisplayPath] = useState('/404.html');
+  useEffect(() => setDisplayPath(path), [path]);
   const { content } = useLanguage();
   const { projects } = content;
   const copy = content.ui.notFound;
@@ -49,7 +53,7 @@ export function NotFound({ path }: { path: string }) {
         </S.Title>
         <S.Body>
           <p>
-            {copy.beforePath} <S.Path>{path}</S.Path>. {copy.afterPath}
+            {copy.beforePath} <S.Path>{displayPath}</S.Path>. {copy.afterPath}
           </p>
           <p>{copy.survived}</p>
         </S.Body>

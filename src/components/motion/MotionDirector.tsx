@@ -70,14 +70,19 @@ export function useMotionState(): MotionState {
 
 export function MotionDirector({ children }: { children: ReactNode }) {
   const { route } = useRouteTransition();
-  const [mode] = useState<VisitMode>(() =>
-    visitMode({
-      seen: readVisitSeen(currentVisitStorage()) || isReloadNavigation(),
-      reduced: prefersReducedMotion(),
-    }),
-  );
-  const [revealing, setRevealing] = useState(typeof window === 'undefined');
-  const [released, setReleased] = useState(typeof window === 'undefined');
+  const [mode, setMode] = useState<VisitMode>('first');
+  const [revealing, setRevealing] = useState(true);
+  const [released, setReleased] = useState(true);
+  useEffect(() => {
+    setMode(
+      visitMode({
+        seen: readVisitSeen(currentVisitStorage()) || isReloadNavigation(),
+        reduced: prefersReducedMotion(),
+      }),
+    );
+    setRevealing(false);
+    setReleased(false);
+  }, []);
   const [introReady, setIntroReady] = useState(false);
   const onReveal = useCallback(() => setRevealing(true), []);
   const onRelease = useCallback(() => setReleased(true), []);
@@ -165,7 +170,7 @@ export function MotionDirector({ children }: { children: ReactNode }) {
     <MotionContext.Provider value={value}>
       {children}
       {/* Browser-only decoration must not cover the readable static document. */}
-      {typeof window !== 'undefined' && !released && !reloadGhosts && (
+      {!released && !reloadGhosts && (
         <EntrySequence mode={mode} onReveal={onReveal} onRelease={onRelease} />
       )}
     </MotionContext.Provider>

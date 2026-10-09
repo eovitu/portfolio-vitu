@@ -4,7 +4,21 @@ import { projects } from '../src/lib/content.ts';
 import { renderSeoHtml } from '../src/lib/seoHtml.ts';
 import { SITE_ORIGIN } from '../src/lib/site.ts';
 import { renderSitemap } from '../src/lib/discovery.ts';
-import { render } from '../dist-ssr/entry-server.js';
+import { Worker } from 'node:worker_threads';
+
+// Each route starts with the same module registration order as a direct visit.
+function render(route) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL('../dist-ssr/entry-server.js', import.meta.url), {
+      workerData: route,
+    });
+    worker.once('message', resolve);
+    worker.once('error', reject);
+    worker.once('exit', (code) => {
+      if (code !== 0) reject(new Error(`Route renderer exited with ${code}`));
+    });
+  });
+}
 
 const root = resolve(import.meta.dirname, '..');
 const dist = resolve(root, 'dist');
@@ -12,7 +26,7 @@ const shell = await readFile(resolve(dist, 'index.html'), 'utf8');
 const documents = [
   ['index.html', { kind: 'home' }],
   ...projects.map(({ slug }) => [`work/${slug}/index.html`, { kind: 'case', slug }]),
-  ['404.html', { kind: 'notFound', path: '/404' }],
+  ['404.html', { kind: 'notFound', path: '/404.html' }],
 ];
 
 for (const [relativePath, route] of documents) {

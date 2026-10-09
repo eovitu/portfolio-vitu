@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { veilValue } from '../../lib/veil';
@@ -83,14 +83,11 @@ const StaticField = styled.div`
     radial-gradient(ellipse at 51% 51%, rgba(233, 231, 226, 0.1), transparent 38%);
 `;
 
-let sceneInstanceCount = 0;
-
 export function SingularityStage() {
   const [hydrate, setHydrate] = useState(false);
   const veil = useRef<HTMLDivElement>(null);
   const last = useRef(-1);
-  const instanceId = useRef<string | null>(null);
-  if (!instanceId.current) instanceId.current = `singularity-${++sceneInstanceCount}`;
+  const instanceId = useId();
 
   useEffect(() => {
     const idle = window.requestIdleCallback?.(() => setHydrate(true), { timeout: 900 });
@@ -115,7 +112,7 @@ export function SingularityStage() {
     <>
       <Layer
         data-gl
-        data-scene-instance={import.meta.env.DEV ? instanceId.current : undefined}
+        data-scene-instance={import.meta.env.DEV ? instanceId : undefined}
         aria-hidden="true"
       >
         {hydrate && (

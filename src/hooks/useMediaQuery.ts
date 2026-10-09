@@ -5,11 +5,9 @@ import { useEffect, useState } from 'react';
  * preference boundaries, never for per-frame values.
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia
-      ? window.matchMedia(query).matches
-      : false,
-  );
+  // The first client render must match the static document. Read the browser
+  // preference after hydration, before subscribing to subsequent changes.
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
     const mql = window.matchMedia(query);

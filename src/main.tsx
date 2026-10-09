@@ -1,7 +1,3 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
-import { resolveRoute } from './lib/routes';
 import {
   consumeSnapshot,
   initReloadSnapshot,
@@ -49,24 +45,14 @@ if (layer) {
   markFirstUsefulFrame(prefersReducedMotion() ? 'reduced' : 'first-visit', 0, 0);
 }
 
-// Keep the prerendered interface painted until its route module is available.
-// The other routes and WebGL remain lazy; saved locale is still read by the provider.
-async function mount() {
-  const route = resolveRoute(window.location.pathname);
-  const components =
-    route.kind === 'home'
-      ? { HomePage: (await import('./components/home/HomePage')).HomePage }
-      : route.kind === 'case'
-        ? {
-            CaseStudy: await (
-              await import('./components/cases/CaseStudy')
-            ).prepareCaseStudy(route.slug),
-          }
-        : { NotFound: (await import('./components/routing/NotFound')).NotFound };
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App components={components} />
-    </StrictMode>,
-  );
+// Keep the static document useful before downloading the React/motion runtime.
+// Two animation frames allow one browser paint without a fixed time delay.
+async function startClient() {
+  if (!document.hidden) {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+  }
+  await (await import('./client-entry')).mount();
 }
-void mount();
+void startClient();

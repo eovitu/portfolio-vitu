@@ -101,17 +101,17 @@ export function CaseStudy({
         <CaseMedia project={project} />
       </S.MediaStage>
 
-      <Suspense fallback={<S.Loading role="status">{copy.loading}</S.Loading>}>
-        {InitialStory ? (
-          <InitialStory />
-        ) : (
+      {InitialStory ? (
+        <InitialStory />
+      ) : (
+        <Suspense fallback={<S.Loading role="status">{copy.loading}</S.Loading>}>
           <>
             {project.slug === 'emprega-co' ? <EmploymentJourney /> : null}
             {project.slug === 'doces-da-pati' ? <CommerceStory /> : null}
             {project.slug === 'helppet' ? <IntegrationStory /> : null}
           </>
-        )}
-      </Suspense>
+        </Suspense>
+      )}
 
       <S.Body data-gravity-section>
         <S.Sections>

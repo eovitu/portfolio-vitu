@@ -43,6 +43,10 @@ export function LanguageProvider({
 }) {
   const [locale, updateLocale] = useState<Locale>(() => initialLocale ?? storedLocale());
 
+  useEffect(() => {
+    if (initialLocale) updateLocale(storedLocale());
+  }, [initialLocale]);
+
   const setLocale = useCallback((nextLocale: Locale) => {
     updateLocale(nextLocale);
     try {

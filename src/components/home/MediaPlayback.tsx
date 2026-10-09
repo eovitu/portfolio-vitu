@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { useReducedMotion } from 'motion/react';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { Project } from '../../lib/content';
 import { createMediaPlayback } from '../../lib/mediaPlayback';
 import { useLanguage } from '../providers/LanguageProvider';
