@@ -8,6 +8,8 @@ The content model in `src/lib/content.ts` is the source of truth for project ide
 
 ## Rendering layers
 
+The build renders the initial route in an isolated Node worker, using the same route imports as the browser so styled-components registers matching CSS identifiers. The client hydrates that HTML. It starts with Portuguese and restores the saved language after hydration; media queries follow the same initial snapshot.
+
 The page is split into two independent layers:
 
 1. Semantic React content and navigation, which render immediately.
@@ -16,6 +18,8 @@ The page is split into two independent layers:
 This separation is intentional. WebGL enriches the identity but never blocks reading, navigation, contact, or case-study media. `src/three/scenePolicy.ts` decides whether continuous rendering is appropriate. Reduced-motion users receive a static visual treatment, and the canvas pauses when the document is hidden.
 
 The singularity itself remains procedural in `src/three/singularityScene.ts`. The reference implementation is retained in `docs/reference/black-hole.html` because additive materials, vertex colors, billboarding, and the core mask do not survive a conventional glTF export faithfully.
+
+The Latin WOFF2 fonts are hosted in public/fonts: Archivo at weights 400 and 500, and JetBrains Mono at 400. Font faces use swap and the existing system fallbacks. Only Archivo is preloaded. Both OFL licenses are included alongside the files.
 
 ## Motion and scroll
 
@@ -35,7 +39,7 @@ Sources attach only after explicit play. `mediaPlayback.ts` coordinates offscree
 
 ## Metadata
 
-`src/lib/metadata.ts` derives localized titles, descriptions, canonical URLs, robots rules and Open Graph/Twitter values from the resolved route. Home uses the 1200×630 site preview; each case uses its own poster. Structured data includes verified `Person`, home-only `WebSite` and case-specific `CreativeWork` records. Runtime navigation updates the document head, while `src/lib/seoHtml.ts` and `scripts/generate-route-html.mjs` generate equivalent crawler-visible HTML for home, all four cases and the noindex custom 404. The production origin is `https://eovitu.com.br`.
+`src/lib/metadata.ts` derives localized titles, descriptions, canonical URLs, robots rules and Open Graph/Twitter values from the resolved route. Home and cases share the existing 1200×630 site preview; titles and descriptions remain specific to each route. Structured data includes verified `Person`, home-only `WebSite` and case-specific `CreativeWork` records. Runtime navigation updates the document head, while `src/lib/seoHtml.ts` and `scripts/generate-route-html.mjs` generate equivalent crawler-visible HTML for home, all four cases and the noindex custom 404. The production origin is `https://www.eovitu.com.br`.
 
 ## Verification boundary
 

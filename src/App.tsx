@@ -77,6 +77,30 @@ function Site({ components }: { components?: RouteComponents }) {
         ? `missing:${route.path}`
         : 'home';
 
+  const scene = (
+    <div
+      key={sceneKey}
+      ref={onSceneMount}
+      style={{ position: 'relative', zIndex: 1 }}
+      role={route.kind === 'home' ? 'main' : undefined}
+      data-route-scene
+    >
+      {route.kind === 'notFound' ? (
+        <Missing path={route.path} />
+      ) : project ? (
+        <Case project={project} />
+      ) : (
+        <Home />
+      )}
+    </div>
+  );
+  const prepared =
+    route.kind === 'home'
+      ? components?.HomePage
+      : route.kind === 'case'
+        ? components?.CaseStudy
+        : components?.NotFound;
+
   return (
     <>
       <SkipLink href={route.kind === 'home' ? '#work' : '#case-content'}>
@@ -85,23 +109,13 @@ function Site({ components }: { components?: RouteComponents }) {
       <SingularityStage />
       <Header />
       <LayoutGroup id="singularity-route-layout">
-        <Suspense fallback={<RouteFallback aria-label={content.ui.caseStudy.loading} />}>
-          <div
-            key={sceneKey}
-            ref={onSceneMount}
-            style={{ position: 'relative', zIndex: 1 }}
-            role={route.kind === 'home' ? 'main' : undefined}
-            data-route-scene
-          >
-            {route.kind === 'notFound' ? (
-              <Missing path={route.path} />
-            ) : project ? (
-              <Case project={project} />
-            ) : (
-              <Home />
-            )}
-          </div>
-        </Suspense>
+        {prepared ? (
+          scene
+        ) : (
+          <Suspense fallback={<RouteFallback aria-label={content.ui.caseStudy.loading} />}>
+            {scene}
+          </Suspense>
+        )}
       </LayoutGroup>
     </>
   );

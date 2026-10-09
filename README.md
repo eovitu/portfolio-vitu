@@ -67,7 +67,7 @@ Posters remain visible until deliberate playback. No MP4 source is attached befo
 
 ## Deployment
 
-The production output is `dist/`. The build creates static HTML entry documents for home, each case route and the custom 404, with route-specific search/social metadata and structured data before JavaScript runs. `vercel.json` adds security and cache headers; static route documents and `404.html` provide routing without a catch-all rewrite. The canonical origin is `https://eovitu.com.br`. For another host, preserve clean directory URLs and custom-404 handling, then update the canonical origin and discovery files.
+The production output is `dist/`. The build creates static HTML entry documents for home, each case route and the custom 404, with route-specific search/social metadata and structured data before JavaScript runs. `vercel.json` adds security and cache headers; static route documents and `404.html` provide routing without a catch-all rewrite. The canonical origin is `https://www.eovitu.com.br`. For another host, preserve clean directory URLs and custom-404 handling, then update the canonical origin and discovery files.
 
 See [Architecture](docs/ARCHITECTURE.md) for motion ownership, data boundaries and verification limitations. The original procedural reference is retained at `docs/reference/black-hole.html` because its scene construction informs the renderer.
 
