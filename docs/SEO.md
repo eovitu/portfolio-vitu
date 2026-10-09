@@ -185,3 +185,35 @@ Amostragem da abertura a cada ~70 ms em cinco contextos: desktop/mobile começar
 O experimento foi mantido porque não piorou o LCP mediano contra D repetido e eliminou a recobertura nos cenários testados. TBT maior e dispersão permanecem registrados; não declarar a meta de performance concluída. Não é necessário decidir outra abertura nesta rodada. Segunda rodada de JS, push, merge e deploy continuam fora da autorização atual. Após publicar, conferir também o screenshot renderizado da home na Inspeção de URL do Search Console.
 
 Estado final local: branch wip/seo-prerender, commits a79192a e 35a3d9f sobre 57d5dac; experimento E, guard e documentação no diff sem commit. Nenhuma publicação. Arquivos desta rodada: index.html (camada/CSS), MotionDirector.tsx (não recobrir após fallback), EntrySequence.tsx (handoff), check-prerender.mjs (guard), docs/ARCHITECTURE.md e docs/SEO.md (contrato/evidências).
+
+## Publicação na PR e série de dez execuções
+
+Branch feat/portfolio-backend atualizada por fast-forward, sem merge commit, force push ou deploy manual. Commits preservados a79192a e 35a3d9f; E isolado em c75d21b, docs em 0b5a5de. O remoto estava em 57d5dac antes do push. PR #14 mantida com base main (develop ausente). Os três checks passaram em 0b5a5de; o status do próximo commit de documentação deve ser consultado separadamente.
+
+Preview automática: https://eovitu-git-feat-portfolio-5f96cc-victorhsilva115-7124s-projects.vercel.app/ . curl anônimo recebeu 302 para SSO Vercel e corpo “Protected by Vercel Authentication”. Sem CLI Vercel instalada, token OIDC ou projeto vinculado local para o bypass oficial. Não alterei proteção nem solicitei segredo. Assim, seis rotas, redirects, headers, robots, sitemap e Analytics desse novo build não foram validados remotamente. O 200 do Analytics da produção antiga não valida a preview. Recomendo instalar a CLI oficial (npm i -g vercel) para permitir autenticação e vercel curl em uma próxima validação.
+
+Lighthouse 13.5.0, Chrome/mobile/simulate, fresh profile por processo, porta 4173, dez execuções novas por variante nesta sessão. E do build 0b5a5de/c75d21b foi medido primeiro; D foi exportado de 35a3d9f e construído em cópia temporária, com as mesmas dependências. Nenhum build ou QA durante as séries. Ordem em blocos, sem intercalação ou aleatorização: isso limita inferências causais. Código da aplicação não foi alterado nesta medição.
+
+| Variante |          LCP mín/med/máx ms |       TBT mín/med/máx ms | Performance mín/med/máx |
+| -------- | --------------------------: | -----------------------: | ----------------------: |
+| D-ten    | 3931.55 / 3938.44 / 3945.70 | 625.96 / 673.26 / 767.32 |   68.00 / 70.00 / 71.00 |
+| E-ten    | 2706.88 / 2784.33 / 3948.42 | 597.41 / 682.19 / 944.71 |   69.00 / 78.50 / 81.00 |
+
+| Execução | D LCP ms | D TBT ms | D Perf | E LCP ms | E TBT ms | E Perf |
+| -------- | -------: | -------: | -----: | -------: | -------: | -----: |
+| 1        |  3944.41 |   749.65 |     68 |  3948.42 |   669.32 |     70 |
+| 2        |  3933.58 |   628.26 |     71 |  2857.55 |   694.39 |     78 |
+| 3        |  3934.26 |   625.96 |     71 |  2711.41 |   613.40 |     80 |
+| 4        |  3934.57 |   674.35 |     70 |  2857.25 |   628.50 |     79 |
+| 5        |  3937.48 |   654.00 |     70 |  2710.85 |   944.71 |     75 |
+| 6        |  3931.55 |   672.18 |     70 |  2857.49 |   763.00 |     77 |
+| 7        |  3945.70 |   760.50 |     68 |  2707.63 |   597.41 |     81 |
+| 8        |  3939.41 |   653.50 |     71 |  2707.71 |   670.00 |     79 |
+| 9        |  3944.34 |   710.50 |     69 |  2706.88 |   708.50 |     79 |
+| 10       |  3942.90 |   767.32 |     68 |  3937.85 |   732.97 |     69 |
+
+Elemento LCP nas vinte execuções: mesmo parágrafo “Desenvolvo APIs com Java e Spring Boot…”, caixa 351×99 px. A cobertura não foi o candidato. CLS idêntico: 0,000570. D: dez resultados no estado ~3,94 s; E: oito resultados entre 2,707 e 2,858 s e dois entre 3,938 e 3,948 s. A diferença de medianas desta série é maior que a dispersão interna de D e não se resume aos antigos 170 ms; porém as faixas se sobrepõem e a ordem em blocos não exclui efeito temporal ou mudança de estado da simulação. Há sinal descritivo a favor de E, sem prova de ganho causal garantido ou de que a abertura resolva performance.
+
+TBT mediano D 673,26 ms, E 682,19 ms: diferença 8,93 ms (~1,3%), sem repetir a piora de 188 ms da série de cinco. As faixas de TBT se sobrepõem amplamente. Nenhuma variante atinge LCP mediano <2,5 s. Não declarar performance concluída. Manter ou reverter c75d21b e fazer merge continuam decisões do usuário; nenhuma nova alteração de aplicação foi aplicada.
+
+Pós-merge: validar cinco rotas e custom 404, redirects para www, HTML sem JS, schema CreativeWork, robots/sitemap e Analytics do novo build. Search Console: enviar sitemap, solicitar indexação e conferir screenshot renderizado por causa da cobertura inicial. Pebolim só entra no sitemap após HTTP 200 confirmado. Padronizar nome/handle/site em GitHub/LinkedIn; acompanhar eovitu no GSC por 2–4 semanas.
