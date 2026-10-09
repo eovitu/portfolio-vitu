@@ -1,0 +1,386 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "sha256": "c95b46a344091e890e384364bd261de0f3bf8755a9a46ba981d472c87e23ea86",
+    "headers": [
+      "Age: 722847",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"99cfe682e59416834cef875ab19aef2a\"",
+      "X-Vercel-Cache: HIT"
+    ],
+    "h1": [],
+    "title": "Victor Hugo | Junior Java &amp; Spring Backend Developer",
+    "description": [
+      "Portfolio of Victor Hugo (Vitu), a junior backend developer in São Paulo building Java, Spring Boot, API, PostgreSQL and digital product projects in Brazil."
+    ],
+    "canonical": ["https://eovitu.com.br/"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Victor Hugo",
+        "alternateName": ["Vitu", "eovitu"],
+        "jobTitle": "Backend Developer & Product Engineer",
+        "url": "https://eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Vitu",
+        "alternateName": ["eovitu", "Victor Hugo"],
+        "url": "https://eovitu.com.br/"
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/emprega-co",
+    "status": 200,
+    "sha256": "84aed2184517ecab912fa3ac8278f7f491bd0ea6d02d6922b19cd61c61e51f1c",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"f356fb437b35ae142f5a2c664e690622\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": [],
+    "title": "Emprega.co | Employment Platform by Victor Hugo",
+    "description": [
+      "Emprega.co case study: an employment platform with candidate and employer journeys, product architecture and integration across web and mobile applications."
+    ],
+    "canonical": ["https://eovitu.com.br/work/emprega-co"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://eovitu.com.br/media/emprega-co-poster.webp"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1280"
+      },
+      {
+        "property": "og:image:height",
+        "content": "720"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Victor Hugo",
+        "alternateName": ["Vitu", "eovitu"],
+        "jobTitle": "Backend Developer & Product Engineer",
+        "url": "https://eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "Emprega.co",
+        "headline": "Emprega.co | Employment Platform by Victor Hugo",
+        "description": "Emprega.co case study: an employment platform with candidate and employer journeys, product architecture and integration across web and mobile applications.",
+        "url": "https://eovitu.com.br/work/emprega-co",
+        "image": "https://eovitu.com.br/media/emprega-co-poster.webp",
+        "inLanguage": "en",
+        "creator": {
+          "@type": "Person",
+          "name": "Victor Hugo",
+          "alternateName": ["Vitu", "eovitu"],
+          "url": "https://eovitu.com.br/"
+        }
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/helppet",
+    "status": 200,
+    "sha256": "8f5a3074d43190e569c61911dbf6246ce83a21c657977bea0d1847703ac83984",
+    "headers": [
+      "Age: 0",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"e422a4ffbf13af0a18464cd9a8a38bd5\"",
+      "X-Vercel-Cache: MISS"
+    ],
+    "h1": [],
+    "title": "HelpPet | Spring API Gateway by Victor Hugo",
+    "description": [
+      "HelpPet case study: a reactive Java and Spring Cloud API Gateway with JWT authentication, microservice routing, resilience and aggregated health checks."
+    ],
+    "canonical": ["https://eovitu.com.br/work/helppet"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://eovitu.com.br/media/helppet-poster.webp"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1280"
+      },
+      {
+        "property": "og:image:height",
+        "content": "720"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Victor Hugo",
+        "alternateName": ["Vitu", "eovitu"],
+        "jobTitle": "Backend Developer & Product Engineer",
+        "url": "https://eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "HelpPet",
+        "headline": "HelpPet | Spring API Gateway by Victor Hugo",
+        "description": "HelpPet case study: a reactive Java and Spring Cloud API Gateway with JWT authentication, microservice routing, resilience and aggregated health checks.",
+        "url": "https://eovitu.com.br/work/helppet",
+        "image": "https://eovitu.com.br/media/helppet-poster.webp",
+        "inLanguage": "en",
+        "creator": {
+          "@type": "Person",
+          "name": "Victor Hugo",
+          "alternateName": ["Vitu", "eovitu"],
+          "url": "https://eovitu.com.br/"
+        }
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/doces-da-pati",
+    "status": 200,
+    "sha256": "321bf060a19598d90831e1816bfe7e00dbcd64c3518d9d0264bde43b97c58a9b",
+    "headers": [
+      "Age: 18301",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"ef0850d1ea3e570201493ce78ef58129\"",
+      "X-Vercel-Cache: HIT"
+    ],
+    "h1": [],
+    "title": "Doces da Pati | Firebase Storefront by Victor Hugo",
+    "description": [
+      "Doces da Pati case study: mobile catalogue, WhatsApp cart handoff, Firebase administration, access rules, technical SEO and analytics with GA4 consent."
+    ],
+    "canonical": ["https://eovitu.com.br/work/doces-da-pati"],
+    "robots": ["index, follow, max-image-preview:large"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://eovitu.com.br/media/doces-da-pati-poster.webp"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1280"
+      },
+      {
+        "property": "og:image:height",
+        "content": "720"
+      }
+    ],
+    "schemas": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Victor Hugo",
+        "alternateName": ["Vitu", "eovitu"],
+        "jobTitle": "Backend Developer & Product Engineer",
+        "url": "https://eovitu.com.br/",
+        "email": "mailto:eovitu7@gmail.com",
+        "sameAs": ["https://github.com/eovitu", "https://www.linkedin.com/in/eovitu/"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "Doces da Pati",
+        "headline": "Doces da Pati | Firebase Storefront by Victor Hugo",
+        "description": "Doces da Pati case study: mobile catalogue, WhatsApp cart handoff, Firebase administration, access rules, technical SEO and analytics with GA4 consent.",
+        "url": "https://eovitu.com.br/work/doces-da-pati",
+        "image": "https://eovitu.com.br/media/doces-da-pati-poster.webp",
+        "inLanguage": "en",
+        "creator": {
+          "@type": "Person",
+          "name": "Victor Hugo",
+          "alternateName": ["Vitu", "eovitu"],
+          "url": "https://eovitu.com.br/"
+        }
+      }
+    ],
+    "cover": false
+  },
+  {
+    "path": "/work/torneio-pebolim",
+    "status": 404,
+    "sha256": "ca9e6e7f697b9b497596a27563ed928ea7e95cdab75aef327be08e11bc5b8cf5",
+    "headers": [
+      "Age: 722848",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"44d77121516f330bc4a13161908d7ec5\"",
+      "X-Vercel-Cache: HIT"
+    ],
+    "h1": [],
+    "title": "Past the horizon, Victor Hugo",
+    "description": ["This address does not exist. Return to the selected work."],
+    "canonical": ["https://eovitu.com.br/"],
+    "robots": ["noindex, follow"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [],
+    "cover": false
+  },
+  {
+    "path": "/auditoria-rota-inexistente",
+    "status": 404,
+    "sha256": "ca9e6e7f697b9b497596a27563ed928ea7e95cdab75aef327be08e11bc5b8cf5",
+    "headers": [
+      "Age: 722848",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"44d77121516f330bc4a13161908d7ec5\"",
+      "X-Vercel-Cache: HIT"
+    ],
+    "h1": [],
+    "title": "Past the horizon, Victor Hugo",
+    "description": ["This address does not exist. Return to the selected work."],
+    "canonical": ["https://eovitu.com.br/"],
+    "robots": ["noindex, follow"],
+    "og": [
+      {
+        "property": "og:image",
+        "content": "https://eovitu.com.br/og.png"
+      },
+      {
+        "property": "og:image:width",
+        "content": "1200"
+      },
+      {
+        "property": "og:image:height",
+        "content": "630"
+      }
+    ],
+    "schemas": [],
+    "cover": false
+  },
+  {
+    "path": "/robots.txt",
+    "status": 200,
+    "sha256": "34cdb6b49eb39c5fbb218b259043074fc68d75141fa151bd9dc6704ceca3ecb9",
+    "headers": [
+      "Age: 18321",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/plain; charset=utf-8",
+      "Etag: \"b8c9e2c5f7061e6fc5cf80f2e54293d3\"",
+      "X-Vercel-Cache: HIT"
+    ]
+  },
+  {
+    "path": "/sitemap.xml",
+    "status": 200,
+    "sha256": "f18e5378f1b758e428d985f2389abf7b6aaf51513a612e62174095b2aa6b26c6",
+    "headers": [
+      "Age: 18322",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: application/xml",
+      "Etag: \"be0dc737e7c0bc10ce74f484b631a5a8\"",
+      "X-Vercel-Cache: HIT"
+    ],
+    "urls": [
+      "https://eovitu.com.br/",
+      "https://eovitu.com.br/work/emprega-co",
+      "https://eovitu.com.br/work/doces-da-pati",
+      "https://eovitu.com.br/work/helppet"
+    ]
+  },
+  {
+    "path": "/_vercel/insights/script.js",
+    "status": 200,
+    "sha256": "b1fa9fc8104da15958badc63bbebe46eeea4d9ce88e587d7732b2c4f4238d8af",
+    "headers": [
+      "Age: 1492",
+      "Cache-Control: public, max-age=2678400",
+      "Content-Type: application/javascript; charset=utf-8",
+      "Etag: \"6be0c422f96c4b51cca8f8aa30aa2498\"",
+      "X-Vercel-Cache: HIT"
+    ]
+  },
+  {
+    "path": "/fonts/archivo-latin.woff2",
+    "status": 404,
+    "sha256": "ca9e6e7f697b9b497596a27563ed928ea7e95cdab75aef327be08e11bc5b8cf5",
+    "headers": [
+      "Age: 722849",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"44d77121516f330bc4a13161908d7ec5\"",
+      "X-Vercel-Cache: HIT"
+    ]
+  },
+  {
+    "path": "/fonts/jetbrains-mono-latin.woff2",
+    "status": 404,
+    "sha256": "ca9e6e7f697b9b497596a27563ed928ea7e95cdab75aef327be08e11bc5b8cf5",
+    "headers": [
+      "Age: 722849",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: text/html; charset=utf-8",
+      "Etag: \"44d77121516f330bc4a13161908d7ec5\"",
+      "X-Vercel-Cache: HIT"
+    ]
+  },
+  {
+    "path": "/og.png",
+    "status": 200,
+    "sha256": "beea0d3df521b41e1515839cee9dbec61ae6fcdf523599494be3532393e38ee2",
+    "headers": [
+      "Age: 722848",
+      "Cache-Control: public, max-age=0, must-revalidate",
+      "Content-Type: image/png",
+      "Etag: \"8b45c32b43efaa9924dd012446dfa2e3\"",
+      "X-Vercel-Cache: HIT"
+    ],
+    "dimensions": [1200, 630]
+  }
+]

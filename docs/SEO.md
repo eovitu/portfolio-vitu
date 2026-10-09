@@ -1,4 +1,6 @@
-# SEO: validação local e pendências
+# SEO: validação local e produção
+
+Estado atual de 9/10: PR #14 publicada; E revertido por PR #15 conforme critério de cobertura sem JS; Pebolim incluído por PR #16. Evidência de produção e pendências no final deste documento. As seções anteriores são registros históricos.
 
 Data: 8 de outubro de 2026. Branch local `wip/seo-prerender`, WIP `a79192a` protegendo a implementação SEO anterior. As correções desta rodada permanecem no diff local. Nenhum push, alteração da PR #14, merge ou deploy. Nenhuma dependência nova, conta ou credencial. Trabalho sequencial, sem subagentes.
 
@@ -217,3 +219,72 @@ Elemento LCP nas vinte execuções: mesmo parágrafo “Desenvolvo APIs com Java
 TBT mediano D 673,26 ms, E 682,19 ms: diferença 8,93 ms (~1,3%), sem repetir a piora de 188 ms da série de cinco. As faixas de TBT se sobrepõem amplamente. Nenhuma variante atinge LCP mediano <2,5 s. Não declarar performance concluída. Manter ou reverter c75d21b e fazer merge continuam decisões do usuário; nenhuma nova alteração de aplicação foi aplicada.
 
 Pós-merge: validar cinco rotas e custom 404, redirects para www, HTML sem JS, schema CreativeWork, robots/sitemap e Analytics do novo build. Search Console: enviar sitemap, solicitar indexação e conferir screenshot renderizado por causa da cobertura inicial. Pebolim só entra no sitemap após HTTP 200 confirmado. Padronizar nome/handle/site em GitHub/LinkedIn; acompanhar eovitu no GSC por 2–4 semanas.
+
+## Produção: publicação e reversão de 9/10/2026
+
+Horários do cliente America/Sao_Paulo. PR #14 mergeada por rebase em fe18a83 às 01:06:27; produção Ready às 01:06:57 (cerca de 30 s após merge, não duração interna do build). Deployment https://eovitu-5p41zbov2-victorhsilva115-7124s-projects.vercel.app . SHA-256 home igual ao build: 25510dc38f20b59a481133034fc89c9b83a4c5092235c4a5055d783023cfd59e.
+
+Deployment anterior para rollback: SHA 12ecc15f358b247aba58c4abc3487409525af724, https://eovitu-aox76fn6s-victorhsilva115-7124s-projects.vercel.app . Os cinco commits SEO foram preservados em rebase, com patch-id idêntico: a79192a→dfa2b46, 35a3d9f→f712e78, c75d21b→50f389e, 0b5a5de→105a11f, 1b438e9→fe18a83. Nenhum squash.
+
+E ficou visível sem JavaScript em 1.265 ms e desapareceu em 1.901 ms. O limite autorizado para rollback era aproximadamente 1 s. Por isso PR #15 reverteu somente 50f389e; merge por rebase em 0cd8f30, Ready às 01:11:42. Deployment https://eovitu-jxzva36do-victorhsilva115-7124s-projects.vercel.app . HTML www com hash idêntico ao build sem E: 0000e6fc68f634142cacad4a792d78ae9dc31b0db881e8ebeeccba0e952373e4. Hidratação/fontes/SEO preservados. A recobertura com JS voltou em desktop/mobile e carregamento tardio; não apliquei alternativa de primeira visita ou redesenho. Essa pendência de UX exige decisão do usuário. Sem JS/reduced motion não existe overlay.
+
+Pebolim respondeu 200 com um H1, conteúdo e canonical correto em 0cd8f30. PR #16 adicionou apenas allowlist e checks para cinco URLs; merge por rebase 09a5db1. Documentação é uma PR separada; não muda HTML ou assets.
+
+### Baseline versus publicado
+
+| Item                          | Antes: 12ecc15                                 | Depois: 0cd8f30, sem E                                                        |
+| ----------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------- |
+| HTTPS www / home e três cases | 200                                            | 200                                                                           |
+| Pebolim                       | 404                                            | 200, H1/conteúdo/canonical corretos                                           |
+| H1 no HTML inicial            | 0 nas rotas                                    | 1 nas seis páginas                                                            |
+| Canonical                     | sem www                                        | www e URL própria nas cinco rotas                                             |
+| Schema                        | Person/WebSite home; Person/CreativeWork cases | idem, identidade Victor Hugo Araujo e aliases confirmados; Pebolim com schema |
+| 404 real                      | 404, sem H1 inicial                            | 404, um H1, noindex, nenhum schema                                            |
+| Robots                        | 200                                            | 200, Allow /, sitemap www                                                     |
+| Sitemap                       | 200, quatro URLs                               | quatro URLs até PR #16; cinco após publicação verificada                      |
+| Analytics                     | 200 na versão antiga                           | 200 neste build                                                               |
+| Redirect HTTP sem www         | dois 308                                       | dois 308, exceção preexistente autorizada pelo usuário                        |
+| HTTPS sem www / HTTP www      | um 308 até www HTTPS                           | um 308 até www HTTPS                                                          |
+| OG                            | acessível                                      | 200, PNG 1200×630                                                             |
+
+Cinco titles e descriptions únicos; JSON-LD extraído do HTML e parseado sem erro. Person usa Victor Hugo Araujo, aliases Vitu/eovitu/Victor Hugo e sameAs apenas GitHub/LinkedIn existentes. Schema.org validou CreativeWork de HelpPet em produção com zero erros e avisos; não extrapolar validação externa para todos os cases. Fontes 200/font-woff2, sem fonts.googleapis.com; cache público com max-age=0,must-revalidate e ETag, não cache longo. Nenhuma configuração foi alterada.
+
+### Lighthouse de produção: dez execuções antes e depois
+
+Mesmo Chrome/Lighthouse 13.5.0, mobile/simulate, perfis novos por processo, origem www. Baseline antes do merge; depois após reversão de E. Sem build/QA concorrente nas séries. Não é CWV de campo.
+
+| Variante          |          LCP mín/med/máx ms |        TBT mín/med/máx ms | Performance mín/med/máx |
+| ----------------- | --------------------------: | ------------------------: | ----------------------: |
+| production-before | 3045.25 / 3992.64 / 4672.50 | 506.21 / 775.29 / 1227.16 |   55.00 / 61.00 / 69.00 |
+| production-after  | 1354.91 / 2404.24 / 3530.27 |  621.50 / 686.50 / 852.00 |   70.00 / 80.00 / 81.00 |
+
+| Execução | Antes LCP ms | Antes TBT ms |        Antes Perf | Depois LCP ms | Depois TBT ms | Depois Perf |
+| -------- | -----------: | -----------: | ----------------: | ------------: | ------------: | ----------: |
+| 1        |      4657.80 |       598.50 | 56.99999999999999 |       1354.91 |        807.00 |          80 |
+| 2        |      4600.37 |       606.00 | 57.99999999999999 |       2404.15 |        663.00 |          81 |
+| 3        |      3384.90 |      1227.16 |                62 |       3527.77 |        682.50 |          73 |
+| 4        |      4642.71 |       749.50 | 55.00000000000001 |       3530.27 |        852.00 |          70 |
+| 5        |      4672.50 |       506.21 |                60 |       3530.06 |        621.50 |          74 |
+| 6        |      3205.55 |       914.94 |                66 |       2403.76 |        690.50 |          80 |
+| 7        |      3045.25 |       871.07 |                69 |       2404.40 |        690.50 |          81 |
+| 8        |      3216.71 |       862.72 |                67 |       2404.34 |        714.50 |          80 |
+| 9        |      4653.80 |       507.50 |                59 |       2403.80 |        651.00 |          81 |
+| 10       |      3226.45 |       801.08 |                68 |       2402.84 |        662.00 |          81 |
+
+Mediana LCP caiu de 3.992,64 para 2.404,25 ms (39,8%). Meta <2,5 s atingida nesta série simulada por margem de 95,75 ms, mas três execuções ficaram em ~3,53 s; não garante experiência de campo. TBT 775,29→686,50 ms e Performance 61→80. CLS mediano 0→0,000570, pequeno mas não zero. Elemento LCP: parágrafo do hero em todas as vinte execuções; antes texto inglês, depois “Desenvolvo APIs…”. Local E 2,784 s não representa o mesmo artefato: produção medida está sem E. Local D 3,938 s versus produção sem E 2,404 s, diferença de ambiente/origem/build/carga, não ganho atribuível à abertura.
+
+### Navegador e limites
+
+Produção em 0cd8f30, desktop 1440×900/mobile 390×844, PT inicial, EN salvo e reload confirmados; navegação home/case/home interativa. Reduced motion sem overlay e vídeos pausados; sem JS conteúdo legível. Zero console errors, exceptions ou hydration mismatch; nenhum 4xx/5xx na home e sem overflow. Um request mp4 foi abortado durante navegação de retorno, net::ERR_ABORTED, sem status HTTP de erro; não foi escondido. A amostragem da abertura em cinco contextos confirmou recobertura em desktop/mobile/JS tardio após reversão E; esse critério de UX NÃO passou. Screenshots e resumos em docs/evidence/seo-2026-10-09.
+
+Logs internos Vercel não acessíveis sem autenticação/CLI/token autorizado; Ready, SHA e URL foram obtidos da integração Git/GitHub. Logs CI e build local mostram aviso do chunk Three (~794 kB) e useLayoutEffect durante SSR; sem erro de build, sem avisos de hydration no browser. Duração registrada é merge→Ready, não duração interna do build. Nenhum login, instalação global, segredo ou alteração da hospedagem.
+
+### Confirmado e pendências
+
+Confirmado: publicação por rebase, conteúdo inicial/schema/canonical, 404, OG, assets e Analytics, idioma/navegação, mediana Lighthouse não pior que baseline. Gates 139/139, typecheck/lint/format/build/artefatos nos commits de reversão/sitemap. Pendentes: UX da recobertura após rollback, validação externa dos outros CreativeWork, logs internos, CWV reais e screenshot renderizado pelo Google. Redirect duplo preservado como exceção autorizada; cache longo de fontes é opcional e exige escopo separado. Não declarar todos os critérios cumpridos.
+
+Ações do usuário: Search Console selecionar www, enviar sitemap.xml, Inspeção de URL e solicitar indexação; conferir screenshot renderizado, importar no Bing, padronizar nome/handle/website em GitHub/LinkedIn, acompanhar eovitu por 2–4 semanas. Decidir nova política da abertura em tarefa separada.
+
+### Conferência do sitemap publicado
+
+09a5db126a13e749f3e46e268201df44d1cae510 Ready às 01:17:20, deployment https://eovitu-qjny0q9tm-victorhsilva115-7124s-projects.vercel.app . XML parseado pelo parser XML do PowerShell, cinco URLs, todas testadas individualmente com HTTP 200 e www. Pebolim incluído somente após evidência de produção. HTML da home manteve SHA-256 0000e6fc68f634142cacad4a792d78ae9dc31b0db881e8ebeeccba0e952373e4; nenhuma mudança de aplicação entre a série Lighthouse e o sitemap. Cache registra ETag/Age/x-vercel-cache nos JSONs de evidência. A PR seguinte muda apenas documentação e evidências; seu SHA final e Ready devem ser registrados na entrega, sem alegar que o Lighthouse foi repetido para docs-only.

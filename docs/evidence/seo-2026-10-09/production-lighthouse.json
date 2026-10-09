@@ -1,0 +1,818 @@
+{
+  "production-before": {
+    "rows": [
+      {
+        "run": 1,
+        "LCP": 4657.802,
+        "TBT": 598.5,
+        "Performance": 56.99999999999999,
+        "CLS": 0
+      },
+      {
+        "run": 2,
+        "LCP": 4600.371999999999,
+        "TBT": 605.9999999999998,
+        "Performance": 57.99999999999999,
+        "CLS": 0
+      },
+      {
+        "run": 3,
+        "LCP": 3384.8984,
+        "TBT": 1227.161299999999,
+        "Performance": 62,
+        "CLS": 0
+      },
+      {
+        "run": 4,
+        "LCP": 4642.7115,
+        "TBT": 749.4999999999998,
+        "Performance": 55.00000000000001,
+        "CLS": 0
+      },
+      {
+        "run": 5,
+        "LCP": 4672.498850106154,
+        "TBT": 506.21497501769204,
+        "Performance": 60,
+        "CLS": 0
+      },
+      {
+        "run": 6,
+        "LCP": 3205.5485000000003,
+        "TBT": 914.9449999999999,
+        "Performance": 66,
+        "CLS": 0
+      },
+      {
+        "run": 7,
+        "LCP": 3045.2537999999995,
+        "TBT": 871.0725499999996,
+        "Performance": 69,
+        "CLS": 0.00003356900011892802
+      },
+      {
+        "run": 8,
+        "LCP": 3216.7059999999997,
+        "TBT": 862.7244999999998,
+        "Performance": 67,
+        "CLS": 0
+      },
+      {
+        "run": 9,
+        "LCP": 4653.8009999999995,
+        "TBT": 507.5,
+        "Performance": 59,
+        "CLS": 0
+      },
+      {
+        "run": 10,
+        "LCP": 3226.4545000000003,
+        "TBT": 801.0764999999999,
+        "Performance": 68,
+        "CLS": 0
+      }
+    ],
+    "metrics": {
+      "LCP": {
+        "min": 3045.2537999999995,
+        "median": 3992.6351999999997,
+        "max": 4672.498850106154
+      },
+      "TBT": {
+        "min": 506.21497501769204,
+        "median": 775.2882499999998,
+        "max": 1227.161299999999
+      },
+      "Performance": {
+        "min": 55.00000000000001,
+        "median": 61,
+        "max": 69
+      },
+      "CLS": {
+        "min": 0,
+        "median": 0,
+        "max": 0.00003356900011892802
+      }
+    },
+    "LCP": [
+      {
+        "run": 1,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 52.873999996185304
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 2209.3700000038148
+          }
+        ]
+      },
+      {
+        "run": 2,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 93.244
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 2180.39
+          }
+        ]
+      },
+      {
+        "run": 3,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 52.747
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 501.891
+          }
+        ]
+      },
+      {
+        "run": 4,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 47.484
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 2156.344
+          }
+        ]
+      },
+      {
+        "run": 5,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 49.419999996185304
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 2122.522000003815
+          }
+        ]
+      },
+      {
+        "run": 6,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 32.050000003814695
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 399.3459999961853
+          }
+        ]
+      },
+      {
+        "run": 7,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 38.539
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 364.735
+          }
+        ]
+      },
+      {
+        "run": 8,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 34.958
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 345.81
+          }
+        ]
+      },
+      {
+        "run": 9,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 45.166
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 2241.984
+          }
+        ]
+      },
+      {
+        "run": 10,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-hUhfoC > div.sc-eIYhOt > p.sc-otVOq",
+          "boundingRect": {
+            "top": 571,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 74
+          },
+          "snippet": "<p class=\"sc-otVOq lcUnqz\">",
+          "nodeLabel": "Solid systems. Expressive interfaces. I’m Victor, I build the logic behind a pr…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 31.853
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 375.482
+          }
+        ]
+      }
+    ]
+  },
+  "production-after": {
+    "rows": [
+      {
+        "run": 1,
+        "LCP": 1354.9099999999999,
+        "TBT": 807,
+        "Performance": 80,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 2,
+        "LCP": 2404.15,
+        "TBT": 663.0000000000001,
+        "Performance": 81,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 3,
+        "LCP": 3527.766,
+        "TBT": 682.4999999999998,
+        "Performance": 73,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 4,
+        "LCP": 3530.2690000000002,
+        "TBT": 852,
+        "Performance": 70,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 5,
+        "LCP": 3530.064,
+        "TBT": 621.5000000000002,
+        "Performance": 74,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 6,
+        "LCP": 2403.764,
+        "TBT": 690.5000000000001,
+        "Performance": 80,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 7,
+        "LCP": 2404.402,
+        "TBT": 690.5,
+        "Performance": 81,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 8,
+        "LCP": 2404.34,
+        "TBT": 714.5000000000001,
+        "Performance": 80,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 9,
+        "LCP": 2403.795,
+        "TBT": 651.0000000000001,
+        "Performance": 81,
+        "CLS": 0.0005702815085187481
+      },
+      {
+        "run": 10,
+        "LCP": 2402.8360000000002,
+        "TBT": 662,
+        "Performance": 81,
+        "CLS": 0.0005702815085187481
+      }
+    ],
+    "metrics": {
+      "LCP": {
+        "min": 1354.9099999999999,
+        "median": 2404.245,
+        "max": 3530.2690000000002
+      },
+      "TBT": {
+        "min": 621.5000000000002,
+        "median": 686.4999999999999,
+        "max": 852
+      },
+      "Performance": {
+        "min": 70,
+        "median": 80,
+        "max": 81
+      },
+      "CLS": {
+        "min": 0.0005702815085187481,
+        "median": 0.0005702815085187481,
+        "max": 0.0005702815085187481
+      }
+    },
+    "LCP": [
+      {
+        "run": 1,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 34.382
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 144.844
+          }
+        ]
+      },
+      {
+        "run": 2,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 35.178
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 116.019
+          }
+        ]
+      },
+      {
+        "run": 3,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 35.157000003814694
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 134.94499999618532
+          }
+        ]
+      },
+      {
+        "run": 4,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 46.925
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 141.637
+          }
+        ]
+      },
+      {
+        "run": 5,
+        "node": {
+          "type": "node",
+          "lhId": "page-4-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 35.5730000038147
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 162.9709999961853
+          }
+        ]
+      },
+      {
+        "run": 6,
+        "node": {
+          "type": "node",
+          "lhId": "page-4-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 35.37
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 162.24
+          }
+        ]
+      },
+      {
+        "run": 7,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 34.7469999961853
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 134.9250000038147
+          }
+        ]
+      },
+      {
+        "run": 8,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 34.7709999961853
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 128.07900000381468
+          }
+        ]
+      },
+      {
+        "run": 9,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 46.798
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 121.991
+          }
+        ]
+      },
+      {
+        "run": 10,
+        "node": {
+          "type": "node",
+          "lhId": "page-0-P",
+          "path": "1,HTML,1,BODY,0,DIV,4,DIV,0,SECTION,1,DIV,1,DIV,1,P",
+          "selector": "section#top > div.sc-kHHcIc > div.sc-fbWSto > p.sc-Gfnjh",
+          "boundingRect": {
+            "top": 546,
+            "bottom": 645,
+            "left": 20,
+            "right": 371,
+            "width": 351,
+            "height": 99
+          },
+          "snippet": "<p class=\"sc-Gfnjh AoWuN\">",
+          "nodeLabel": "Desenvolvo APIs com Java e Spring Boot, modelo dados e integro serviços. Também…"
+        },
+        "phases": [
+          {
+            "subpart": "timeToFirstByte",
+            "label": "Time to first byte",
+            "duration": 39.001000003814696
+          },
+          {
+            "subpart": "elementRenderDelay",
+            "label": "Element render delay",
+            "duration": 129.1049999961853
+          }
+        ]
+      }
+    ]
+  }
+}
