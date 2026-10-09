@@ -6,7 +6,7 @@ Data: 8 de outubro de 2026. Branch local `wip/seo-prerender`, WIP `a79192a` prot
 
 Nome público Victor Hugo Araujo, aliases Vitu/eovitu/Victor Hugo, perfis existentes, canônico https://www.eovitu.com.br e português inicial. A preferência EN é restaurada após hidratação. Pebolim existe no código, mas continua fora do sitemap até HTTP 200 confirmado em produção depois de publicação autorizada. A 404 mantém noindex e nenhum JSON-LD.
 
-A mediana final satisfaz o limite de não piorar o baseline, mas não a meta de LCP abaixo de 2.500 ms. O flash de cobertura da abertura permanece e exige decisão do usuário. Não declarar concluído.
+A rodada de 8/10 ficou em 3.940 ms e ainda tinha flash. O fechamento de 9/10, abaixo, testa a camada inicial autorizada. A meta de 2.500 ms continua pendente; não declarar performance concluída.
 
 ## Metodologia
 
@@ -93,7 +93,7 @@ No localhost, o endpoint /_vercel/insights/script.js não existe e retorna 404 n
 - index.html e public/fonts/: fontes locais, pesos/subset utilizados e licenças OFL oficiais. Fontes obtidas de fonts.gstatic.com; licenças de google/fonts, ofl/archivo e ofl/jetbrainsmono.
 - README.md e ARCHITECTURE.md: origem www, OG compartilhada e contrato real de renderização/fontes.
 
-## Decisão pendente: abertura
+## Registro histórico: decisão da abertura em 8/10
 
 Não foi removida, encurtada ou redesenhada. Opções para aprovação: (1) preservar a abertura e preparar sua camada antes da primeira pintura, com fallback que mantenha conteúdo legível sem JS; elimina a troca visível, mas pode atrasar LCP e precisa de nova medição; (2) abertura sem cobertura opaca, mantendo conteúdo legível, com alteração visual a aprovar; (3) remover ou encurtar, também com aprovação. A já existente diferença entre primeira visita e repetição não resolve o caso de perfil novo. Não há evidência para prometer ganho de LCP com remoção, pois C ficou praticamente igual a B. Recomenda-se preservar a abertura e testar a sincronização inicial antes de redesenhá-la.
 
@@ -117,3 +117,71 @@ Nenhum instalador ou script de fornecedor executado; nenhuma conta ou chave conf
 ## Melhorias opcionais
 
 Medir rede móvel real, coletar CWV de campo, investigar callbacks do GSAP com perfil específico, separar URLs EN e criar OG própria por case. São frentes separadas; nenhuma foi aplicada. CLI Vercel oficial opcional (npm i -g vercel) facilita operações futuras; não instalada e não necessária para este trabalho.
+
+## Fechamento de 9/10: experimento autorizado da abertura
+
+Correções anteriores protegidas no commit local 35a3d9f (fix(seo): hidratar HTML e servir fontes locais), sobre a79192a. A camada inicial e esta documentação permanecem no diff local. Nenhum push, merge, deploy ou alteração da PR #14.
+
+Cinco execuções por série, mesmo comando mobile/simulate, Chrome e porta 4173; E foi medido e D foi reconstruído do commit e repetido nesta sessão. E foi restaurado no build final. Não houve build ou QA concorrente com Lighthouse. Os dados de 8/10 são históricos identificados; a comparação direta desta rodada é E contra D repetido.
+
+| Variante              |        LCP mín/med/máx (ms) |      TBT mín/med/máx (ms) | Performance mín/med/máx |
+| --------------------- | --------------------------: | ------------------------: | ----------------------: |
+| Baseline 8/10         | 3624.29 / 4793.66 / 5175.98 |  516.13 / 766.33 / 966.00 |   51.00 / 56.00 / 72.00 |
+| SEO anterior 8/10     | 4452.73 / 4751.14 / 5717.83 | 802.50 / 961.00 / 1237.50 |   52.00 / 53.00 / 60.00 |
+| A 8/10                | 4597.67 / 5181.19 / 6094.90 |  776.00 / 868.00 / 908.68 |   47.00 / 54.00 / 60.00 |
+| B 8/10                | 4100.96 / 4110.22 / 4412.03 |  680.00 / 719.50 / 784.00 |   63.00 / 66.00 / 66.00 |
+| C temporário 8/10     | 4100.28 / 4104.50 / 4147.96 |  666.00 / 693.50 / 819.00 |   65.00 / 67.00 / 67.00 |
+| D 8/10                | 2710.34 / 3940.31 / 3947.92 | 708.00 / 720.39 / 1022.40 |   64.00 / 69.00 / 79.00 |
+| D repetido 9/10       | 2711.81 / 3934.36 / 3944.22 |  654.97 / 711.00 / 894.12 |   64.00 / 70.00 / 79.00 |
+| E camada inicial 9/10 | 2716.44 / 2859.40 / 3978.09 | 665.00 / 899.35 / 1122.50 |   63.00 / 74.00 / 79.00 |
+
+| Variante       | Execução |  LCP ms |  TBT ms | Performance |
+| -------------- | -------: | ------: | ------: | ----------: |
+| D-refresh      |        1 | 3937.72 |  894.12 |          64 |
+| D-refresh      |        2 | 3944.22 |  692.00 |          70 |
+| D-refresh      |        3 | 3158.92 |  894.00 |          73 |
+| D-refresh      |        4 | 2711.81 |  654.97 |          79 |
+| D-refresh      |        5 | 3934.36 |  711.00 |          69 |
+| E-static-cover |        1 | 2716.44 |  718.74 |          76 |
+| E-static-cover |        2 | 2858.78 |  665.00 |          79 |
+| E-static-cover |        3 | 2859.40 |  899.35 |          74 |
+| E-static-cover |        4 | 3959.58 | 1088.43 |          64 |
+| E-static-cover |        5 | 3978.09 | 1122.50 |          63 |
+
+E: mediana LCP 2.859 ms, 1.075 ms abaixo de D repetido; TBT sobe de 711 para 899 ms. Performance mediana passa de 70 para 74. CLS 0,000570 em todas as dez execuções, sem piora. LCP permanece o mesmo parágrafo nas cinco execuções E; a camada sem texto/imagem não se tornou LCP. Há sobreposição e dispersão entre séries; não alegar ganho causal garantido nem que a abertura era o gargalo. E permanece abaixo do baseline histórico de 4.794 ms; faltam 359 ms para a meta. O baseline não foi repetido em 9/10.
+
+B versus D históricos: diferença mediana de 170 ms, com amplitudes 311 e 1.238 ms. Cinco execuções não distinguem com segurança esse ganho do ruído. O bootstrap fica por outra justificativa: remove React/GSAP da dependência estática do módulo inicial e separa a montagem interativa do documento útil; duas frames oferecem oportunidade de pintura, sem garantir que a fonte já esteja pronta. Não foi mantido como prova de melhoria de 170 ms.
+
+### Elemento e fases do LCP
+
+D-1: parágrafo do hero “Desenvolvo APIs com Java e Spring Boot…”, caixa 351×99 px. Insight do Lighthouse: TTFB 5,571 ms; render delay 129,357 ms; load delay e load duration não se aplicam a esse nó de texto sem recurso de imagem. Soma observada 134,928 ms, contra LCP simulado 3.935 ms. E-3: mesmo nó e dimensões, TTFB 5,971 ms e render delay 85,700 ms; LCP simulado 2.859 ms. O relatório não oferece decomposição equivalente dos 2.859 ms simulados; não inventar fases para fechar essa soma. O texto foi candidato antes da cobertura animada posterior em D; não atribuir ausência de efeito da abertura em todos os dispositivos a esse único comportamento.
+
+### Bundle e long tasks
+
+D-1, tamanhos descomprimidos / transferidos: bootstrap 13.129 / 5.810 bytes; client-entry 289.034 / 96.296; React 145.972 / 47.525; GSAP 114.852 / 45.868; HomePage 49.101 / 14.845; MediaPlayback 12.836 / 4.640; canvas 16.228 / 7.582; Three 794.024 / 214.385. Bootstrap inicia em 19 ms, runtime/React/GSAP em 90 ms, HomePage/media em 133 ms; canvas/Three em 231 ms. Pintura observada 135 ms. Portanto Three foi carregado depois da primeira pintura observada nesse relatório e não é prova do gargalo inicial. A maior tarefa atribuída a GSAP durou 680 ms (excesso sobre 50 ms: 630 ms); React teve 353, 104 e 62 ms (excessos: 303, 54 e 12 ms). Esses excessos não são automaticamente a soma do TBT auditado: janelas e simulação diferem. Callbacks do ticker entram na atribuição GSAP; isso não prova custo de download/importação.
+
+### Propostas para segunda rodada, não aplicadas
+
+1. Perfilar os callbacks do GSAP para localizar o trabalho da tarefa de 680 ms e repartir a inicialização não visual. Ganho estimado de LCP: não quantificável com este trace; teto teórico de bloqueio removível dessa tarefa é 630 ms, não promessa de redução de LCP. Risco: sincronização da animação e scroll.
+2. Adiar montagem de componentes interativos abaixo da dobra, preservando o HTML estático. Ganho de LCP não medido; tarefas React citadas somam 369 ms de excesso potencial, sem prova de que sejam desses componentes. Risco: hidratação, eventos e navegação. Exige identificar primeiro quais componentes dominam.
+3. Testar WebGL após a abertura/ociosidade estável. Pode deslocar 794 kB descomprimidos/214 kB transferidos para depois; ganho de LCP não estimável e possivelmente nulo porque já chega após a pintura. Risco visual elevado: a abertura usa readiness do canvas. Não aplicar sem aprovação.
+
+### Camada inicial e CSP
+
+index.html inclui #entry-cover fora da raiz React: fixed/inset, mesma cor #08080a e nível 115 da abertura. CSS esconde a camada em 1,5 s, sem JS, sem deslocar layout; reduced motion usa display:none. EntrySequence entrega a cobertura no layout effect, quando sua camada já existe. Se o fallback CSS já expirou, MotionDirector deixa a composição estática e não recobre. Nenhuma duração/CSS da animação GSAP foi alterada. O fallback de chegada tardia é parte do experimento autorizado, não uma nova política permanente de primeira visita.
+
+CSP: nenhuma diretiva em vercel.json nem meta no HTML; resposta HTTPS de produção de 9/10 também sem Content-Security-Policy. Nenhum script inline novo, nenhuma política afrouxada. Analytics retornou HTTP 200 em produção nessa consulta; o 404 local continua registrado.
+
+### Revisão sequencial do diff
+
+Nome Victor Hugo Araujo e aliases Vitu/eovitu/Victor Hugo preservados; sameAs contém somente GitHub e LinkedIn já existentes. Não confirmei os nomes atualmente exibidos nos perfis externos, portanto padronização permanece ação do usuário. Canonical, OG, robots e sitemap usam www; OG compartilhada 1200×630. Quatro URLs no sitemap, Pebolim excluído. 404 noindex sem schema. Nenhuma dependência nova nem credencial adicionada; token público de verificação Google não é segredo. Fontes Latin, Archivo 400/500 e JetBrains Mono 400, swap/fallback e duas licenças OFL presentes. Não encontrei desvio adicional nesse checklist.
+
+### Validação final de E
+
+139/139 testes, typecheck, lint, format, build, verificador de seis artefatos/quatro URLs e git diff --check passaram. curl salvou os seis HTMLs: um H1 em cada; home e quatro projetos com dois schemas, 404 com noindex e nenhum schema. Browser de produção local: 35 navegações em desktop/mobile/reduced/saved-EN/no-JS, zero hydration mismatch, exceções JS ou overflow; apenas 404 do Analytics e da URL inexistente esperada. Analytics respondeu 200 na hospedagem atual, que ainda não contém esta implementação.
+
+Amostragem da abertura a cada ~70 ms em cinco contextos: desktop/mobile começaram cobertos e mantiveram a animação; nenhum contexto voltou a cobrir depois de expor o conteúdo. Runtime atrasado 2.200 ms: fallback revela em ~1.603 ms e não reaparece. Sem JS: fallback revela em ~1.584 ms. Reduced motion: sem cobertura desde a primeira amostra (~84 ms). Tempos diagnósticos locais, não métricas simuladas. Navegação home/case/home, menu mobile, EN salvo após reload e vídeos pausados em reduced motion passaram. Fallback sem fontes/JS manteve H1 legível e sem overflow. Screenshots e relatórios brutos em C:/Users/vitu/AppData/Local/Temp/portfolio-seo-performance/.
+
+O experimento foi mantido porque não piorou o LCP mediano contra D repetido e eliminou a recobertura nos cenários testados. TBT maior e dispersão permanecem registrados; não declarar a meta de performance concluída. Não é necessário decidir outra abertura nesta rodada. Segunda rodada de JS, push, merge e deploy continuam fora da autorização atual. Após publicar, conferir também o screenshot renderizado da home na Inspeção de URL do Search Console.
+
+Estado final local: branch wip/seo-prerender, commits a79192a e 35a3d9f sobre 57d5dac; experimento E, guard e documentação no diff sem commit. Nenhuma publicação. Arquivos desta rodada: index.html (camada/CSS), MotionDirector.tsx (não recobrir após fallback), EntrySequence.tsx (handoff), check-prerender.mjs (guard), docs/ARCHITECTURE.md e docs/SEO.md (contrato/evidências).
