@@ -9,7 +9,6 @@ import {
   Sparkle,
 } from '@phosphor-icons/react';
 import { useHomeMotion } from '../../hooks/useHomeMotion';
-import { useReloadColorReveal } from '../../hooks/useReloadColorReveal';
 import { useAnimationFrame } from '../providers/SmoothScrollProvider';
 import { stage } from '../../lib/stagePresence';
 import { coreOrigin } from '../../lib/warpTargets';
@@ -47,8 +46,6 @@ export function HomePage() {
   const aboutRef = useRef<HTMLElement>(null);
   useEditorialMotion(profileRef, aboutRef);
   useHomeMotion(heroRef);
-  useReloadColorReveal(profileRef, '#243cce');
-  useReloadColorReveal(aboutRef, '#f2b7a3');
   useAnimationFrame(() => {
     const el = contactRef.current;
     if (!el) return;
@@ -84,7 +81,7 @@ export function HomePage() {
   return (
     <>
       <S.Hero id="top" ref={heroRef} aria-labelledby="hero-title" data-gravity-section>
-        <S.HeroNote href="#about">
+        <S.HeroNote data-reload-target href="#about">
           Victor Hugo Araujo
           <span>
             {home.hero.note} <ArrowDownRight aria-hidden="true" weight="regular" />
@@ -129,7 +126,7 @@ export function HomePage() {
               </S.HeroLines>
             </S.HeroTitle>
           </div>
-          <S.HeroAside data-hero-fade>
+          <S.HeroAside data-hero-fade data-reload-target>
             <ArrowBendDownRight aria-hidden="true" size={60} weight="regular" />
             <S.HeroCopy>{home.hero.copy}</S.HeroCopy>
             <S.Actions>
@@ -155,10 +152,9 @@ export function HomePage() {
         id="profile"
         aria-labelledby="profile-title"
         data-gravity-section
-        data-scroll-boundary
       >
         <S.SectionInner>
-          <S.SectionHead>
+          <S.SectionHead data-reload-target>
             <div>
               <S.Kicker>{home.profile.kicker}</S.Kicker>
               <h2 id="profile-title" data-skew>
@@ -171,7 +167,7 @@ export function HomePage() {
           </S.SectionHead>
           <S.CapabilityGrid>
             {capabilities.map((item, index) => (
-              <S.Capability key={item.stack}>
+              <S.Capability data-reload-target key={item.stack}>
                 <item.icon aria-hidden="true" weight="regular" />
                 <h3>{home.profile.capabilities[index][0]}</h3>
                 <p>{home.profile.capabilities[index][1]}</p>
@@ -182,16 +178,10 @@ export function HomePage() {
         </S.SectionInner>
       </S.Profile>
 
-      <S.About
-        ref={aboutRef}
-        id="about"
-        aria-labelledby="about-title"
-        data-gravity-section
-        data-scroll-boundary
-      >
+      <S.About ref={aboutRef} id="about" aria-labelledby="about-title" data-gravity-section>
         <S.SectionInner>
           <S.AboutGrid>
-            <figure>
+            <figure data-reload-target>
               <picture>
                 <source
                   type="image/webp"
@@ -209,7 +199,7 @@ export function HomePage() {
               </picture>
               <figcaption>{home.about.caption}</figcaption>
             </figure>
-            <div>
+            <div data-reload-target>
               <S.Kicker>{home.about.kicker}</S.Kicker>
               <h2 id="about-title" data-skew>
                 {home.about.title[0]}

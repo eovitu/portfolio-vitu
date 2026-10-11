@@ -1,3 +1,4 @@
+import { animateSectionArrival } from '../motion/sectionArrival';
 import { useLayoutEffect } from 'react';
 import type { RefObject } from 'react';
 import { useAnimationFrame } from '../components/providers/SmoothScrollProvider';
@@ -35,7 +36,22 @@ export function useProjectTheaterMotion(
     if (!theaterEnabled) {
       run.dataset.enhanced = 'false';
       setActive(0);
-      return;
+      if (reduced) return;
+      const cleanups: (() => void)[] = [];
+      const ctx = gsap.context(() => {
+        run.querySelectorAll<HTMLElement>('[data-theater-chapter]').forEach((chapter) => {
+          ScrollTrigger.create({
+            trigger: chapter,
+            start: 'top 78%',
+            once: true,
+            onEnter: () => cleanups.push(animateSectionArrival(chapter, false)),
+          });
+        });
+      }, section);
+      return () => {
+        cleanups.forEach((cleanup) => cleanup());
+        ctx.revert();
+      };
     }
 
     run.dataset.enhanced = 'true';

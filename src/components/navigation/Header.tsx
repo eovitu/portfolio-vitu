@@ -99,6 +99,14 @@ const DesktopNav = styled.nav`
     padding: 10px 0;
     color: var(--ink-muted);
   }
+  a {
+    transition:
+      transform 150ms ease,
+      opacity 150ms ease;
+  }
+  a:active {
+    opacity: 0.72;
+  }
   a:hover,
   a:focus-visible {
     color: var(--ink);
@@ -120,6 +128,14 @@ const MenuButton = styled.button`
   min-height: 48px;
   font: inherit;
   letter-spacing: inherit;
+  transition: opacity 150ms ease;
+  &:hover,
+  &:focus-visible {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.65;
+  }
   @media (max-width: 900px) {
     display: inline-flex;
   }

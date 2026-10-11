@@ -17,6 +17,6 @@ test('the hero CTAs are outside the first-visit gather-and-release wrapper', () 
   // never be wrapped by it again.
   assert.doesNotMatch(home, /<S\.HeroGrid data-warp>/);
   assert.match(home, /<div data-warp>/);
-  assert.match(home, /<S\.HeroAside data-hero-fade>/);
+  assert.match(home, /<S\.HeroAside data-hero-fade data-reload-target>/);
   assert.doesNotMatch(home, /<S\.HeroAside[^>]*data-warp/);
 });

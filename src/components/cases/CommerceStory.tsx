@@ -110,7 +110,7 @@ export default function CommerceStory() {
   const copy = content.ui.commerce;
 
   return (
-    <Story data-scroll-boundary aria-labelledby="commerce-title">
+    <Story aria-labelledby="commerce-title">
       <header>
         <div>
           <small>{copy.kicker}</small>

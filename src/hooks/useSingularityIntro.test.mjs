@@ -1,18 +1,12 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { reloadPlan } from '../motion/sectionChoreography.ts';
 
-const source = readFileSync(new URL('./useSingularityIntro.ts', import.meta.url), 'utf8');
-
-test('optional home-only intro targets are resolved and guarded before GSAP receives them', () => {
-  assert.match(source, /const meta = gsap\.utils\.toArray<HTMLElement>\('\[data-meta\]'\)/);
-  assert.match(
-    source,
-    /const stagedLines = gsap\.utils\.toArray<HTMLElement>\('\[data-line\]'\)/,
-  );
-  assert.match(source, /if \(lines\.length\) gsap\.set\(lines/);
-  assert.match(source, /if \(meta\.length\)/);
-  assert.match(source, /if \(stagedLines\.length\)/);
-  assert.doesNotMatch(source, /\.to\(\s*'\[data-meta\]'/);
-  assert.doesNotMatch(source, /\.to\(\s*'\[data-line\]'/);
+test('reload without a snapshot has no hero dependency and releases immediately', () => {
+  assert.equal(reloadPlan(null, false, 0).animate, false);
+});
+test('case reload preserves its position without any home-only elements', () => {
+  const plan = reloadPlan({ section: 'case-helppet:case-body', scrollY: 2170 }, false, 0.2);
+  assert.equal(plan.animate, true);
+  assert.equal(plan.scrollY, 2170);
 });

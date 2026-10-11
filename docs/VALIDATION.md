@@ -1,5 +1,7 @@
 # Validação dos ajustes do portfólio
 
+> **Registro histórico.** Os resultados e as autorizações abaixo pertencem às datas indicadas. Consulte [o estado atual](STATUS.md), [a arquitetura](ARCHITECTURE.md) e [a validação de motion de 10/10](SECTION_MOTION_VALIDATION.md). Contratos antigos, como autoplay e alinhamento de scroll, foram substituídos; as evidências originais foram preservadas.
+
 Data: 8 de outubro de 2026. Worktree portfolio.devitu-backend, branch feat/portfolio-backend. Commit, push e PR autorizados pelo usuário nesta entrega; merge e deploy não autorizados.
 
 ## Mudanças desta rodada
@@ -48,3 +50,7 @@ Gates da correção geométrica: 138/138 testes completos, 10/10 focados, typech
 ## Resize durante a pausa
 
 Mudanças de altura, limite do documento e layout sticky/fluxo cancelam a pausa ativa e reiniciam o histórico do gesto. Isso impede conservar um alvo antigo após resize. Observers são desconectados no cleanup e não escrevem layout. Validação final: 139/139 testes completos e 17/17 focados; typecheck, lint, formatação e build aprovados. Gestos reais permanecem não verificados.
+
+## Substituição do contrato de pausas por cor
+
+Em 10/10/2026, a tarefa de scroll contínuo substituiu a política histórica de alinhamento e hold descrita acima. As pausas por cor, seus marcadores e auxiliares foram removidos. Suavização Lenis, navegação e locks de dialogs/abertura foram preservados. A evidência desta alteração fica no relatório da tarefa; os registros anteriores permanecem históricos.

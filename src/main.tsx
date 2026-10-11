@@ -40,7 +40,7 @@ if (layer) {
       document.documentElement.classList.remove('warp-staging');
       destroyGhosts();
     }
-  }, 4000);
+  }, 3200);
 } else {
   markFirstUsefulFrame(prefersReducedMotion() ? 'reduced' : 'first-visit', 0, 0);
 }

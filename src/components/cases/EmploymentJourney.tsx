@@ -74,7 +74,7 @@ export default function EmploymentJourney() {
   const { content } = useLanguage();
   const copy = content.ui.employment;
   return (
-    <Journey data-scroll-boundary aria-labelledby="journey-title">
+    <Journey aria-labelledby="journey-title">
       <header>
         <h2 id="journey-title">
           {copy.title[0]}

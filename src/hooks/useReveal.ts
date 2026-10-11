@@ -1,7 +1,8 @@
 import { useLayoutEffect, type RefObject } from 'react';
 import { gsap } from '../lib/gsap';
 import { EASE, REVEAL, type RevealKind } from '../lib/motion';
-import { prefersReducedMotion } from '../lib/prefersReducedMotion';
+import { useReducedMotion } from './useReducedMotion';
+import { sectionEntryPose } from '../motion/sectionEntryPose';
 
 /**
  * Scroll reveals for a section.
@@ -16,11 +17,10 @@ import { prefersReducedMotion } from '../lib/prefersReducedMotion';
  * and restores inline styles.
  */
 export function useReveal(scopeRef: RefObject<HTMLElement>): void {
+  const reduce = useReducedMotion();
   useLayoutEffect(() => {
     const scope = scopeRef.current;
     if (!scope) return;
-
-    const reduce = prefersReducedMotion();
 
     const ctx = gsap.context(() => {
       const nodes = Array.from(scope.querySelectorAll<HTMLElement>('[data-reveal]'));
@@ -58,22 +58,40 @@ export function useReveal(scopeRef: RefObject<HTMLElement>): void {
           // transform as pixels, and the later tween then reads `yPercent` as
           // already 0, the element would never move. `immediateRender` puts
           // the "from" state in place at creation, so nothing flashes either.
-          gsap.fromTo(targets, preset.from, {
-            ...preset.to,
-            duration: preset.duration,
-            stagger: preset.stagger,
-            ease: EASE,
-            immediateRender: true,
-            scrollTrigger: {
-              trigger: targets[0].closest('section') ?? scope,
-              start: 'top 78%',
-              once: true,
+          const section = targets[0].closest('section') ?? scope;
+          const rect = targets[0].getBoundingClientRect();
+          gsap.fromTo(
+            targets,
+            {
+              ...sectionEntryPose(
+                section.id,
+                0,
+                { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 },
+                { w: innerWidth, h: innerHeight },
+              ),
+              opacity: 0,
             },
-          });
+            {
+              x: 0,
+              y: 0,
+              scale: 1,
+              rotation: 0,
+              opacity: 1,
+              duration: preset.duration,
+              stagger: preset.stagger,
+              ease: EASE,
+              immediateRender: true,
+              scrollTrigger: {
+                trigger: targets[0].closest('section') ?? scope,
+                start: 'top 78%',
+                once: true,
+              },
+            },
+          );
         });
       });
     }, scope);
 
     return () => ctx.revert();
-  }, [scopeRef]);
+  }, [scopeRef, reduce]);
 }
