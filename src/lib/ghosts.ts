@@ -22,6 +22,7 @@
 
 import type { WarpSnapshot, WarpType, WarpWord } from './reloadSnapshot';
 import { coreOrigin, type Point } from './warpTargets';
+import { localMediaSource } from './localMediaSource';
 
 /** Beyond this the swallow reads as noise and costs frames. */
 const MAX_FRAGMENTS = 120;
@@ -59,6 +60,7 @@ export interface GhostLayer {
   fidelity: GhostFidelity[];
   /** Where the reader was, in scroll pixels: the camera's starting altitude. */
   fromScrollY: number;
+  section: string;
   destroy: () => void;
 }
 
@@ -71,6 +73,8 @@ interface Box {
   h: number;
   t: string;
   s: number;
+  src?: string;
+  fit?: string;
 }
 
 function makeFragment(box: Box, type: WarpType | null): HTMLElement {
@@ -94,6 +98,7 @@ function makeFragment(box: Box, type: WarpType | null): HTMLElement {
     el.style.letterSpacing = type.ls;
     el.style.textTransform = type.tt;
     el.style.color = type.color;
+    if (type.bg) el.style.backgroundColor = type.bg;
     // The saved box is the tight glyph box, so the safest way to land the
     // text back inside it is to make the line box exactly that tall.
     el.style.lineHeight = `${box.h}px`;
@@ -103,6 +108,15 @@ function makeFragment(box: Box, type: WarpType | null): HTMLElement {
     // composition read as half-empty, so it is swallowed as a faint plate.
     el.style.background = 'rgba(255,255,255,0.045)';
     el.style.borderRadius = '2px';
+    const source = localMediaSource(box.src, location.origin);
+    if (source) {
+      const img = document.createElement('img');
+      img.src = source;
+      img.alt = '';
+      img.style.cssText = 'width:100%;height:100%;display:block';
+      img.style.objectFit = box.fit === 'contain' ? 'contain' : 'cover';
+      el.appendChild(img);
+    }
   }
   return el;
 }
@@ -146,9 +160,12 @@ export function mountGhosts(snapshot: WarpSnapshot): GhostLayer | null {
 
   const root = document.createElement('div');
   root.setAttribute('data-ghost-layer', '');
+  root.dataset.section = snapshot.section;
   root.setAttribute('aria-hidden', 'true');
   root.style.cssText =
     'position:fixed;inset:0;z-index:4;pointer-events:none;contain:layout style paint;';
+  if (snapshot.background && /^(rgb|rgba)\([\d.,%\s]+\)$/.test(snapshot.background))
+    root.style.backgroundColor = snapshot.background;
   document.body.appendChild(root);
 
   const origin = coreOrigin();
@@ -220,6 +237,7 @@ export function mountGhosts(snapshot: WarpSnapshot): GhostLayer | null {
     fragments,
     fidelity,
     fromScrollY: snapshot.scrollY,
+    section: snapshot.section,
     destroy: () => {
       root.remove();
       if (current === layer) current = null;

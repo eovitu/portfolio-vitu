@@ -48,23 +48,3 @@ export function safeSelector(value: string): HTMLElement | null {
     return null;
   }
 }
-
-/** Color transitions use band edges; navigation deliberately lands inside the band. */
-export function resolveChapterBoundary(
-  element: HTMLElement,
-  viewportHeight = window.innerHeight,
-): number {
-  const run = element.closest<HTMLElement>('[data-theater-run]');
-  if (run?.dataset.enhanced === 'true') {
-    const chapters = Array.from(
-      run.querySelectorAll<HTMLElement>('[data-theater-chapter]'),
-    );
-    const index = chapters.indexOf(element);
-    return (
-      layoutTop(run) +
-      (Math.max(0, run.offsetHeight - viewportHeight) * index) /
-        Math.max(1, chapters.length)
-    );
-  }
-  return layoutTop(element);
-}

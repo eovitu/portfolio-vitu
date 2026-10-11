@@ -212,12 +212,22 @@ export const Action = styled.a<{ $primary?: boolean }>`
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
   }
 
+  &:focus-visible {
+    box-shadow: 0 0 0 2px currentColor;
+  }
   &:hover svg {
     transform: translate(3px, -3px);
   }
   &:active {
     transform: translateY(-1px) scale(0.98);
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.18);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:hover,
+    &:active,
+    &:hover svg {
+      transform: none;
+    }
   }
 `;
 

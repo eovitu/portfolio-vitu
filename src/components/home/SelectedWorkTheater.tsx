@@ -1,3 +1,4 @@
+import { animateSectionArrival } from '../../motion/sectionArrival';
 import { resolveChapterTarget } from '../../motion/chapterTarget';
 import { useCallback, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { ArrowBendDownRight, ArrowUpRight } from '@phosphor-icons/react';
@@ -12,7 +13,6 @@ import {
 } from '../../motion/theaterChapters';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useSmoothScroll } from '../providers/SmoothScrollProvider';
-import { useReloadColorReveal } from '../../hooks/useReloadColorReveal';
 import { ProjectMediaSurface } from './ProjectMediaSurface';
 import * as S from './SelectedWorkTheater.styles';
 import * as Base from './HomePage.styles';
@@ -24,6 +24,7 @@ export function SelectedWorkTheater() {
   const copy = content.ui.home.work;
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
+  const clickArrival = useRef<(() => void) | null>(null);
   const reduced = useReducedMotion();
   const viewportMatches = useMediaQuery(PROJECT_THEATER_MEDIA_QUERY);
   const [contentFits, setContentFits] = useState(false);
@@ -55,7 +56,26 @@ export function SelectedWorkTheater() {
   const { scrollTo } = useSmoothScroll();
   useProjectTheaterMotion(sectionRef, setActive, contentFits);
   useReveal(sectionRef);
-  useReloadColorReveal(sectionRef, '#08080a');
+  useLayoutEffect(() => {
+    const cancel = () => {
+      clickArrival.current?.();
+      clickArrival.current = null;
+    };
+    for (const type of ['wheel', 'touchstart', 'keydown', 'resize'])
+      window.addEventListener(type, cancel, { passive: true });
+    return () => {
+      for (const type of ['wheel', 'touchstart', 'keydown', 'resize'])
+        window.removeEventListener(type, cancel);
+      cancel();
+    };
+  }, [enhanced, reduced, content]);
+  useLayoutEffect(() => {
+    if (!enhanced || reduced) return;
+    const chapter = sectionRef.current?.querySelector<HTMLElement>(
+      '[data-theater-chapter][data-active="true"]',
+    );
+    return chapter ? animateSectionArrival(chapter, false) : undefined;
+  }, [active, enhanced, reduced, content]);
 
   /**
    * The numbered navigation moves the scroll, never the active index.
@@ -84,14 +104,25 @@ export function SelectedWorkTheater() {
       if (!run || run.dataset.enhanced !== 'true') return;
       event.preventDefault();
       const target = resolveChapterTarget(`#work-${projects[index].slug}`);
-      if (target) scrollTo(target.position, 0.9);
+      clickArrival.current?.();
+      clickArrival.current = null;
+      if (target)
+        scrollTo(target.position, 0.9, () => {
+          if (!target.element.isConnected) return;
+          clickArrival.current = animateSectionArrival(target.element);
+          const heading = target.element.querySelector<HTMLElement>('h3');
+          if (heading) {
+            heading.tabIndex = -1;
+            heading.focus({ preventScroll: true });
+          }
+        });
     },
     [projects, scrollTo],
   );
 
   return (
     <S.Theater id="work" ref={sectionRef} aria-labelledby="work-title" data-gravity-section>
-      <S.Intro>
+      <S.Intro data-reload-target>
         <div>
           <Base.Kicker data-reveal="line">{copy.kicker}</Base.Kicker>
           <h2 id="work-title" data-skew data-reveal="soft">

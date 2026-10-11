@@ -11,7 +11,8 @@ import { CAMERA, QUALITY, detectTier } from '../three/renderQuality';
 import { getCore } from './gravityField';
 
 /** Elements the singularity can swallow. Marked in the section markup. */
-export const WARP = '[data-warp]';
+export const WARP =
+  '[data-warp], [data-reload-target], [data-project-media], [data-chapter-copy] > *, #case-content h2, #case-content p, #case-content figure';
 
 /**
  * Drop any target that lives inside another target.
@@ -46,7 +47,11 @@ export function isOnScreen(el: HTMLElement): boolean {
   // at the same rect as the active one and only toggles `visibility`. Without
   // this check every stacked chapter reads as "on screen" at once.
   const style = getComputedStyle(el);
-  return style.visibility !== 'hidden' && style.display !== 'none';
+  if (style.visibility === 'hidden' || style.display === 'none') return false;
+  for (let node: HTMLElement | null = el; node; node = node.parentElement) {
+    if (Number(getComputedStyle(node).opacity) === 0) return false;
+  }
+  return true;
 }
 
 export interface Point {

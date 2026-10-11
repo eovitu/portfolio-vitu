@@ -9,11 +9,14 @@
  * `lib/ghosts`) which the singularity then swallows.
  *
  * NOTE ON SCROLL OWNERSHIP
- * This module records visual continuity only. The browser remains the owner of
- * reload scroll restoration, while the route director owns SPA navigation.
+ * The browser starts reload restoration. During the bounded intro, the saved
+ * position reconciles desktop theater hydration geometry; gestures end that
+ * ownership. The route director owns SPA navigation.
  */
 
+import { selectVisibleSection } from '../motion/sectionChoreography';
 import { dropNested, isOnScreen, WARP } from './warpTargets';
+import { localMediaSource } from './localMediaSource';
 
 const KEY = 'singularity:warp';
 
@@ -22,6 +25,8 @@ const MAX_BYTES = 50_000;
 const MAX_TARGETS = 40;
 
 interface WarpRect {
+  src?: string;
+  fit?: string;
   x: number;
   y: number;
   w: number;
@@ -39,6 +44,7 @@ export interface WarpType {
   tt: string;
   color: string;
   ta: string;
+  bg?: string;
 }
 
 /**
@@ -75,6 +81,7 @@ export interface WarpSnapshot {
   scrollY: number;
   /** Nearest section id, for reporting/debugging. */
   section: string;
+  background?: string;
   viewport: { w: number; h: number };
   /** Shared style table, a block's words rarely all share one style. */
   styles: WarpType[];
@@ -95,6 +102,7 @@ function readType(el: Element): WarpType {
     tt: s.textTransform,
     color: s.color,
     ta: s.textAlign,
+    bg: s.backgroundColor,
   };
 }
 
@@ -119,12 +127,52 @@ const round = (n: number) => Math.round(n * 10) / 10;
 function measureMedia(el: HTMLElement, remaining: number): WarpRect[] {
   const out: WarpRect[] = [];
   // `picture` only ever wraps an `img`, which this query already reaches.
-  const nodes = el.querySelectorAll<HTMLElement>('img, video, canvas, svg');
+  const nodes = [
+    ...(el.matches('img, video, canvas, svg') ? [el] : []),
+    ...el.querySelectorAll<HTMLElement>('img, video, canvas, svg'),
+  ];
   for (const node of nodes) {
     if (out.length >= MAX_MEDIA_PER_TARGET || out.length >= remaining) break;
     const r = node.getBoundingClientRect();
-    if (r.width <= 0 || r.height <= 0) continue;
-    out.push({ x: round(r.left), y: round(r.top), w: round(r.width), h: round(r.height) });
+    if (!isOnScreen(node)) continue;
+    let src: string | undefined;
+    const raw =
+      node instanceof HTMLImageElement
+        ? node.currentSrc || node.src
+        : node instanceof HTMLVideoElement
+          ? node.poster
+          : '';
+    try {
+      const url = new URL(raw, location.href);
+      if (
+        raw &&
+        url.origin === location.origin &&
+        /\.(webp|png|jpe?g|avif)$/i.test(url.pathname)
+      )
+        src = url.pathname;
+    } catch {
+      /* unsupported media remains a lightweight plate */
+    }
+    if (
+      src &&
+      out.some(
+        (box) =>
+          box.src === src &&
+          Math.abs(box.x - r.left) < 2 &&
+          Math.abs(box.y - r.top) < 2 &&
+          Math.abs(box.w - r.width) < 2 &&
+          Math.abs(box.h - r.height) < 2,
+      )
+    )
+      continue;
+    out.push({
+      x: round(r.left),
+      y: round(r.top),
+      w: round(r.width),
+      h: round(r.height),
+      src,
+      fit: getComputedStyle(node).objectFit,
+    });
   }
   return out;
 }
@@ -151,7 +199,7 @@ function measureWords(
     if (!text.trim()) continue;
 
     const parent = node.parentElement;
-    if (!parent) continue;
+    if (!parent || !isOnScreen(parent as HTMLElement)) continue;
     let si = styleIndex.get(parent);
     if (si === undefined) {
       si = styles.push(readType(parent)) - 1;
@@ -165,7 +213,15 @@ function measureWords(
       range.setStart(node, match.index);
       range.setEnd(node, match.index + match[0].length);
       const r = range.getBoundingClientRect();
-      if (r.width <= 0 || r.height <= 0) continue;
+      if (
+        r.width <= 0 ||
+        r.height <= 0 ||
+        r.bottom <= 0 ||
+        r.top >= innerHeight ||
+        r.right <= 0 ||
+        r.left >= innerWidth
+      )
+        continue;
       out.push({
         x: round(r.left),
         y: round(r.top),
@@ -187,9 +243,42 @@ function capture(): WarpSnapshot | null {
   // Over the bound: reconstructing this would cost more than it buys.
   if (!targets.length || targets.length > MAX_TARGETS) return null;
 
-  const section =
-    document.querySelector<HTMLElement>('section[id], [id="work"], [id="top"]')?.id ?? '';
+  const section = selectVisibleSection(
+    Array.from(
+      document.querySelectorAll<HTMLElement>(
+        'section[id], [data-theater-chapter], [data-reload-section]',
+      ),
+    ).map((el) => {
+      const rect = el.getBoundingClientRect();
+      return {
+        id: el.dataset.reloadSection || el.id,
+        top: rect.top,
+        bottom: rect.bottom,
+        visible: isOnScreen(el),
+      };
+    }),
+    innerHeight,
+  );
 
+  const sectionNode = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      'section[id], [data-theater-chapter], [data-reload-section]',
+    ),
+  ).find((el) => (el.dataset.reloadSection || el.id) === section);
+  let background: string | undefined;
+  for (
+    let node: HTMLElement | null = sectionNode ?? document.body;
+    node;
+    node = node.parentElement
+  ) {
+    const color = getComputedStyle(node).backgroundColor;
+    if (color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+      background = color;
+      break;
+    }
+  }
+  const caseProject = document.querySelector<HTMLElement>('#case-content')?.dataset.project;
+  const identity = caseProject ? `case-${caseProject}:${section || 'story'}` : section;
   const styles: WarpType[] = [];
   const styleIndex = new Map<Element, number>();
   let wordBudget = MAX_WORDS_TOTAL;
@@ -211,7 +300,8 @@ function capture(): WarpSnapshot | null {
   return {
     path: location.pathname,
     scrollY: window.scrollY,
-    section,
+    section: identity,
+    background,
     viewport: { w: window.innerWidth, h: window.innerHeight },
     styles,
     targets: captured,
@@ -226,12 +316,19 @@ function isUsable(shot: WarpSnapshot | null): shot is WarpSnapshot {
     !!shot &&
     shot.path === location.pathname &&
     finite(shot.scrollY) &&
+    shot.scrollY >= 0 &&
+    typeof shot.section === 'string' &&
     !!shot.viewport &&
     finite(shot.viewport.w) &&
     shot.viewport.w > 0 &&
     finite(shot.viewport.h) &&
     shot.viewport.h > 0 &&
     Array.isArray(shot.styles) &&
+    shot.styles.length <= MAX_WORDS_TOTAL &&
+    shot.styles.every(
+      (style) =>
+        !!style && Object.values(style).every((value) => typeof value === 'string'),
+    ) &&
     Array.isArray(shot.targets) &&
     shot.targets.length > 0 &&
     shot.targets.length <= MAX_TARGETS &&
@@ -245,7 +342,22 @@ function isUsable(shot: WarpSnapshot | null): shot is WarpSnapshot {
         finite(target.rect.h) &&
         target.rect.h > 0 &&
         Array.isArray(target.words) &&
-        Array.isArray(target.media),
+        Array.isArray(target.media) &&
+        target.media.length <= MAX_MEDIA_PER_TARGET &&
+        target.media.every(
+          (box) =>
+            !!box &&
+            [box.x, box.y, box.w, box.h].every(finite) &&
+            (box.src === undefined ||
+              localMediaSource(box.src, location.origin) !== undefined),
+        ) &&
+        target.words.length <= MAX_WORDS_PER_TARGET &&
+        target.words.every(
+          (word) =>
+            !!word &&
+            [word.x, word.y, word.w, word.h, word.s].every(finite) &&
+            typeof word.t === 'string',
+        ),
     )
   );
 }

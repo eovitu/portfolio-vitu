@@ -62,3 +62,10 @@ export const MOTION_STAGGER = {
   /** Independent blocks, navigation items, actions. */
   block: 0.06,
 } as const;
+
+/** Same section poses, with a stronger arrival than continuous reading. */
+export const SECTION_MOTION_STRENGTH = {
+  scroll: 0.32,
+  arrival: 0.55,
+  reload: 1.25,
+} as const;

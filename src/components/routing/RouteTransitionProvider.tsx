@@ -1,3 +1,4 @@
+import { animateSectionArrival } from '../../motion/sectionArrival';
 import { observeInitialHash } from '../../motion/initialHash';
 import { resolveChapterTarget, safeSelector } from '../../motion/chapterTarget';
 /* eslint-disable react-refresh/only-export-components -- provider and hook form one public boundary */
@@ -182,6 +183,11 @@ export function RouteTransitionProvider({
     () => initialRoute ?? resolveRoute(window.location.pathname),
   );
   const [phase, setPhase] = useState<TransitionPhase>('idle');
+  const arrivalCleanup = useRef<(() => void) | null>(null);
+  const arrive = useCallback((element: HTMLElement | null) => {
+    arrivalCleanup.current?.();
+    arrivalCleanup.current = element ? animateSectionArrival(element) : null;
+  }, []);
   const routeRef = useRef(route);
   const overlayRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<AbortController | null>(null);
@@ -235,6 +241,7 @@ export function RouteTransitionProvider({
 
   const navigate = useCallback(
     async (href: string, context: NavigationContext): Promise<void> => {
+      arrive(null);
       const url = new URL(href, window.location.href);
       const targetRoute = resolveRoute(url.pathname);
       const currentRoute = routeRef.current;
@@ -269,7 +276,14 @@ export function RouteTransitionProvider({
         if (target.kind === 'selector') {
           const chapter = resolveChapterTarget(target.value);
           const element = chapter?.position ?? safeSelector(target.value);
-          if (element !== null) scrollTo(element, context.cause === 'popstate' ? 0 : 1.65);
+          if (element !== null)
+            scrollTo(
+              element,
+              context.cause === 'popstate' ? 0 : 1.65,
+              context.cause === 'popstate'
+                ? undefined
+                : () => arrive(chapter?.element ?? safeSelector(target.value)),
+            );
         }
         focusRouteTarget(targetRoute, url.hash);
         scheduleHashStrip(url.hash);
@@ -365,6 +379,9 @@ export function RouteTransitionProvider({
           { opacity: 0, duration: beat(0.24), ease: 'none' },
           controller.signal,
         );
+        if (context.cause !== 'popstate' && target.kind === 'selector') {
+          arrive(resolveChapterTarget(target.value)?.element ?? safeSelector(target.value));
+        }
         machine.complete();
         await machineRun;
         focusRouteTarget(
@@ -403,10 +420,24 @@ export function RouteTransitionProvider({
       activePromiseRef.current = lifecycle;
       await lifecycle;
     },
-    [locale, restoreInterface, scrollTo, scrollToImmediate, stop],
+    [locale, restoreInterface, scrollTo, scrollToImmediate, stop, arrive],
   );
 
   useInternalNavigation(navigate);
+
+  useEffect(() => {
+    const cancelArrival = () => arrive(null);
+    const query = matchMedia('(prefers-reduced-motion: reduce)');
+    for (const type of ['wheel', 'touchstart', 'resize', 'keydown'])
+      window.addEventListener(type, cancelArrival, { passive: true });
+    query.addEventListener('change', cancelArrival);
+    return () => {
+      for (const type of ['wheel', 'touchstart', 'resize', 'keydown'])
+        window.removeEventListener(type, cancelArrival);
+      query.removeEventListener('change', cancelArrival);
+      arrive(null);
+    };
+  }, [arrive, locale]);
 
   useEffect(() => {
     const progressByPhase: Record<TransitionPhase, number> = {

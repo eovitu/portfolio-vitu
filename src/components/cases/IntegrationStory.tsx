@@ -60,7 +60,7 @@ export default function IntegrationStory() {
   const { content } = useLanguage();
   const copy = content.ui.integration;
   return (
-    <Integration data-scroll-boundary aria-labelledby="integration-title">
+    <Integration aria-labelledby="integration-title">
       <h2 id="integration-title">{copy.title}</h2>
       <p>{copy.intro}</p>
       <ol aria-label={copy.areasLabel}>

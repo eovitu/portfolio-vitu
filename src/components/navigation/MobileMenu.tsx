@@ -1,6 +1,13 @@
 import { flushSync } from 'react-dom';
 import { isEligibleInternalClick } from '../../motion/routeIntent';
-import { useCallback, useRef, type MouseEvent, type RefObject } from 'react';
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type RefObject,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
 import styled from 'styled-components';
@@ -81,21 +88,68 @@ const MenuLink = styled(motion.a)`
     color: var(--accent);
   }
 `;
-const ProjectLinks = styled.ul`
-  display: grid;
-  gap: 4px;
-  list-style: none;
+const ProjectsButton = styled(motion.button)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  border: 0;
   padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: clamp(38px, min(15vw, 9dvh), 74px);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  text-align: left;
+  cursor: pointer;
+  &:hover,
+  &:focus-visible {
+    color: var(--accent);
+  }
+  span {
+    font-size: 0.65em;
+    letter-spacing: 0;
+  }
+`;
+const ProjectLinks = styled(motion.ul)`
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  padding: 0 0 0 14px;
+  border-left: 1px solid var(--border);
   margin: 0;
+  overflow: hidden;
   a {
     display: flex;
     align-items: center;
-    min-height: 44px;
+    min-height: 48px;
+    padding: 6px 0;
     font-size: 18px;
+    line-height: 1.3;
+    color: var(--ink-muted);
+    transition:
+      color 150ms ease,
+      transform 150ms ease;
   }
   a:hover,
   a:focus-visible {
     color: var(--accent);
+    transform: translateX(4px);
+  }
+  a:active {
+    transform: translateX(2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    a {
+      transition: none;
+    }
+    a:hover,
+    a:focus-visible,
+    a:active {
+      transform: none;
+    }
   }
 `;
 const MenuTalk = styled(TalkToMeButton)`
@@ -119,6 +173,14 @@ interface Props {
 }
 
 export function MobileMenu({ open, onClose, triggerRef }: Props) {
+  const [projectsExpanded, setProjectsExpanded] = useState(false);
+  const [readyProjects, setReadyProjects] = useState<string[]>([]);
+  useLayoutEffect(() => {
+    if (!open) {
+      setProjectsExpanded(false);
+      setReadyProjects([]);
+    }
+  }, [open]);
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const { navigate } = useRouteTransition();
@@ -165,6 +227,29 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
     },
   };
 
+  const projectMotion: Variants = {
+    closed: {
+      height: 0,
+      opacity: 0,
+      transition: {
+        duration: reduced ? 0 : 0.22,
+        when: 'afterChildren',
+        staggerChildren: reduced ? 0 : 0.035,
+        staggerDirection: -1,
+      },
+      transitionEnd: { visibility: 'hidden' },
+    },
+    open: {
+      height: 'auto',
+      opacity: 1,
+      visibility: 'visible',
+      transition: {
+        duration: reduced ? 0 : 0.28,
+        when: 'beforeChildren',
+        staggerChildren: reduced ? 0 : 0.045,
+      },
+    },
+  };
   const handleNavigation = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
       if (!isEligibleInternalClick(event, event.currentTarget, window.location.origin))
@@ -226,23 +311,70 @@ export function MobileMenu({ open, onClose, triggerRef }: Props) {
           <Links aria-label={ui.menu.navigation}>
             {nav.links.map((link) => (
               <div key={link.href}>
-                <MenuLink
-                  href={`/${link.href}`}
-                  variants={linkMotion}
-                  onClick={handleNavigation}
-                >
-                  {link.label}
-                </MenuLink>
-                {link.href === '#work' && (
-                  <ProjectLinks aria-label={nav.links[0].label}>
-                    {content.projects.map((project) => (
-                      <li key={project.slug}>
-                        <a href={`/#work-${project.slug}`} onClick={handleNavigation}>
-                          {project.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ProjectLinks>
+                {link.href === '#work' ? (
+                  <>
+                    <ProjectsButton
+                      type="button"
+                      variants={linkMotion}
+                      aria-expanded={projectsExpanded}
+                      aria-controls="mobile-project-links"
+                      onClick={() => {
+                        setReadyProjects([]);
+                        setProjectsExpanded((expanded) => !expanded);
+                      }}
+                    >
+                      {link.label}
+                      <span aria-hidden="true">{projectsExpanded ? '−' : '+'}</span>
+                    </ProjectsButton>
+                    <ProjectLinks
+                      id="mobile-project-links"
+                      aria-label={link.label}
+                      aria-hidden={!projectsExpanded}
+                      variants={projectMotion}
+                      initial="closed"
+                      animate={projectsExpanded ? 'open' : 'closed'}
+                    >
+                      {content.projects.map((project) => (
+                        <motion.li
+                          key={project.slug}
+                          variants={linkMotion}
+                          onAnimationComplete={(definition) => {
+                            if (definition === 'open' && projectsExpanded) {
+                              setReadyProjects((ready) =>
+                                ready.includes(project.slug)
+                                  ? ready
+                                  : [...ready, project.slug],
+                              );
+                            }
+                          }}
+                        >
+                          <a
+                            href={
+                              projectsExpanded && readyProjects.includes(project.slug)
+                                ? `/#work-${project.slug}`
+                                : undefined
+                            }
+                            tabIndex={
+                              projectsExpanded && readyProjects.includes(project.slug)
+                                ? 0
+                                : -1
+                            }
+                            onClick={handleNavigation}
+                          >
+                            {project.name}
+                          </a>
+                        </motion.li>
+                      ))}
+                    </ProjectLinks>
+                  </>
+                ) : (
+                  <MenuLink
+                    href={`/${link.href}`}
+                    variants={linkMotion}
+                    onClick={handleNavigation}
+                  >
+                    {link.label}
+                  </MenuLink>
                 )}
               </div>
             ))}

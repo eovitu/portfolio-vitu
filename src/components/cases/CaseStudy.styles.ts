@@ -238,7 +238,13 @@ export const ControlButton = styled.button`
   font: 400 16px/1 ${({ theme }) => theme.fonts.mono};
   letter-spacing: 0.14em;
   cursor: pointer;
-  transition: border-color 180ms ease;
+  transition: opacity 150ms ease;
+  &:hover {
+    opacity: 0.85;
+  }
+  &:active {
+    opacity: 0.65;
+  }
 
   &:hover,
   &:focus-visible {

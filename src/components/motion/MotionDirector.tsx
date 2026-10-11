@@ -80,8 +80,8 @@ export function MotionDirector({ children }: { children: ReactNode }) {
         reduced: prefersReducedMotion(),
       }),
     );
-    setRevealing(false);
-    setReleased(false);
+    setRevealing(isReloadNavigation() && !getGhostLayer());
+    setReleased(isReloadNavigation() && !getGhostLayer());
   }, []);
   const [introReady, setIntroReady] = useState(false);
   const onReveal = useCallback(() => setRevealing(true), []);
@@ -91,13 +91,20 @@ export function MotionDirector({ children }: { children: ReactNode }) {
   const skewSetters = useRef<Array<(value: number) => void>>([]);
   const lastScrollY = useRef(0);
   const reloadGhosts = Boolean(getGhostLayer());
-  const { stop, start } = useSmoothScroll();
+  const { stop, start, scrollToImmediate } = useSmoothScroll();
+  const introLocked = useRef(false);
   const onIntroLock = useCallback(() => {
-    stop();
+    if (!introLocked.current) {
+      introLocked.current = true;
+      stop();
+    }
     onReveal();
   }, [onReveal, stop]);
   const onIntroRelease = useCallback(() => {
-    start();
+    if (introLocked.current) {
+      introLocked.current = false;
+      start();
+    }
     onRelease();
   }, [onRelease, start]);
 
@@ -108,6 +115,7 @@ export function MotionDirector({ children }: { children: ReactNode }) {
   useSingularityIntro(reloadGhosts && introReady, {
     onLock: onIntroLock,
     onRelease: onIntroRelease,
+    onRestore: scrollToImmediate,
   });
 
   useEffect(() => {

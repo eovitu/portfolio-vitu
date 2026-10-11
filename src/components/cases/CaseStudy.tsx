@@ -56,7 +56,7 @@ export function CaseStudy({
       data-project={project.slug}
       data-layout={PROJECT_THEMES[project.slug].layout}
     >
-      <S.Hero data-warp data-gravity-section>
+      <S.Hero data-reload-section="case-hero" data-warp data-gravity-section>
         <S.Width>
           <S.Back
             href="/"
@@ -97,7 +97,7 @@ export function CaseStudy({
         </S.Width>
       </S.Hero>
 
-      <S.MediaStage>
+      <S.MediaStage data-reload-section="case-media" data-reload-target>
         <CaseMedia project={project} />
       </S.MediaStage>
 
@@ -113,7 +113,7 @@ export function CaseStudy({
         </Suspense>
       )}
 
-      <S.Body data-gravity-section>
+      <S.Body data-reload-section="case-body" data-gravity-section>
         <S.Sections>
           {project.sections.map((section) => (
             <S.Section key={section.title}>
@@ -122,7 +122,7 @@ export function CaseStudy({
             </S.Section>
           ))}
         </S.Sections>
-        <S.Outcome data-scroll-boundary>
+        <S.Outcome>
           <span>{copy.outcome}</span>
           <p>{project.outcome}</p>
         </S.Outcome>
@@ -142,7 +142,12 @@ export function CaseStudy({
         ) : null}
       </S.Body>
 
-      <S.Nav aria-label={copy.navigation} data-gravity-section>
+      <S.Nav
+        data-reload-section="case-navigation"
+        data-reload-target
+        aria-label={copy.navigation}
+        data-gravity-section
+      >
         <a
           href={hrefForCase(previous.slug)}
           data-transition-project={previous.slug}
