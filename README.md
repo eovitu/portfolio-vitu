@@ -1,76 +1,70 @@
-# devitu, Victor Hugo's portfolio
+# eovitu, portfólio de Victor Hugo Araujo
 
-A portfolio for backend and product engineering, built around four case studies and a persistent procedural black hole. The homepage combines large typography, distinct project colors, an engineering profile and direct contact.
+Portfólio de Victor Hugo Araujo, também conhecido como Vitu ou eovitu, em [www.eovitu.com.br](https://www.eovitu.com.br). Apresenta contribuições em backend e interfaces por meio de quatro cases, com textos em português e inglês. O português é o idioma inicial; a preferência salva de inglês é restaurada após a hidratação.
 
-## Run locally
+## Executar localmente
 
-Use Node.js 22.6 or later (CI uses Node 22) and npm.
+Use Node.js 22.6 ou superior e npm. A integração contínua usa Node 22.
 
 ```bash
 npm ci --legacy-peer-deps
 npm run dev
 ```
 
-Open the localhost URL printed by Vite. No API keys or environment variables are required for the portfolio. The conversation panel uses local curated responses, not an AI service. Email links open the visitor's email application.
+Abra a URL indicada pelo Vite. O portfólio não exige chaves de API nem variáveis de ambiente. O painel de conversa usa respostas locais; links de e-mail abrem o aplicativo do visitante.
 
-## Commands
+| Comando                | Finalidade                                       |
+| ---------------------- | ------------------------------------------------ |
+| `npm run dev`          | Desenvolvimento com recarga de módulos           |
+| `npm test`             | Testes Node de conteúdo, rotas, motion e mídia   |
+| `npm run typecheck`    | Verificação TypeScript                           |
+| `npm run lint`         | Verificação ESLint                               |
+| `npm run format:check` | Verificação Prettier                             |
+| `npm run build`        | Tipos, bundles e HTML pré-renderizado em `dist/` |
+| `npm run preview`      | Servir o build local                             |
 
-| Command                | Purpose                                                     |
-| ---------------------- | ----------------------------------------------------------- |
-| `npm run dev`          | Local development with hot reload                           |
-| `npm test`             | Node tests for content, routing, motion and media contracts |
-| `npm run typecheck`    | TypeScript validation                                       |
-| `npm run lint`         | ESLint checks                                               |
-| `npm run format:check` | Repository formatting checks                                |
-| `npm run build`        | Validate types and generate route HTML in `dist/`           |
-| `npm run preview`      | Serve the production output locally                         |
+Os testes de contratos de fonte não substituem a revisão em navegador. O [estado atual e os limites de validação](docs/STATUS.md) identificam qual rodada foi verificada.
 
-Run all checks before opening a pull request. CI installs from the lockfile and checks types, lint, tests, formatting and build. Some tests inspect source contracts; they do not replace browser testing.
+## Conteúdo e navegação
 
-## Projects and routes
+| Rota                    | Conteúdo                                                          |
+| ----------------------- | ----------------------------------------------------------------- |
+| `/`                     | Abertura, projetos, perfil, sobre e contato                       |
+| `/work/emprega-co`      | Projeto voluntário de ONG em desenvolvimento; pagamentos de teste |
+| `/work/torneio-pebolim` | Projeto pessoal de torneios                                       |
+| `/work/doces-da-pati`   | Vitrine de confeitaria para cliente                               |
+| `/work/helppet`         | Projeto acadêmico, com contribuição no gateway Java               |
 
-| Route                   | Project                                         | Status                     |
-| ----------------------- | ----------------------------------------------- | -------------------------- |
-| `/`                     | Home, selected work, profile, about and contact | Portfolio                  |
-| `/work/emprega-co`      | Candidate and employer journeys                 | NGO project in development |
-| `/work/torneio-pebolim` | Match events, standings and brackets            | Personal project           |
-| `/work/doces-da-pati`   | Confectionery storefront                        | Live client project        |
-| `/work/helppet`         | Pet-care product and API integration            | Academic build             |
+O menu de projetos oferece os quatro capítulos da home, inclusive a partir de um case ou da 404. No mobile, a lista começa recolhida e expande dentro do diálogo com controle de foco. Rotas diretas, âncoras e voltar/avançar do navegador fazem parte do contrato. O currículo editável está em `/cv/victor-hugo-backend.docx`; e-mail, LinkedIn e GitHub estão disponíveis no conteúdo.
 
-The Work disclosure and mobile project list link to all four home chapters, including when opened from a case or 404. A general editable résumé is available at `/cv/victor-hugo-backend.docx`; direct email, LinkedIn and GitHub remain available.
+Os quatro vídeos começam pelos posters e exigem reprodução explícita. A fonte MP4 só é anexada após play. Vídeos pausam fora da área visível ou ao ocultar a aba, sem retomada automática. Os cases oferecem busca, nova tentativa e fullscreen. HelpPet usa telas recriadas e dados demonstrativos.
 
-Unknown paths show a dedicated recovery page. The application supports direct case URLs, browser back/forward and section anchors.
+## Interface e implementação
 
-Four demonstration videos use explicit playback. HelpPet uses recreated screens and demonstration data; its case focuses on the Java gateway contribution. Public links are listed only when available in the project data.
+React 18, TypeScript e Vite 5 compõem a aplicação. styled-components define a apresentação; GSAP/ScrollTrigger e Lenis compartilham o relógio de animação. Motion cuida de transições de mídia, e Three.js com React Three Fiber forma a camada visual adiada.
 
-## Where to edit
+O scroll vertical atravessa as mudanças de cor continuamente. O teatro de projetos usa um palco sticky em desktops compatíveis e artigos no fluxo normal em telas menores ou movimento reduzido. A recarga reconstrói fragmentos da seção visível. O navegador restaura a posição inicialmente; durante a coreografia, o snapshot reconcilia a posição se a hidratação mudar a altura do documento. Um gesto encerra essa reconciliação. As poses existentes usam força 0,32 no scroll, 0,55 na chegada explícita e amplitude 25% maior na recarga, sem novos loops ou duração adicional. Diálogos e abertura mantêm seus bloqueios delimitados. Movimento reduzido usa scroll nativo e remove a coreografia espacial.
 
-- `src/lib/content.ts`: project descriptions, ownership, media paths, navigation and footer.
-- `src/components/home/`: hero, project chapters, profile, about and contact.
-- `src/components/cases/`: case layouts, project narratives and accessible film controls.
-- `src/components/navigation/`: compact header and mobile menu.
-- `src/components/conversation/` and `src/lib/conversation.ts`: the local contact panel and responses.
-- `src/motion/` and `src/hooks/`: transition state, shared motion signals and lifecycle hooks.
-- `src/three/`: procedural scene, rendering policy, camera and device quality settings.
-- `public/media/`: project videos and poster images.
-- `src/lib/site.ts`, `src/lib/metadata.ts` and `src/lib/seoHtml.ts`: production origin, route metadata and generated route documents. Keep `public/sitemap.xml`, `public/robots.txt` and `public/llms.txt` aligned when changing URLs.
+A foto de infância usa WebP responsivo e JPEG de fallback. A camada WebGL tem fallback estático, qualidade menor no mobile e pausa em aba oculta. Sem JavaScript, os documentos pré-renderizados mantêm conteúdo e links legíveis. Isso não garante os controles interativos sem JavaScript.
 
-## Design and performance
+Archivo 400/500 e JetBrains Mono 400 são fontes WOFF2 locais, com `swap` e licenças OFL em `public/fonts/`. Apenas Archivo recebe preload. O chunk adiado de Three.js ainda gera aviso de tamanho no build. As medições locais não comprovam performance em dispositivo real ou produção.
 
-React 18, TypeScript and Vite render the site, with styled-components for presentation. GSAP/ScrollTrigger and Lenis share the animation clock; Motion handles shared-media transitions. Three.js and React Three Fiber form the deferred visual layer.
+## Publicação e SEO
 
-Selected work uses one sticky stage on suitable desktops and ordinary stacked articles on smaller screens or under reduced motion. Each chapter has a different composition. Mobile navigation has its own color tokens, scrollable content, safe-area padding and keyboard focus handling.
+O build gera HTML da home, dos quatro cases e da 404, com metadados específicos antes de executar JavaScript. O domínio canônico é `https://www.eovitu.com.br`. `vercel.json` define cabeçalhos de segurança e cache; os documentos de rota e `404.html` atendem a navegação sem rewrite genérico. A 404 usa `noindex`.
 
-Wheel and touch briefly hold at color endings: forward aligns the viewport bottom with the flow color edge, while backward aligns its top. Sticky chapter holds use the actual active-band geometry. Color interiors, Contact and the page footer have no independent stops; unreachable scroll targets are discarded. Reduced motion and explicit navigation bypass the hold. Physical gesture and rendered viewport verification remain pending.
+Ao mudar URLs, alinhe `src/lib/site.ts`, metadados, `public/sitemap.xml`, `public/robots.txt` e `public/llms.txt`. Build local, publicação e verificação de produção são estados distintos. As evidências de motion atualizadas em 11/10 estão em docs/SECTION_MOTION_VALIDATION.md. Para confirmar publicação, compare o SHA da integração contínua com o deploy e o HTML servido.
 
-Posters remain visible until deliberate playback. No MP4 source is attached before play; videos pause outside the viewport or when the tab becomes hidden, without automatic resumption. Case controls support seeking, retry and fullscreen. The childhood photograph uses responsive WebP sources with the original JPEG as fallback. The WebGL scene has a static fallback, lower mobile rendering quality and a hidden-tab policy. Three.js stays in a separate deferred chunk; its size still produces a Vite warning. Do not interpret the main bundle size as the total download.
+## Documentação e manutenção
 
-## Deployment
+- [Estado atual](docs/STATUS.md): ponto de entrada e pendências.
+- [Arquitetura](docs/ARCHITECTURE.md): responsabilidades e contratos.
+- [Validação de motion por seção](docs/SECTION_MOTION_VALIDATION.md): medições e limites de 10/10.
+- [Guia editorial](docs/EDITORIAL.md): critérios de texto PT/EN.
+- [Validação histórica](docs/VALIDATION.md) e [SEO histórico](docs/SEO.md): evidências das rodadas anteriores.
 
-The production output is `dist/`. The build creates static HTML entry documents for home, each case route and the custom 404, with route-specific search/social metadata and structured data before JavaScript runs. `vercel.json` adds security and cache headers; static route documents and `404.html` provide routing without a catch-all rewrite. The canonical origin is `https://www.eovitu.com.br`. For another host, preserve clean directory URLs and custom-404 handling, then update the canonical origin and discovery files.
+`src/lib/content.ts` concentra projetos, autoria, mídia e ações públicas. Home e cases ficam em `src/components/`; motion em `src/motion/` e `src/hooks/`; a cena em `src/three/`; mídia em `public/media/`. A referência procedural está em `docs/reference/black-hole.html`.
 
-See [Architecture](docs/ARCHITECTURE.md) for motion ownership, data boundaries and verification limitations. The original procedural reference is retained at `docs/reference/black-hole.html` because its scene construction informs the renderer.
+## Licença
 
-## License
-
-MIT, see [LICENSE](LICENSE).
+MIT, conforme [LICENSE](LICENSE). As fontes mantêm suas próprias licenças OFL.

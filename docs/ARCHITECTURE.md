@@ -23,11 +23,11 @@ The Latin WOFF2 fonts are hosted in public/fonts: Archivo at weights 400 and 500
 
 ## Motion and scroll
 
-`SmoothScrollProvider` coordinates Lenis with GSAP and ScrollTrigger. The experience uses ordinary vertical document flow: there is no horizontal scrolling. Route transitions capture and restore explicit scroll positions, while reload and direct-link scrolling remain under native browser ownership. The first visit also has a bounded singularity entrance sequence with a fail-safe; repeat visits and reduced motion use shorter or static paths. Selected Work is the single bounded sticky exception: `SelectedWorkTheater` owns one CSS-sticky stage and four semantic chapters, then releases naturally into Engineering Profile. It has no independent pins; the shared provider owns the brief color-boundary holds. Motion supports hierarchy and continuity rather than delaying access to content.
+`SmoothScrollProvider` coordinates Lenis with GSAP and ScrollTrigger. The experience uses ordinary vertical document flow: there is no horizontal scrolling. Route transitions capture and restore explicit scroll positions, while direct-link scrolling remains under native browser ownership. On reload, native restoration starts first; the captured snapshot reconciles the position during the bounded intro when desktop theater hydration changes document height. A temporary root ResizeObserver disconnects on completion, user gesture, or cleanup. The first visit also has a bounded singularity entrance sequence with a fail-safe; repeat visits and reduced motion use shorter or static paths. Selected Work is the single bounded sticky exception: `SelectedWorkTheater` owns one CSS-sticky stage and four semantic chapters, then releases naturally into Engineering Profile. It has no independent pins; the shared provider owns smooth scrolling without color-boundary holds. Motion supports hierarchy and continuity rather than delaying access to content.
 
-The provider briefly holds wheel/touch at measured color edges. Flow edges align with the viewport bottom on forward travel and its top on backward travel. Enhanced theater switches instead use the `top top` / `bottom bottom` progress bands and a half-pixel margin on the current color side. The first and last theater edges remain ordinary flow edges. Contact, footer and whole-page wrappers are not markers; offsets outside the real Lenis scroll range are discarded. A new gesture after 180 ms releases a hold; explicit navigation and native zoom cancel it.
+The provider uses the existing Lenis duration, easing and wheel/touch multipliers, with one shared GSAP ticker and ScrollTrigger updates. Wheel and touch scroll continuously across color transitions; no color markers, gesture holds or boundary snapping remain. Counted locks still pause scrolling for dialogs and the entrance sequence, and explicit navigation retains its existing layout-based targets.
 
-All essential content remains visible under `prefers-reduced-motion: reduce`. WebGL animation and color holds are disabled there rather than merely slowed down.
+All essential content remains visible under `prefers-reduced-motion: reduce`. WebGL animation is disabled there, and scrolling remains native.
 
 ## Case studies and media
 
@@ -69,3 +69,11 @@ The project still uses Vite 5. Toolchain upgrades require a separate compatibili
 review of manual chunking and the lazy canvas. Run `npm audit` before scheduling
 that work; historical audit counts are not a current security guarantee.
 Browser viewport checks do not establish real-device FPS or Safari compatibility.
+
+## Section choreography and reload
+
+`sectionChoreography.ts` owns identity and timing policy for hero, project chapters, profile, about and contact. Reload snapshots preserve route, section and scroll position. Native restoration remains authoritative; visible fragments are captured once and reconstructed at that destination. Missing or invalid snapshots release readable content through the bounded fail-safe (3.2 seconds maximum).
+
+Scroll reveals and explicit navigation arrivals reuse that policy at reduced intensity. `sectionArrivalOwnership.ts` cancels the previous owner of overlapping fragments; individual CSS transforms leave the existing reveal/skew transforms intact. Wheel, touch, keyboard navigation, resize, locale and reduced-motion changes clean up active arrivals. Mobile Projects starts collapsed, expands within the focus-trapped dialog and resets when the dialog closes. Reduced motion removes spatial choreography.
+
+The four 1920×1080 WebP posters were regenerated from frame 00:02.000 of the existing MP4 files on 10 October 2026. Video bytes are unchanged. Extraction evidence and local validation are recorded in `docs/SECTION_MOTION_VALIDATION.md`.

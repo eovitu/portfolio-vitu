@@ -1,5 +1,7 @@
 # Portfolio backend Implementation Plan
 
+> **Plano histórico de 8/10/2026.** Preserva decisões e limites daquela entrega. Não representa a execução nem a autorização da frente de 10/10. Consulte [o estado atual](../../STATUS.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. Steps use checkbox syntax for tracking.
 
 **Goal:** Comunicar competências reais de backend em PT/EN, preservando a identidade visual e adicionando Pebolim, quatro vídeos e acesso aos capítulos pela navegação.

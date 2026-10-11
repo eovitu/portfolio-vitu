@@ -1,6 +1,8 @@
 # SEO: validação local e produção
 
-Estado atual de 9/10: PR #14 publicada; E revertido por PR #15 conforme critério de cobertura sem JS; Pebolim incluído por PR #16. Evidência de produção e pendências no final deste documento. As seções anteriores são registros históricos.
+> **Registro histórico.** Os resultados e as autorizações abaixo pertencem às datas indicadas. Consulte [o estado atual](STATUS.md), [a arquitetura](ARCHITECTURE.md) e [a validação de motion de 10/10](SECTION_MOTION_VALIDATION.md). Contratos antigos, como autoplay e alinhamento de scroll, foram substituídos; as evidências originais foram preservadas.
+
+Estado registrado em 9/10: PR #14 publicada; E revertido por PR #15 conforme critério de cobertura sem JS; Pebolim incluído por PR #16. Evidência de produção e pendências no final deste documento. As seções anteriores são registros históricos.
 
 Data: 8 de outubro de 2026. Branch local `wip/seo-prerender`, WIP `a79192a` protegendo a implementação SEO anterior. As correções desta rodada permanecem no diff local. Nenhum push, alteração da PR #14, merge ou deploy. Nenhuma dependência nova, conta ou credencial. Trabalho sequencial, sem subagentes.
 
